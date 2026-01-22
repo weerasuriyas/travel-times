@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { MapPin, ArrowUpRight, ChevronRight, Share2, Eye, Calendar, Clock, ArrowLeft } from 'lucide-react';
+import { MapPin, ArrowUpRight, ChevronRight, Share2, Eye, Calendar, Clock, ArrowLeft, Layers, Flame, Compass, Info, Star } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { SectionHeader } from '../components/UI';
@@ -134,40 +134,90 @@ const ArticlePage = ({ setCurrentPage, peraheraImg }) => {
                 </div>
 
                 {/* Article Content */}
-                <article className="max-w-3xl mx-auto px-6 font-serif text-lg leading-[1.8] text-stone-800 space-y-8 mb-24">
-                    <div className="flex items-center space-x-4 text-[11px] font-sans font-black uppercase tracking-[0.2em] text-stone-400 border-b border-stone-100 pb-8 mb-8">
-                        <span className="flex items-center"><Calendar size={14} className="mr-2" /> July 14, 2026</span>
-                        <span>•</span>
-                        <span className="flex items-center"><Clock size={14} className="mr-2" /> 4:00 PM</span>
-                    </div>
+                {/* Visual Plates Section */}
+                <section className="px-6 max-w-7xl mx-auto mb-20 relative z-20">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+                        <div className="bg-white p-4 rounded-[40px] shadow-2xl border border-stone-100 lg:col-span-1">
+                            <img src="https://placehold.co/600x800?text=Detail+1" loading="lazy" className="w-full aspect-[3/4] object-cover rounded-[32px]" alt="Procession Detail 1" />
+                            <div className="mt-4 px-6 flex justify-between items-center pb-2">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-stone-400 italic">Plate 01: Emblems</p>
+                                <Layers size={14} className="text-stone-300" />
+                            </div>
+                        </div>
 
-                    <p className="first-letter:text-7xl first-letter:font-black first-letter:mr-3 first-letter:float-left first-letter:leading-none">
-                        The air in Kandy is different. It holds the weight of centuries, a thick, humid embrace that smells of jasmine, burning copra, and rain on hot asphalt.
-                    </p>
-                    <p>
-                        Every year, when the moon is full in Esala, the city transforms. It is no longer just a bustling hill capital; it becomes a stage for the gods. The Kandy Esala Perahera is not merely a procession; it is a living, breathing artery of Sri Lankan culture, pumping rhythm and fire through the streets.
-                    </p>
-                    <blockquote className="border-l-4 border-[#00E676] pl-6 py-2 my-10 text-2xl italic text-stone-900 font-bold bg-stone-50 rounded-r-xl">
-                        "To witness the Perahera is to see the soul of the island revealed in fire and sound."
-                    </blockquote>
-                    <p>
-                        We arrived in the late afternoon, securing our spots on the balcony of the Queen's Hotel. Below us, the streets were already a sea of people. Vendors sold spiced chickpeas and lotus flowers. The anticipation was electric, a physical vibration in the air.
-                    </p>
-                    <p>
-                        Then, the first crack of the whip. The sound cut through the humid air like a gunshot, signaling the arrival of the whip crackers, clearing the path for the sanctity that was to follow.
-                    </p>
-                    <p>
-                         What followed was a cascade of light. Fireball dancers spun their copra torches, creating wheels of flame that illuminated the faces of the crowd. intricate patterns of light that danced against the colonial white walls of the city. The heat from the torches wafted up to us, carrying the scent of coconut oil and charcoal.
-                    </p>
-                    <p>
-                        And then, the drums. The deep, resonant thrum of the Geta Bera, the traditional Kandyan drum, began to pound in our chests. It is a rhythm that has echoed in these hills for kings and conquerors alike.
-                    </p>
-                    <p>
-                        But the true monarchs of the night were the elephants. Adorned in velvet mantles embroidered with gold and silver thread, they moved with a slow, majestic grace. Chains of LED lights were woven into their regalia, making them look like constellations moving through the dark.
-                    </p>
-                    <p>
-                        The climax of the procession brought a hush to the thousands watching. The Maligawa Tusker, the largest and most noble of them all, emerged from the haze. Upon his back, he bore the golden casket containing the sacred Tooth Relic of the Buddha. As he passed, heads bowed, and hands joined in prayer. In that moment, the spectacle ceased to be a performance and returned to what it has always been: a profound act of devotion.
-                    </p>
+                        <div className="bg-[#FFD600] p-4 rounded-[40px] shadow-2xl lg:col-span-1 flex flex-col">
+                            <img src="https://placehold.co/600x800?text=Detail+2" loading="lazy" className="w-full aspect-[3/4] object-cover rounded-[32px]" alt="Procession Detail 2" />
+                            <div className="mt-4 px-6 flex justify-between items-center pb-2">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-stone-950 italic">Plate 02: Rituals</p>
+                                <Flame size={14} className="text-stone-950" />
+                            </div>
+                        </div>
+
+                        <div className="bg-stone-950 p-4 rounded-[40px] shadow-2xl lg:col-span-1 flex flex-col">
+                            <img src="https://placehold.co/600x800?text=Detail+3" loading="lazy" className="w-full aspect-[3/4] object-cover rounded-[32px]" alt="Procession Detail 3" />
+                            <div className="mt-4 px-6 flex justify-between items-center text-white pb-2">
+                                <p className="text-[10px] font-black uppercase tracking-widest opacity-60 italic">Plate 03: The Guard</p>
+                                <Compass size={14} className="text-[#00E676]" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Article Content */}
+                <article className="max-w-4xl mx-auto px-6 pb-20">
+                    <div className="font-serif text-2xl md:text-3xl leading-[1.8] text-stone-800 space-y-12">
+                        <p className="first-letter:text-9xl first-letter:font-black first-letter:float-left first-letter:mr-6 first-letter:leading-none first-letter:text-[#FF3D00]">
+                            The historic ‘Esala Perahera’ in Kandy, one of the oldest and grandest Cultural festivals in Sri Lanka, perhaps, in the world started on Friday, 29 July with the cap planting (‘cap situveema’). This will continue for 15 days with four Devala Peraheras, Kumbal Perahera and colourful Randoli followed by ‘day perahera’ on Friday, 12th August.
+                        </p>
+
+                        <p>
+                            This year’s ‘Esala Perehara’ is the first grand pageant after two years with no restrictions due to Covid Pandemic but blessed with heavy showers and bad weather. Despite the warning of re-emerging of Covid threat massive crowds turned up for the Kumbal Perhaera on Tuesday and Wednesday.
+                        </p>
+
+                        <div className="bg-white border-l-8 border-[#00E676] p-12 my-20 shadow-2xl rounded-r-[40px] not-italic">
+                            <p className="font-sans text-[12px] font-black uppercase tracking-[0.4em] text-[#00E676] mb-6 flex items-center">
+                                <Info size={18} className="mr-3" /> Global Draw
+                            </p>
+                            <p className="font-serif text-3xl md:text-4xl text-black leading-snug italic">
+                                "‘Esala Perahera’, for centuries, has drawn religious devotees from around the world and more recently tourists, to Kandy’s narrow hill-streets."
+                            </p>
+                        </div>
+
+                        <p>
+                            Heralded by thousands of Kandyan drummers, a host of majestic elephants, adorned in elaborately embroidered cloaks, are led by the brilliantly caparisoned Maligawa Tusker. Decorated from trunk to toe, he carries a huge canopy that shelters, a replica of the cask containing the Sacred Tooth Relic of the Lord Buddha.
+                        </p>
+
+                        <div className="my-24 bg-stone-50 rounded-[60px] p-10 md:p-16 border border-stone-100 shadow-inner">
+                            <div className="flex items-center space-x-4 mb-10">
+                                <Star size={20} className="text-[#FFD600] fill-[#FFD600]" />
+                                <h3 className="text-sm font-black uppercase tracking-[0.4em] text-stone-400">The Top Attraction</h3>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                                <div className="space-y-8">
+                                    <div className="bg-[#FFD600] inline-block px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest text-black">Lead Tusker</div>
+                                    <h4 className="text-6xl font-black uppercase tracking-tighter italic leading-none">SINHA RAJA</h4>
+                                    <p className="font-serif italic text-xl text-stone-600 leading-relaxed text-left">
+                                        Carrying the golden Karanduwa, Sinha Raja is the top attraction of the Perahera this year.
+                                    </p>
+                                </div>
+
+                                <div className="bg-white p-10 rounded-[40px] border border-stone-100 shadow-xl space-y-6">
+                                    <p className="text-[12px] font-black uppercase tracking-[0.3em] text-stone-400">The Guard</p>
+                                    <p className="font-serif text-2xl text-stone-800 leading-tight">
+                                        "Flanked by <span className="text-black font-bold underline decoration-[#FFD600] decoration-4">Myan Raja</span> and <span className="text-black font-bold underline decoration-[#FFD600] decoration-4">Buruma Raja</span> on either side."
+                                    </p>
+                                    <div className="pt-6 border-t border-stone-50 flex items-center text-[11px] font-black uppercase tracking-[0.3em] text-[#00E676]">
+                                        <Compass size={16} className="mr-3" /> Sacred Formations
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p>
+                            The aged old tradition were never changed for the past 1500 years since 305 AD during the reign of King Kirthisiri Meghawanna (305-331 AD). After the Kandyan Kingdom fell to the British in 1815, the custody of the Relic was handed over to the Maha Sanga. In the absence of the king, a chief lay custodian ‘Diyawadana Nilame’ was appointed to handle routine administrative matters concerning the relic and its care.
+                        </p>
+                    </div>
                 </article>
 
                 <div className="max-w-[1800px] mx-auto px-4 md:px-6 mb-32">
@@ -203,10 +253,10 @@ const ArticlePage = ({ setCurrentPage, peraheraImg }) => {
                                 ))}
 
                                 {/* Perahera Route */}
-                                <Polyline 
-                                    positions={peraheraRoute} 
-                                    color="#FF3D00" 
-                                    dashArray="10, 10" 
+                                <Polyline
+                                    positions={peraheraRoute}
+                                    color="#FF3D00"
+                                    dashArray="10, 10"
                                     weight={4}
                                     className="perahera-route"
                                 >
