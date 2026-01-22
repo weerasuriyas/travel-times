@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react'
 import HomePage from './pages/HomePage'
 import ArticlePage from './pages/ArticlePage'
 
-const peraheraImg = "https://images.unsplash.com/photo-1590053951336-23b039401490?q=80&w=2954&auto=format&fit=crop";
+const peraheraImg = "https://images.unsplash.com/photo-1566766188646-5d0310191714?auto=format&fit=crop&q=80";
 const trainImg = "https://images.unsplash.com/photo-1566296314736-6eaac1ca0cb9?q=80&w=3402&auto=format&fit=crop";
-const teaImg = "https://images.unsplash.com/photo-1598006427306-056ef90772bb?q=80&w=2369&auto=format&fit=crop";
-const beachImg = "https://images.unsplash.com/photo-1588258524675-55d6563664d6?q=80&w=3347&auto=format&fit=crop";
-const templeImg = "https://images.unsplash.com/photo-1579017362035-7c85848bb226?q=80&w=3270&auto=format&fit=crop";
-const wildlifeImg = "https://images.unsplash.com/photo-1549480170-4384aa88254b?q=80&w=3024&auto=format&fit=crop";
-const surfImg = "https://images.unsplash.com/photo-1498165762695-177bf9415842?q=80&w=3270&auto=format&fit=crop";
-const foodImg = "https://images.unsplash.com/photo-1547922002-869277f98889?q=80&w=3270&auto=format&fit=crop";
-const marketImg = "https://images.unsplash.com/photo-1629837893110-ee6f09e735e5?q=80&w=2666&auto=format&fit=crop";
+const teaImg = "https://images.unsplash.com/photo-1586511623600-cb6f44f647d8?auto=format&fit=crop&q=80";
+const beachImg = "https://images.unsplash.com/photo-1646894232861-a0ad84f1ad5d?auto=format&fit=crop&q=80";
+const templeImg = "https://images.unsplash.com/photo-1695748394754-9a8f807f9568?auto=format&fit=crop&q=80";
+const wildlifeImg = "https://images.unsplash.com/photo-1661768508643-e260f6f8e06c?auto=format&fit=crop&q=80";
+const surfImg = "https://images.unsplash.com/photo-1581420456035-58b8efadcdea?auto=format&fit=crop&q=80";
+const foodImg = "https://images.unsplash.com/photo-1687688207113-34bea1617467?auto=format&fit=crop&q=80";
+const marketImg = "https://images.unsplash.com/photo-1743674453123-93356ade2891?auto=format&fit=crop&q=80";
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('feature');
