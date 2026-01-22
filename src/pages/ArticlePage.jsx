@@ -108,27 +108,54 @@ const ArticlePage = ({ setCurrentPage, peraheraImg }) => {
             </nav>
 
             <main className="pt-24 pb-32">
-                {/* Article Header */}
-                <header className="max-w-4xl mx-auto px-6 mb-16 text-center">
-                    <div className="flex justify-center space-x-4 mb-8">
-                        <span className="bg-[#00E676] text-white text-[10px] font-black uppercase tracking-[0.3em] px-4 py-1.5 rounded-sm">Culture</span>
-                        <span className="text-stone-400 text-[10px] font-black uppercase tracking-[0.3em] px-4 py-1.5 border border-stone-200 rounded-sm">8 Min Read</span>
-                    </div>
-                    <h1 className="text-4xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] md:leading-[0.85] italic mb-6 md:mb-10 text-stone-900">
-                        THE FIRE <br />OF KANDY.
-                    </h1>
-                    <p className="text-lg md:text-2xl font-serif italic text-stone-500 max-w-2xl mx-auto leading-relaxed">
-                        "We walked through the smoke of a thousand copra torches, following the rhythm of the drums into the heart of the ancient kingdom."
-                    </p>
-                </header>
-
-                {/* Hero Image */}
-                <div className="max-w-[1800px] mx-auto px-4 md:px-6 mb-20">
-                    <div className="aspect-[21/9] rounded-[24px] md:rounded-[48px] overflow-hidden shadow-2xl relative group">
+                {/* Hero Section with Overlay */}
+                <div className="max-w-[1800px] mx-auto px-4 md:px-6 mb-16 md:mb-20">
+                    <div className="aspect-[3/4] md:aspect-[21/9] rounded-[24px] md:rounded-[48px] overflow-hidden shadow-2xl relative group">
                         <img src={peraheraImg} className="w-full h-full object-cover" alt="Kandy Perahera" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                        <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 text-white/80 text-[8px] md:text-[10px] uppercase tracking-widest font-black">
-                            Photograph by S. Weerasuriya • Kandy, 2025
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                        
+                        {/* Overlay Content */}
+                        <div className="absolute inset-0 flex flex-col justify-end items-center text-center p-8 md:p-20 pb-16 md:pb-24">
+                            <div className="flex justify-center space-x-4 mb-6 md:mb-8 animate-in slide-in-from-bottom duration-700 fade-in">
+                                <span className="bg-[#00E676] text-white text-[10px] font-black uppercase tracking-[0.3em] px-4 py-1.5 rounded-sm">Culture</span>
+                                <span className="text-white/80 text-[10px] font-black uppercase tracking-[0.3em] px-4 py-1.5 border border-white/20 rounded-sm">8 Min Read</span>
+                            </div>
+                            
+                            <h1 className="text-5xl md:text-9xl font-black uppercase tracking-tighter leading-[0.9] md:leading-[0.8] italic mb-6 md:mb-10 text-white drop-shadow-2xl animate-in slide-in-from-bottom duration-1000 fade-in delay-100">
+                                THE FIRE <br />OF KANDY.
+                            </h1>
+                            
+                            <p className="text-lg md:text-3xl font-serif italic text-white/90 max-w-4xl mx-auto leading-relaxed drop-shadow-lg animate-in slide-in-from-bottom duration-1000 fade-in delay-200">
+                                "We walked through the smoke of a thousand copra torches, following the rhythm of the drums into the heart of the ancient kingdom."
+                            </p>
+
+                            <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 text-white/40 text-[8px] md:text-[10px] uppercase tracking-widest font-black hidden md:block">
+                                Photograph by S. Weerasuriya • Kandy, 2025
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Author Metadata */}
+                <div className="max-w-4xl mx-auto px-6 mb-20">
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-6 text-stone-900">
+                        <div className="bg-white border border-stone-200 px-6 md:px-8 py-3 md:py-4 rounded-2xl flex flex-col items-center min-w-[140px] md:min-w-[180px] shadow-sm">
+                            <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] text-stone-400 mb-1">Author</p>
+                            <p className="text-xs md:text-sm font-black uppercase tracking-widest">Sanath Weerasuriya</p>
+                        </div>
+
+                        <div className="bg-white border border-stone-200 px-6 md:px-8 py-3 md:py-4 rounded-2xl flex flex-col items-center min-w-[140px] md:min-w-[180px] shadow-sm">
+                            <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] text-stone-400 mb-1">Location</p>
+                            <p className="text-xs md:text-sm font-black uppercase tracking-widest flex items-center">
+                                <MapPin size={12} className="mr-2 text-[#00E676]" /> Kandy, Sri Lanka
+                            </p>
+                        </div>
+
+                        <div className="bg-white border border-stone-200 px-6 md:px-8 py-3 md:py-4 rounded-2xl flex flex-col items-center min-w-[140px] md:min-w-[180px] shadow-sm">
+                            <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] text-stone-400 mb-1">Read Time</p>
+                            <p className="text-xs md:text-sm font-black uppercase tracking-widest flex items-center">
+                                <Clock size={12} className="mr-2 text-[#FF3D00]" /> 8 Min Read
+                            </p>
                         </div>
                     </div>
                 </div>
