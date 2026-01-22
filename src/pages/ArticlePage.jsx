@@ -110,10 +110,10 @@ const ArticlePage = ({ setCurrentPage, peraheraImg }) => {
             <main className="pt-32 md:pt-24 pb-32">
                 {/* Hero Section with Overlay */}
                 <div className="max-w-[1800px] mx-auto px-4 md:px-6 mb-16 md:mb-20">
-                    <div className="aspect-[3/4] md:aspect-[21/9] rounded-[24px] md:rounded-[48px] overflow-hidden shadow-2xl relative group">
+                    <div className="aspect-[4/5] md:aspect-[21/9] rounded-[24px] md:rounded-[48px] overflow-hidden shadow-2xl relative group">
                         <img 
                             src={peraheraImg} 
-                            className="w-full h-full object-cover object-bottom scale-125 md:scale-100 origin-bottom transition-transform duration-700" 
+                            className="w-full h-full object-cover object-bottom scale-[1.75] md:scale-100 origin-bottom transition-transform duration-700" 
                             alt="Kandy Perahera" 
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
