@@ -114,20 +114,20 @@ const ArticlePage = ({ setCurrentPage, peraheraImg }) => {
                         <span className="bg-[#00E676] text-white text-[10px] font-black uppercase tracking-[0.3em] px-4 py-1.5 rounded-sm">Culture</span>
                         <span className="text-stone-400 text-[10px] font-black uppercase tracking-[0.3em] px-4 py-1.5 border border-stone-200 rounded-sm">8 Min Read</span>
                     </div>
-                    <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.85] italic mb-10 text-stone-900">
+                    <h1 className="text-4xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] md:leading-[0.85] italic mb-6 md:mb-10 text-stone-900">
                         THE FIRE <br />OF KANDY.
                     </h1>
-                    <p className="text-xl md:text-2xl font-serif italic text-stone-500 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-lg md:text-2xl font-serif italic text-stone-500 max-w-2xl mx-auto leading-relaxed">
                         "We walked through the smoke of a thousand copra torches, following the rhythm of the drums into the heart of the ancient kingdom."
                     </p>
                 </header>
 
                 {/* Hero Image */}
                 <div className="max-w-[1800px] mx-auto px-4 md:px-6 mb-20">
-                    <div className="aspect-[21/9] rounded-[48px] overflow-hidden shadow-2xl relative group">
+                    <div className="aspect-[21/9] rounded-[24px] md:rounded-[48px] overflow-hidden shadow-2xl relative group">
                         <img src={peraheraImg} className="w-full h-full object-cover" alt="Kandy Perahera" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                        <div className="absolute bottom-10 left-10 text-white/80 text-[10px] uppercase tracking-widest font-black">
+                        <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 text-white/80 text-[8px] md:text-[10px] uppercase tracking-widest font-black">
                             Photograph by S. Weerasuriya • Kandy, 2025
                         </div>
                     </div>
@@ -137,25 +137,25 @@ const ArticlePage = ({ setCurrentPage, peraheraImg }) => {
                 {/* Visual Plates Section */}
                 <section className="px-6 max-w-7xl mx-auto mb-20 relative z-20">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-                        <div className="bg-white p-4 rounded-[40px] shadow-2xl border border-stone-100 lg:col-span-1">
-                            <img src="https://placehold.co/600x800?text=Detail+1" loading="lazy" className="w-full aspect-[3/4] object-cover rounded-[32px]" alt="Procession Detail 1" />
-                            <div className="mt-4 px-6 flex justify-between items-center pb-2">
+                        <div className="bg-white p-4 rounded-[32px] md:rounded-[40px] shadow-xl md:shadow-2xl border border-stone-100 lg:col-span-1">
+                            <img src="https://placehold.co/600x800?text=Detail+1" loading="lazy" className="w-full aspect-[3/4] object-cover rounded-[24px] md:rounded-[32px]" alt="Procession Detail 1" />
+                            <div className="mt-4 px-4 md:px-6 flex justify-between items-center pb-2">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-stone-400 italic">Plate 01: Emblems</p>
                                 <Layers size={14} className="text-stone-300" />
                             </div>
                         </div>
 
-                        <div className="bg-[#FFD600] p-4 rounded-[40px] shadow-2xl lg:col-span-1 flex flex-col">
-                            <img src="https://placehold.co/600x800?text=Detail+2" loading="lazy" className="w-full aspect-[3/4] object-cover rounded-[32px]" alt="Procession Detail 2" />
-                            <div className="mt-4 px-6 flex justify-between items-center pb-2">
+                        <div className="bg-[#FFD600] p-4 rounded-[32px] md:rounded-[40px] shadow-xl md:shadow-2xl lg:col-span-1 flex flex-col">
+                            <img src="https://placehold.co/600x800?text=Detail+2" loading="lazy" className="w-full aspect-[3/4] object-cover rounded-[24px] md:rounded-[32px]" alt="Procession Detail 2" />
+                            <div className="mt-4 px-4 md:px-6 flex justify-between items-center pb-2">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-stone-950 italic">Plate 02: Rituals</p>
                                 <Flame size={14} className="text-stone-950" />
                             </div>
                         </div>
 
-                        <div className="bg-stone-950 p-4 rounded-[40px] shadow-2xl lg:col-span-1 flex flex-col">
-                            <img src="https://placehold.co/600x800?text=Detail+3" loading="lazy" className="w-full aspect-[3/4] object-cover rounded-[32px]" alt="Procession Detail 3" />
-                            <div className="mt-4 px-6 flex justify-between items-center text-white pb-2">
+                        <div className="bg-stone-950 p-4 rounded-[32px] md:rounded-[40px] shadow-xl md:shadow-2xl lg:col-span-1 flex flex-col">
+                            <img src="https://placehold.co/600x800?text=Detail+3" loading="lazy" className="w-full aspect-[3/4] object-cover rounded-[24px] md:rounded-[32px]" alt="Procession Detail 3" />
+                            <div className="mt-4 px-4 md:px-6 flex justify-between items-center text-white pb-2">
                                 <p className="text-[10px] font-black uppercase tracking-widest opacity-60 italic">Plate 03: The Guard</p>
                                 <Compass size={14} className="text-[#00E676]" />
                             </div>
@@ -165,8 +165,8 @@ const ArticlePage = ({ setCurrentPage, peraheraImg }) => {
 
                 {/* Article Content */}
                 <article className="max-w-4xl mx-auto px-6 pb-20">
-                    <div className="font-serif text-2xl md:text-3xl leading-[1.8] text-stone-800 space-y-12">
-                        <p className="first-letter:text-9xl first-letter:font-black first-letter:float-left first-letter:mr-6 first-letter:leading-none first-letter:text-[#FF3D00]">
+                    <div className="font-serif text-lg md:text-3xl leading-[1.8] text-stone-800 space-y-8 md:space-y-12">
+                        <p className="first-letter:text-5xl md:first-letter:text-9xl first-letter:font-black first-letter:float-left first-letter:mr-3 md:first-letter:mr-6 first-letter:leading-none first-letter:text-[#FF3D00]">
                             The historic ‘Esala Perahera’ in Kandy, one of the oldest and grandest Cultural festivals in Sri Lanka, perhaps, in the world started on Friday, 29 July with the cap planting (‘cap situveema’). This will continue for 15 days with four Devala Peraheras, Kumbal Perahera and colourful Randoli followed by ‘day perahera’ on Friday, 12th August.
                         </p>
 
@@ -174,11 +174,11 @@ const ArticlePage = ({ setCurrentPage, peraheraImg }) => {
                             This year’s ‘Esala Perehara’ is the first grand pageant after two years with no restrictions due to Covid Pandemic but blessed with heavy showers and bad weather. Despite the warning of re-emerging of Covid threat massive crowds turned up for the Kumbal Perhaera on Tuesday and Wednesday.
                         </p>
 
-                        <div className="bg-white border-l-8 border-[#00E676] p-12 my-20 shadow-2xl rounded-r-[40px] not-italic">
-                            <p className="font-sans text-[12px] font-black uppercase tracking-[0.4em] text-[#00E676] mb-6 flex items-center">
-                                <Info size={18} className="mr-3" /> Global Draw
+                        <div className="bg-white border-l-4 md:border-l-8 border-[#00E676] p-8 md:p-12 my-12 md:my-20 shadow-xl md:shadow-2xl rounded-r-[24px] md:rounded-r-[40px] not-italic">
+                            <p className="font-sans text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] text-[#00E676] mb-4 md:mb-6 flex items-center">
+                                <Info size={16} className="mr-3" /> Global Draw
                             </p>
-                            <p className="font-serif text-3xl md:text-4xl text-black leading-snug italic">
+                            <p className="font-serif text-xl md:text-4xl text-black leading-snug italic">
                                 "‘Esala Perahera’, for centuries, has drawn religious devotees from around the world and more recently tourists, to Kandy’s narrow hill-streets."
                             </p>
                         </div>
@@ -187,27 +187,27 @@ const ArticlePage = ({ setCurrentPage, peraheraImg }) => {
                             Heralded by thousands of Kandyan drummers, a host of majestic elephants, adorned in elaborately embroidered cloaks, are led by the brilliantly caparisoned Maligawa Tusker. Decorated from trunk to toe, he carries a huge canopy that shelters, a replica of the cask containing the Sacred Tooth Relic of the Lord Buddha.
                         </p>
 
-                        <div className="my-24 bg-stone-50 rounded-[60px] p-10 md:p-16 border border-stone-100 shadow-inner">
-                            <div className="flex items-center space-x-4 mb-10">
-                                <Star size={20} className="text-[#FFD600] fill-[#FFD600]" />
-                                <h3 className="text-sm font-black uppercase tracking-[0.4em] text-stone-400">The Top Attraction</h3>
+                        <div className="my-16 md:my-24 bg-stone-50 rounded-[40px] md:rounded-[60px] p-8 md:p-16 border border-stone-100 shadow-inner">
+                            <div className="flex items-center space-x-4 mb-8 md:mb-10">
+                                <Star size={18} className="text-[#FFD600] fill-[#FFD600]" />
+                                <h3 className="text-xs md:text-sm font-black uppercase tracking-[0.4em] text-stone-400">The Top Attraction</h3>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-                                <div className="space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
+                                <div className="space-y-6 md:space-y-8">
                                     <div className="bg-[#FFD600] inline-block px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest text-black">Lead Tusker</div>
-                                    <h4 className="text-6xl font-black uppercase tracking-tighter italic leading-none">SINHA RAJA</h4>
-                                    <p className="font-serif italic text-xl text-stone-600 leading-relaxed text-left">
+                                    <h4 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic leading-none">SINHA RAJA</h4>
+                                    <p className="font-serif italic text-lg md:text-xl text-stone-600 leading-relaxed text-left">
                                         Carrying the golden Karanduwa, Sinha Raja is the top attraction of the Perahera this year.
                                     </p>
                                 </div>
 
-                                <div className="bg-white p-10 rounded-[40px] border border-stone-100 shadow-xl space-y-6">
-                                    <p className="text-[12px] font-black uppercase tracking-[0.3em] text-stone-400">The Guard</p>
-                                    <p className="font-serif text-2xl text-stone-800 leading-tight">
+                                <div className="bg-white p-6 md:p-10 rounded-[32px] md:rounded-[40px] border border-stone-100 shadow-xl space-y-6">
+                                    <p className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] text-stone-400">The Guard</p>
+                                    <p className="font-serif text-lg md:text-2xl text-stone-800 leading-tight">
                                         "Flanked by <span className="text-black font-bold underline decoration-[#FFD600] decoration-4">Myan Raja</span> and <span className="text-black font-bold underline decoration-[#FFD600] decoration-4">Buruma Raja</span> on either side."
                                     </p>
-                                    <div className="pt-6 border-t border-stone-50 flex items-center text-[11px] font-black uppercase tracking-[0.3em] text-[#00E676]">
+                                    <div className="pt-6 border-t border-stone-50 flex items-center text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] text-[#00E676]">
                                         <Compass size={16} className="mr-3" /> Sacred Formations
                                     </div>
                                 </div>
