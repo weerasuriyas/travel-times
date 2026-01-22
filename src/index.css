@@ -31,51 +31,93 @@
 
   /* Responsive hero typography clamps so the banner scales on any viewport */
   .hero-title {
-    font-size: clamp(2.4rem, 7.5vw, 9rem);
+    font-size: clamp(2.4rem, 8vw, 12rem);
     line-height: 0.82;
   }
 
   .hero-subtitle {
-    font-size: clamp(1.1rem, 3vw, 2.75rem);
+    font-size: clamp(1.1rem, 3vw, 3.5rem);
   }
 
   /* Fluid typography for the home cover so it auto-resizes */
   .fluid-headline-home {
-    font-size: clamp(3.5rem, 12vw, 10rem);
+    font-size: clamp(3.5rem, 12vw, 14rem);
     line-height: 0.78;
   }
 }
 
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes dynamicColor {
-  0% { color: #00E676; }
-  33% { color: #FF3D00; }
-  66% { color: #FFD600; }
-  100% { color: #00E676; }
+  0% {
+    color: #00E676;
+  }
+
+  33% {
+    color: #FF3D00;
+  }
+
+  66% {
+    color: #FFD600;
+  }
+
+  100% {
+    color: #00E676;
+  }
 }
 
 @keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
 }
 
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(0, 230, 118, 0.4), 0 0 40px rgba(0, 230, 118, 0.2); }
-  50% { box-shadow: 0 0 30px rgba(0, 230, 118, 0.6), 0 0 60px rgba(0, 230, 118, 0.3); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(0, 230, 118, 0.4), 0 0 40px rgba(0, 230, 118, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 30px rgba(0, 230, 118, 0.6), 0 0 60px rgba(0, 230, 118, 0.3);
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 10px rgba(255, 61, 0, 0.3); }
-  50% { box-shadow: 0 0 25px rgba(255, 61, 0, 0.6), 0 0 50px rgba(255, 61, 0, 0.3); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(255, 61, 0, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 25px rgba(255, 61, 0, 0.6), 0 0 50px rgba(255, 61, 0, 0.3);
+  }
 }
 
 .animate-marquee {
@@ -93,7 +135,7 @@
 
 .animate-shimmer {
   animation: shimmer 3s infinite;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   background-size: 1000px 100%;
 }
 
@@ -159,6 +201,7 @@
   isolation: isolate;
   contain: paint;
   -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
   transform: translateZ(0);
 }
 
@@ -168,6 +211,7 @@
     transform: translateY(-100%);
     opacity: 0;
   }
+
   100% {
     transform: translateY(0);
     opacity: 1;
@@ -181,9 +225,9 @@
 .smooth-header {
   will-change: padding, background-color;
   transition: padding 600ms cubic-bezier(0.4, 0, 0.2, 1),
-              background-color 600ms cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 600ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 600ms cubic-bezier(0.4, 0, 0.2, 1);
+    background-color 600ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 600ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 600ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .smooth-header * {
@@ -206,8 +250,13 @@
 
 /* Modern card animations */
 @keyframes card-shine {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
 }
 
 .card-shine::before {
@@ -217,12 +266,10 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(0, 230, 118, 0.1),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(0, 230, 118, 0.1),
+      transparent);
   background-size: 200% 100%;
   animation: card-shine 3s infinite;
   pointer-events: none;
@@ -236,8 +283,15 @@
 
 /* Selected marker animation */
 @keyframes marker-bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .selected-marker {
@@ -255,14 +309,28 @@
 
 /* Pulse animation for selected hotel card */
 @keyframes pulse-border {
-  0%, 100% { border-color: #00E676; box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.4); }
-  50% { border-color: #00E676; box-shadow: 0 0 0 8px rgba(0, 230, 118, 0); }
+
+  0%,
+  100% {
+    border-color: #00E676;
+    box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.4);
+  }
+
+  50% {
+    border-color: #00E676;
+    box-shadow: 0 0 0 8px rgba(0, 230, 118, 0);
+  }
 }
 
 /* Perahera route animation */
 @keyframes route-flow {
-  0% { stroke-dashoffset: 100; }
-  100% { stroke-dashoffset: 0; }
+  0% {
+    stroke-dashoffset: 100;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
 
 .leaflet-interactive.perahera-route {

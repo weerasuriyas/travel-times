@@ -79,11 +79,11 @@ const App = () => {
   const [parallaxOffset, setParallaxOffset] = useState(0);
 
   // Image Assets
-  const peraheraImg = "https://drive.google.com/thumbnail?id=1AxaQJY9HOmrP_fLVVcgP1t7U2tPU0fCq&sz=w2000";
-  const extraImg1 = "https://drive.google.com/thumbnail?id=1pndHSmEqTiHefI0yi4-E-BXLmr7g4ZFM&sz=w2000";
-  const extraImg2 = "https://drive.google.com/thumbnail?id=1ohyl4GaOFQVER_lrfEg8-q4ZEDG17DZ2&sz=w2000";
-  const extraImg3 = "https://drive.google.com/thumbnail?id=1NjhA-uqUVGKJ3VpCPLJGrtOkEpZVF9Ig&sz=w2000";
-  
+  const peraheraImg = "https://lh3.googleusercontent.com/d/1AxaQJY9HOmrP_fLVVcgP1t7U2tPU0fCq";
+  const extraImg1 = "https://placehold.co/600x800?text=Detail+1";
+  const extraImg2 = "https://placehold.co/600x800?text=Detail+2";
+  const extraImg3 = "https://placehold.co/600x800?text=Detail+3";
+
   const trainImg = "https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=2070&auto=format&fit=crop";
   const teaImg = "https://images.unsplash.com/photo-1512100356956-c1b47f4b8a21?q=80&w=1964&auto=format&fit=crop";
   const beachImg = "https://images.unsplash.com/photo-1559827260-dc66d52bef19?q=80&w=2070&auto=format&fit=crop";
@@ -220,22 +220,22 @@ const App = () => {
   );
 
   const InfoBanner = () => (
-    <div className="hidden sm:flex bg-white border-b border-stone-100 py-2 md:py-3.5 px-4 md:px-6 flex-wrap md:flex-nowrap justify-between items-center gap-4 text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em]">
-      <div className="flex items-center space-x-6 text-stone-500">
+    <div className="flex bg-white border-b border-stone-100 py-2 md:py-3.5 px-4 md:px-6 flex-wrap md:flex-nowrap justify-between items-center gap-2 md:gap-4 text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em]">
+      <div className="flex items-center space-x-4 md:space-x-6 text-stone-500 w-full md:w-auto justify-between md:justify-start">
         <span className="flex items-center">
-          <Globe size={12} className="mr-2 text-[#00E676] md:mr-2.5 md:w-[14px] md:h-[14px]" /> Dispatch: Sri Lanka
+          <Globe size={12} className="mr-2 text-[#00E676] md:mr-2.5 md:w-[14px] md:h-[14px]" /> <span className="hidden xs:inline">Dispatch: </span>Sri Lanka
         </span>
         <span className="hidden md:block opacity-30">|</span>
-        <span className="hidden md:block">Local Time: {currentTime}</span>
+        <span className="flex items-center"><span className="hidden xs:inline mr-2">Local Time:</span> {currentTime}</span>
       </div>
-      <button className="bg-black text-white px-4 md:px-5 py-1.5 md:py-2 rounded-full hover:bg-[#FF3D00] transition-all hover:scale-105 active:scale-95 shadow-lg hover-glow">Subscribe</button>
+      <button className="hidden md:block bg-black text-white px-4 md:px-5 py-1.5 md:py-2 rounded-full hover:bg-[#FF3D00] transition-all hover:scale-105 active:scale-95 shadow-lg hover-glow">Subscribe</button>
     </div>
   );
 
   const LiveBanner = () => (
-    <div className="hidden sm:flex bg-stone-950 text-white py-2 overflow-hidden whitespace-nowrap border-b border-white/10">
+    <div className="flex bg-stone-950 text-white py-2 overflow-hidden whitespace-nowrap border-b border-white/10">
       <div className="flex animate-marquee items-center text-[10px] font-black uppercase tracking-[0.3em]">
-        {[1,2,3,4].map((i) => (
+        {[1, 2, 3, 4].map((i) => (
           <React.Fragment key={i}>
             <span className="mx-8 text-[#00E676]">● DISPATCH FROM GALLE</span>
             <span className="mx-8">WEATHER: 29°C HUMID</span>
@@ -253,21 +253,21 @@ const App = () => {
       <header className={`fixed top-0 w-full z-50 smooth-header header-initial-animation ${isScrolled ? 'bg-white/95 backdrop-blur-xl border-b border-stone-100 shadow-sm' : 'bg-[#FDFDFB]'}`}>
         <InfoBanner />
         <LiveBanner />
-        <div className={`max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10 ${isScrolled ? 'py-4' : 'py-12 md:py-20'}`}>
+        <div className={`max-w-[1800px] mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-10 ${isScrolled ? 'py-4' : 'py-8 md:py-20'}`}>
           <div className="text-center md:text-left cursor-pointer transition-transform hover:scale-[1.02]" onClick={() => setCurrentPage('home')}>
             <h1 className={`${isScrolled ? 'text-2xl md:text-3xl' : 'text-5xl md:text-7xl'} font-black text-black uppercase tracking-tighter leading-[0.8] italic`}>
               TRAVEL<br />
               TIMES<span className="text-stone-300">.</span>
             </h1>
           </div>
-          <nav className="flex items-center space-x-6 md:space-x-10 text-[12px] md:text-[15px] font-black uppercase tracking-[0.2em]">
+          <nav className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 md:gap-10 text-[12px] md:text-[15px] font-black uppercase tracking-[0.2em]">
             {[
               { id: 'feature', label: 'Feature', icon: <Flame size={18} /> },
               { id: 'events', label: 'Journal', icon: <Calendar size={18} /> },
               { id: 'attractions', label: 'Maps', icon: <Compass size={18} /> },
               { id: 'todo', label: 'Gear', icon: <Zap size={18} /> }
             ].map((tab) => (
-              <button 
+              <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center space-x-3 transition-all group py-2 border-b-2 ${activeTab === tab.id ? 'text-black border-black' : 'text-stone-400 border-transparent hover:text-stone-600'}`}
@@ -276,12 +276,12 @@ const App = () => {
                 <span className="tracking-[0.25em]">{tab.label}</span>
               </button>
             ))}
-            <button className="text-stone-400 hover:text-black transition-colors pl-6 border-l border-stone-200"><Search size={22} /></button>
+            <button className="text-stone-400 hover:text-black transition-colors md:pl-6 md:border-l border-stone-200"><Search size={22} /></button>
           </nav>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 pb-24 pt-64 md:pt-[400px]">
+      <main className="max-w-[1800px] mx-auto px-4 md:px-6 pb-24 pt-72 md:pt-[400px]">
         {activeTab === 'feature' && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
             <section
@@ -297,8 +297,8 @@ const App = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-8 md:p-20 text-white max-w-5xl">
                 <div className="flex items-center space-x-4 mb-8">
-                   <span className="inline-block bg-[#FF3D00] text-[10px] font-black uppercase tracking-[0.3em] px-4 py-1.5 rounded-sm">Cover Story</span>
-                   <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60 italic">Issue 04: The Relic</span>
+                  <span className="inline-block bg-[#FF3D00] text-[10px] font-black uppercase tracking-[0.3em] px-4 py-1.5 rounded-sm">Cover Story</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60 italic">Issue 04: The Relic</span>
                 </div>
                 <h2 className="fluid-headline-home font-black uppercase tracking-tighter italic mb-10">
                   THE FIRE <br />OF KANDY.
@@ -321,13 +321,13 @@ const App = () => {
                   "Sri Lanka is not a destination you visit; it is a rhythm you learn to follow. From the misty heights of the tea country to the salt-spray of the southern coast."
                 </p>
                 <div className="flex space-x-6 items-center border-t border-stone-100 pt-10">
-                   <div className="w-16 h-16 bg-stone-50 rounded-2xl flex items-center justify-center text-stone-300 border border-stone-100 shadow-inner">
-                      <Quote size={28} />
-                   </div>
-                   <div>
-                     <p className="font-black uppercase text-sm tracking-widest">Travel Times Official</p>
-                     <p className="text-[10px] uppercase text-stone-400 tracking-widest">Field Correspondent • Colombo</p>
-                   </div>
+                  <div className="w-16 h-16 bg-stone-50 rounded-2xl flex items-center justify-center text-stone-300 border border-stone-100 shadow-inner">
+                    <Quote size={28} />
+                  </div>
+                  <div>
+                    <p className="font-black uppercase text-sm tracking-widest">Travel Times Official</p>
+                    <p className="text-[10px] uppercase text-stone-400 tracking-widest">Field Correspondent • Colombo</p>
+                  </div>
                 </div>
               </div>
 
@@ -353,14 +353,14 @@ const App = () => {
             <section className="mb-24">
               <SectionHeader title="Visual Stories" subtitle="From The Field" color="#FFD600" />
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 2xl:grid-cols-6 gap-4">
                 <div className="col-span-2 row-span-2 group cursor-pointer overflow-hidden rounded-[32px] shadow-xl relative animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                    <img
-                      src={beachImg}
-                      loading="lazy"
-                      className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
-                      alt="Gallery 1"
-                    />
+                  <img
+                    src={beachImg}
+                    loading="lazy"
+                    className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
+                    alt="Gallery 1"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                     <div className="absolute bottom-6 left-6 text-white">
                       <p className="text-sm font-black uppercase tracking-widest">Southern Paradise</p>
@@ -480,7 +480,7 @@ const App = () => {
             <section className="mb-24">
               <SectionHeader title="Top Destinations" subtitle="Must-Visit Places" color="#FF3D00" />
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 2xl:grid-cols-4 gap-8">
                 <div className="group cursor-pointer hover-lift">
                   <div className="aspect-[3/4] overflow-hidden rounded-[32px] mb-6 bg-stone-100 shadow-xl relative">
                     <img src={beachImg} loading="lazy" className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" alt="Beach" />
@@ -523,7 +523,7 @@ const App = () => {
             <section className="mb-24">
               <SectionHeader title="Experiences" subtitle="Immersive Adventures" color="#00E676" />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-8">
                 <div className="group cursor-pointer bg-gradient-to-br from-stone-50 to-stone-100 rounded-[40px] p-10 hover-lift">
                   <div className="aspect-video overflow-hidden rounded-[24px] mb-6 shadow-lg">
                     <img src={surfImg} loading="lazy" className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" alt="Surf" />
@@ -665,7 +665,7 @@ const App = () => {
           <InfoBanner />
           <LiveBanner />
           <nav className="bg-white/95 backdrop-blur-md border-b border-stone-100 px-4 md:px-6 py-3 md:py-5 flex justify-between items-center shadow-sm">
-            <button 
+            <button
               onClick={() => setCurrentPage('home')}
               className="flex items-center space-x-2 md:space-x-3 text-[10px] md:text-[12px] font-black uppercase tracking-widest hover:text-[#00E676] transition-colors"
             >
@@ -685,13 +685,13 @@ const App = () => {
         </div>
 
         <header className="relative w-full min-h-[70vh] sm:min-h-[80vh] md:min-h-[85vh] flex items-center justify-center overflow-hidden mb-4 bg-[#FDFDFB]">
-          <img 
-            src={peraheraImg} 
-            className="absolute inset-0 w-full h-full object-cover object-bottom" 
-            alt="Kandy Perahera Banner" 
+          <img
+            src={peraheraImg}
+            className="absolute inset-0 w-full h-full object-cover object-bottom"
+            alt="Kandy Perahera Banner"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#FDFDFB] via-black/40 to-black/30"></div>
-          
+
           <div className="relative z-10 w-full h-full flex items-center justify-center px-6">
             <div className="w-full max-w-6xl mx-auto text-center pt-20 sm:pt-28 md:pt-36 pb-10 md:pb-16 flex flex-col items-center">
               <div className="flex flex-wrap justify-center items-center gap-3 md:gap-4 mb-8">
@@ -704,7 +704,7 @@ const App = () => {
               <p className="hero-subtitle font-serif italic text-white/90 mb-10 md:mb-12 max-w-3xl mx-auto leading-relaxed drop-shadow-xl">
                 Truth and the myth of the pageant: Unraveling the 1,500-year-old tradition of the Sacred Tooth Relic.
               </p>
-              
+
               <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-6 text-white">
                 <div className="bg-black/40 backdrop-blur-md border border-white/10 px-6 md:px-8 py-3 md:py-4 rounded-2xl flex flex-col items-center min-w-[140px] md:min-w-[180px]">
                   <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] text-white/50 mb-1">Author</p>
@@ -734,24 +734,24 @@ const App = () => {
             <div className="bg-white p-4 rounded-[40px] shadow-2xl border border-stone-100 lg:col-span-1">
               <img src={extraImg1} loading="lazy" className="w-full aspect-[3/4] object-cover rounded-[32px]" alt="Procession Detail 1" />
               <div className="mt-4 px-6 flex justify-between items-center pb-2">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-stone-400 italic">Plate 01: Emblems</p>
-                 <Layers size={14} className="text-stone-300" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-stone-400 italic">Plate 01: Emblems</p>
+                <Layers size={14} className="text-stone-300" />
               </div>
             </div>
-            
+
             <div className="bg-[#FFD600] p-4 rounded-[40px] shadow-2xl lg:col-span-1 flex flex-col">
               <img src={extraImg2} loading="lazy" className="w-full aspect-[3/4] object-cover rounded-[32px]" alt="Procession Detail 2" />
               <div className="mt-4 px-6 flex justify-between items-center pb-2">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-stone-950 italic">Plate 02: Rituals</p>
-                 <Flame size={14} className="text-stone-950" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-stone-950 italic">Plate 02: Rituals</p>
+                <Flame size={14} className="text-stone-950" />
               </div>
             </div>
 
             <div className="bg-stone-950 p-4 rounded-[40px] shadow-2xl lg:col-span-1 flex flex-col">
               <img src={extraImg3} loading="lazy" className="w-full aspect-[3/4] object-cover rounded-[32px]" alt="Procession Detail 3" />
               <div className="mt-4 px-6 flex justify-between items-center text-white pb-2">
-                 <p className="text-[10px] font-black uppercase tracking-widest opacity-60 italic">Plate 03: The Guard</p>
-                 <Compass size={14} className="text-[#00E676]" />
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-60 italic">Plate 03: The Guard</p>
+                <Compass size={14} className="text-[#00E676]" />
               </div>
             </div>
           </div>
@@ -781,30 +781,30 @@ const App = () => {
             </p>
 
             <div className="my-24 bg-stone-50 rounded-[60px] p-10 md:p-16 border border-stone-100 shadow-inner">
-               <div className="flex items-center space-x-4 mb-10">
-                  <Star size={20} className="text-[#FFD600] fill-[#FFD600]" />
-                  <h3 className="text-sm font-black uppercase tracking-[0.4em] text-stone-400">The Top Attraction</h3>
-               </div>
-               
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-                  <div className="space-y-8">
-                     <div className="bg-[#FFD600] inline-block px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest text-black">Lead Tusker</div>
-                     <h4 className="text-6xl font-black uppercase tracking-tighter italic leading-none">SINHA RAJA</h4>
-                     <p className="font-serif italic text-xl text-stone-600 leading-relaxed text-left">
-                       Carrying the golden Karanduwa, Sinha Raja is the top attraction of the Perahera this year.
-                     </p>
+              <div className="flex items-center space-x-4 mb-10">
+                <Star size={20} className="text-[#FFD600] fill-[#FFD600]" />
+                <h3 className="text-sm font-black uppercase tracking-[0.4em] text-stone-400">The Top Attraction</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div className="space-y-8">
+                  <div className="bg-[#FFD600] inline-block px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest text-black">Lead Tusker</div>
+                  <h4 className="text-6xl font-black uppercase tracking-tighter italic leading-none">SINHA RAJA</h4>
+                  <p className="font-serif italic text-xl text-stone-600 leading-relaxed text-left">
+                    Carrying the golden Karanduwa, Sinha Raja is the top attraction of the Perahera this year.
+                  </p>
+                </div>
+
+                <div className="bg-white p-10 rounded-[40px] border border-stone-100 shadow-xl space-y-6">
+                  <p className="text-[12px] font-black uppercase tracking-[0.3em] text-stone-400">The Guard</p>
+                  <p className="font-serif text-2xl text-stone-800 leading-tight">
+                    "Flanked by <span className="text-black font-bold underline decoration-[#FFD600] decoration-4">Myan Raja</span> and <span className="text-black font-bold underline decoration-[#FFD600] decoration-4">Buruma Raja</span> on either side."
+                  </p>
+                  <div className="pt-6 border-t border-stone-50 flex items-center text-[11px] font-black uppercase tracking-[0.3em] text-[#00E676]">
+                    <Compass size={16} className="mr-3" /> Sacred Formations
                   </div>
-                  
-                  <div className="bg-white p-10 rounded-[40px] border border-stone-100 shadow-xl space-y-6">
-                     <p className="text-[12px] font-black uppercase tracking-[0.3em] text-stone-400">The Guard</p>
-                     <p className="font-serif text-2xl text-stone-800 leading-tight">
-                       "Flanked by <span className="text-black font-bold underline decoration-[#FFD600] decoration-4">Myan Raja</span> and <span className="text-black font-bold underline decoration-[#FFD600] decoration-4">Buruma Raja</span> on either side."
-                     </p>
-                     <div className="pt-6 border-t border-stone-50 flex items-center text-[11px] font-black uppercase tracking-[0.3em] text-[#00E676]">
-                        <Compass size={16} className="mr-3" /> Sacred Formations
-                     </div>
-                  </div>
-               </div>
+                </div>
+              </div>
             </div>
 
             <p>
@@ -814,221 +814,219 @@ const App = () => {
         </article>
 
         <section className="bg-gradient-to-br from-[#FDFDFB] via-stone-50 to-stone-100 text-stone-950 py-32 px-6">
-           <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-20">
-                 <div className="inline-flex items-center space-x-3 mb-6 bg-[#00E676]/10 px-6 py-3 rounded-full">
-                    <MapPin size={16} className="text-[#00E676]" />
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-[#00E676]">Where to Stay</h3>
-                 </div>
-                 <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-[0.9] mb-6">
-                    KANDY'S<br />
-                    <span className="bg-gradient-to-r from-stone-950 via-stone-700 to-stone-950 bg-clip-text text-transparent">FINEST STAYS</span>
-                 </h2>
-                 <p className="text-xl text-stone-600 max-w-2xl mx-auto font-serif italic">
-                    Curated accommodations that blend heritage charm with modern luxury
-                 </p>
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-20">
+              <div className="inline-flex items-center space-x-3 mb-6 bg-[#00E676]/10 px-6 py-3 rounded-full">
+                <MapPin size={16} className="text-[#00E676]" />
+                <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-[#00E676]">Where to Stay</h3>
               </div>
+              <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-[0.9] mb-6">
+                KANDY'S<br />
+                <span className="bg-gradient-to-r from-stone-950 via-stone-700 to-stone-950 bg-clip-text text-transparent">FINEST STAYS</span>
+              </h2>
+              <p className="text-xl text-stone-600 max-w-2xl mx-auto font-serif italic">
+                Curated accommodations that blend heritage charm with modern luxury
+              </p>
+            </div>
 
-              {/* INTEGRATED MAP AND LISTING */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            {/* INTEGRATED MAP AND LISTING */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
 
-                {/* Leaflet Map */}
-                <div className="lg:col-span-5 sticky top-32 hidden lg:block z-40" style={{ willChange: 'transform' }}>
-                  <div className="relative aspect-[4/5] rounded-3xl border-2 border-stone-200 overflow-hidden shadow-xl bg-white" style={{ isolation: 'isolate' }}>
-                    <MapContainer
-                      center={[7.2906, 80.6337]}
-                      zoom={14}
-                      style={mapStyle}
-                      className="z-10"
-                      scrollWheelZoom={true}
+              {/* Leaflet Map */}
+              <div className="lg:col-span-5 sticky top-32 hidden lg:block z-40" style={{ willChange: 'transform' }}>
+                <div className="relative aspect-[4/5] rounded-3xl border-2 border-stone-200 overflow-hidden shadow-xl bg-white" style={{ isolation: 'isolate' }}>
+                  <MapContainer
+                    center={[7.2906, 80.6337]}
+                    zoom={14}
+                    style={mapStyle}
+                    className="z-10"
+                    scrollWheelZoom={true}
+                  >
+                    <TileLayer
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <MapViewController
+                      center={accommodations[selectedHotel]?.latLng}
+                    />
+                    {/* Perahera Route */}
+                    <Polyline
+                      positions={peraheraRoute}
+                      pathOptions={{
+                        color: '#FF3D00',
+                        weight: 4,
+                        opacity: 0.7,
+                        dashArray: '10, 10',
+                        lineJoin: 'round',
+                        className: 'perahera-route'
+                      }}
                     >
-                      <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      />
-                      <MapViewController
-                        center={accommodations[selectedHotel]?.latLng}
-                      />
-                      {/* Perahera Route */}
-                      <Polyline
-                        positions={peraheraRoute}
-                        pathOptions={{
-                          color: '#FF3D00',
-                          weight: 4,
-                          opacity: 0.7,
-                          dashArray: '10, 10',
-                          lineJoin: 'round',
-                          className: 'perahera-route'
+                      <Popup>
+                        <div className="text-center py-2">
+                          <h3 className="font-black text-sm uppercase text-[#FF3D00] mb-2">Kandy Esala Perahera Route</h3>
+                          <p className="text-xs text-stone-600 leading-relaxed">
+                            The sacred procession path around the Temple of the Tooth and Kandy Lake
+                          </p>
+                        </div>
+                      </Popup>
+                    </Polyline>
+                    {/* Temple of the Tooth Marker */}
+                    <Marker position={[7.2940, 80.6410]} icon={templeIcon}>
+                      <Popup>
+                        <div className="text-center py-2">
+                          <h3 className="font-black text-sm uppercase mb-1">Temple of the Tooth</h3>
+                          <p className="text-xs text-stone-600 mb-1">Sri Dalada Maligawa</p>
+                          <p className="text-[10px] text-[#FF3D00] font-bold">Starting Point of Perahera</p>
+                        </div>
+                      </Popup>
+                    </Marker>
+                    {accommodations.map((hotel, idx) => (
+                      <Marker
+                        key={idx}
+                        position={hotel.latLng}
+                        icon={defaultIcon}
+                        eventHandlers={{
+                          click: () => setSelectedHotel(idx),
                         }}
                       >
                         <Popup>
-                          <div className="text-center py-2">
-                            <h3 className="font-black text-sm uppercase text-[#FF3D00] mb-2">Kandy Esala Perahera Route</h3>
-                            <p className="text-xs text-stone-600 leading-relaxed">
-                              The sacred procession path around the Temple of the Tooth and Kandy Lake
+                          <div className="text-center">
+                            <h3 className="font-black text-sm uppercase">{hotel.name}</h3>
+                            <p className="text-xs text-stone-600">{hotel.type}</p>
+                            <p className={`text-xs font-bold mt-1 ${selectedHotel === idx ? 'text-[#00E676]' : 'text-stone-500'}`}>
+                              {selectedHotel === idx ? '● ' : ''}{hotel.price}
                             </p>
                           </div>
                         </Popup>
-                      </Polyline>
-                      {/* Temple of the Tooth Marker */}
-                      <Marker position={[7.2940, 80.6410]} icon={templeIcon}>
-                        <Popup>
-                          <div className="text-center py-2">
-                            <h3 className="font-black text-sm uppercase mb-1">Temple of the Tooth</h3>
-                            <p className="text-xs text-stone-600 mb-1">Sri Dalada Maligawa</p>
-                            <p className="text-[10px] text-[#FF3D00] font-bold">Starting Point of Perahera</p>
-                          </div>
-                        </Popup>
                       </Marker>
-                      {accommodations.map((hotel, idx) => (
-                        <Marker
-                          key={idx}
-                          position={hotel.latLng}
-                          icon={defaultIcon}
-                          eventHandlers={{
-                            click: () => setSelectedHotel(idx),
-                          }}
-                        >
-                          <Popup>
-                            <div className="text-center">
-                              <h3 className="font-black text-sm uppercase">{hotel.name}</h3>
-                              <p className="text-xs text-stone-600">{hotel.type}</p>
-                              <p className={`text-xs font-bold mt-1 ${selectedHotel === idx ? 'text-[#00E676]' : 'text-stone-500'}`}>
-                                {selectedHotel === idx ? '● ' : ''}{hotel.price}
-                              </p>
-                            </div>
-                          </Popup>
-                        </Marker>
-                      ))}
-                    </MapContainer>
+                    ))}
+                  </MapContainer>
 
-                    {/* Legend */}
-                    <div className="absolute bottom-6 left-6 right-6 z-[1000] bg-white/95 backdrop-blur-xl rounded-2xl p-4 shadow-lg border border-stone-200">
-                       <div className="grid grid-cols-2 gap-3 text-xs">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-3 h-3 rounded-full bg-[#00E676]"></div>
-                            <span className="font-bold text-stone-700">Selected</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <MapPin size={14} className="text-blue-500" />
-                            <span className="font-bold text-stone-700">Hotels</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <div className="w-3 h-3 rounded-full bg-[#FF3D00] border-2 border-white"></div>
-                            <span className="font-bold text-stone-700">Temple</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <div className="h-0.5 w-4 bg-[#FF3D00] opacity-70" style={{ borderTop: '2px dashed #FF3D00' }}></div>
-                            <span className="font-bold text-stone-700">Route</span>
-                          </div>
-                       </div>
+                  {/* Legend */}
+                  <div className="absolute bottom-6 left-6 right-6 z-[1000] bg-white/95 backdrop-blur-xl rounded-2xl p-4 shadow-lg border border-stone-200">
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 rounded-full bg-[#00E676]"></div>
+                        <span className="font-bold text-stone-700">Selected</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <MapPin size={14} className="text-blue-500" />
+                        <span className="font-bold text-stone-700">Hotels</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 rounded-full bg-[#FF3D00] border-2 border-white"></div>
+                        <span className="font-bold text-stone-700">Temple</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="h-0.5 w-4 bg-[#FF3D00] opacity-70" style={{ borderTop: '2px dashed #FF3D00' }}></div>
+                        <span className="font-bold text-stone-700">Route</span>
+                      </div>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Hotel Listing Column */}
-                <div className="lg:col-span-7 space-y-8 hotel-scroll-container">
-                  {accommodations.map((hotel, idx) => (
-                    <div
-                      key={idx}
-                      onMouseEnter={() => setSelectedHotel(idx)}
-                      onClick={() => setSelectedHotel(idx)}
-                      className={`group cursor-pointer transition-all duration-500 ${
-                        selectedHotel === idx
-                          ? 'scale-100 opacity-100'
-                          : 'scale-95 opacity-60 hover:opacity-80'
+              {/* Hotel Listing Column */}
+              <div className="lg:col-span-7 space-y-8 hotel-scroll-container">
+                {accommodations.map((hotel, idx) => (
+                  <div
+                    key={idx}
+                    onMouseEnter={() => setSelectedHotel(idx)}
+                    onClick={() => setSelectedHotel(idx)}
+                    className={`group cursor-pointer transition-all duration-500 ${selectedHotel === idx
+                      ? 'scale-100 opacity-100'
+                      : 'scale-95 opacity-60 hover:opacity-80'
                       }`}
-                    >
-                      <div className={`relative bg-white rounded-3xl overflow-hidden shadow-xl border-2 transition-all duration-500 hover:shadow-2xl card-shine ${
-                        selectedHotel === idx
-                          ? 'border-[#00E676] shadow-2xl'
-                          : 'border-stone-200 hover:border-[#00E676]'
+                  >
+                    <div className={`relative bg-white rounded-3xl overflow-hidden shadow-xl border-2 transition-all duration-500 hover:shadow-2xl card-shine ${selectedHotel === idx
+                      ? 'border-[#00E676] shadow-2xl'
+                      : 'border-stone-200 hover:border-[#00E676]'
                       }`}
                       style={selectedHotel === idx ? { animation: 'pulse-border 2s ease-in-out' } : {}}
-                      >
-                        <div className="relative aspect-[16/9] overflow-hidden">
-                          <img
-                              src={hotel.image}
-                              loading="lazy"
-                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                              alt={hotel.name}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    >
+                      <div className="relative aspect-[16/9] overflow-hidden">
+                        <img
+                          src={hotel.image}
+                          loading="lazy"
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          alt={hotel.name}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 
-                          {/* Price Badge */}
-                          <div className="absolute top-6 right-6 bg-white/95 backdrop-blur-sm text-black text-xs font-black px-4 py-2 rounded-full flex items-center shadow-lg">
-                              <span className="mr-2">💰</span> {hotel.price}
-                          </div>
-
-                          {/* Selected Indicator */}
-                          {selectedHotel === idx && (
-                            <div className="absolute top-6 left-6 bg-[#00E676] text-white text-xs font-black px-4 py-2 rounded-full flex items-center shadow-lg animate-in fade-in duration-300">
-                              <MapPin size={14} className="mr-2" /> On Map
-                            </div>
-                          )}
+                        {/* Price Badge */}
+                        <div className="absolute top-6 right-6 bg-white/95 backdrop-blur-sm text-black text-xs font-black px-4 py-2 rounded-full flex items-center shadow-lg">
+                          <span className="mr-2">💰</span> {hotel.price}
                         </div>
 
-                        <div className="p-8">
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
-                              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#00E676] mb-2">{hotel.type}</p>
-                              <h4 className="text-3xl md:text-4xl font-black uppercase tracking-tight leading-tight mb-3">{hotel.name}</h4>
-                            </div>
-                            <button className="w-12 h-12 bg-stone-950 rounded-full flex items-center justify-center text-white hover:bg-[#00E676] transition-all hover:scale-110 shadow-lg">
-                               <ArrowUpRight size={20} />
-                            </button>
+                        {/* Selected Indicator */}
+                        {selectedHotel === idx && (
+                          <div className="absolute top-6 left-6 bg-[#00E676] text-white text-xs font-black px-4 py-2 rounded-full flex items-center shadow-lg animate-in fade-in duration-300">
+                            <MapPin size={14} className="mr-2" /> On Map
                           </div>
+                        )}
+                      </div>
 
-                          <p className="font-serif text-stone-600 text-lg leading-relaxed mb-6">
-                            {hotel.description}
-                          </p>
-
-                          <div className="flex flex-wrap gap-2 mb-6">
-                              {hotel.tags.map((tag, tIdx) => (
-                                <span key={tIdx} className="text-[10px] font-bold uppercase tracking-wide bg-stone-100 text-stone-700 px-4 py-2 rounded-full">
-                                  {tag}
-                                </span>
-                              ))}
+                      <div className="p-8">
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#00E676] mb-2">{hotel.type}</p>
+                            <h4 className="text-3xl md:text-4xl font-black uppercase tracking-tight leading-tight mb-3">{hotel.name}</h4>
                           </div>
+                          <button className="w-12 h-12 bg-stone-950 rounded-full flex items-center justify-center text-white hover:bg-[#00E676] transition-all hover:scale-110 shadow-lg">
+                            <ArrowUpRight size={20} />
+                          </button>
+                        </div>
 
-                          <div className="pt-6 border-t border-stone-200 flex items-center justify-between">
-                            <div className="flex items-center space-x-2 text-stone-500 text-sm">
-                              <MapPin size={16} className="text-[#00E676]" />
-                              <span>Kandy, Sri Lanka</span>
-                            </div>
-                            <button className="flex items-center space-x-2 text-[#00E676] text-sm font-black uppercase tracking-wider hover:gap-3 transition-all">
-                               <span>View Details</span>
-                               <ChevronRight size={18} />
-                            </button>
+                        <p className="font-serif text-stone-600 text-lg leading-relaxed mb-6">
+                          {hotel.description}
+                        </p>
+
+                        <div className="flex flex-wrap gap-2 mb-6">
+                          {hotel.tags.map((tag, tIdx) => (
+                            <span key={tIdx} className="text-[10px] font-bold uppercase tracking-wide bg-stone-100 text-stone-700 px-4 py-2 rounded-full">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="pt-6 border-t border-stone-200 flex items-center justify-between">
+                          <div className="flex items-center space-x-2 text-stone-500 text-sm">
+                            <MapPin size={16} className="text-[#00E676]" />
+                            <span>Kandy, Sri Lanka</span>
                           </div>
+                          <button className="flex items-center space-x-2 text-[#00E676] text-sm font-black uppercase tracking-wider hover:gap-3 transition-all">
+                            <span>View Details</span>
+                            <ChevronRight size={18} />
+                          </button>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-
-              </div>
-
-              {/* Call to Action */}
-              <div className="mt-20 text-center">
-                <div className="inline-flex flex-col items-center gap-6">
-                  <p className="text-stone-600 font-serif italic text-lg max-w-xl">
-                    Can't decide? Our travel experts can help you find the perfect accommodation for your Kandy experience.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <button className="bg-stone-950 text-white px-8 py-4 rounded-full text-sm font-black uppercase tracking-widest hover:bg-[#00E676] hover:scale-105 transition-all shadow-xl flex items-center justify-center space-x-3">
-                      <span>View All Hotels</span>
-                      <ArrowUpRight size={18} />
-                    </button>
-                    <button className="bg-white border-2 border-stone-950 text-stone-950 px-8 py-4 rounded-full text-sm font-black uppercase tracking-widest hover:bg-stone-950 hover:text-white hover:scale-105 transition-all shadow-lg flex items-center justify-center space-x-3">
-                      <span>Contact Expert</span>
-                      <ChevronRight size={18} />
-                    </button>
                   </div>
-                </div>
+                ))}
               </div>
 
-           </div>
+            </div>
+
+            {/* Call to Action */}
+            <div className="mt-20 text-center">
+              <div className="inline-flex flex-col items-center gap-6">
+                <p className="text-stone-600 font-serif italic text-lg max-w-xl">
+                  Can't decide? Our travel experts can help you find the perfect accommodation for your Kandy experience.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button className="bg-stone-950 text-white px-8 py-4 rounded-full text-sm font-black uppercase tracking-widest hover:bg-[#00E676] hover:scale-105 transition-all shadow-xl flex items-center justify-center space-x-3">
+                    <span>View All Hotels</span>
+                    <ArrowUpRight size={18} />
+                  </button>
+                  <button className="bg-white border-2 border-stone-950 text-stone-950 px-8 py-4 rounded-full text-sm font-black uppercase tracking-widest hover:bg-stone-950 hover:text-white hover:scale-105 transition-all shadow-lg flex items-center justify-center space-x-3">
+                    <span>Contact Expert</span>
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </section>
       </div>
     );
@@ -1047,7 +1045,7 @@ const App = () => {
               <h2 className="text-6xl font-black uppercase italic tracking-tighter leading-none text-stone-800">TIMES<span className="text-stone-700">.</span></h2>
             </div>
             <div className="text-right space-y-4">
-               <p className="text-[12px] font-black uppercase tracking-[0.5em] text-stone-500">Curating the Island rhythm since 2012</p>
+              <p className="text-[12px] font-black uppercase tracking-[0.5em] text-stone-500">Curating the Island rhythm since 2012</p>
             </div>
           </div>
           <div className="border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center text-[11px] font-black uppercase tracking-[0.5em] text-stone-700">
