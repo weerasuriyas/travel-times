@@ -31,12 +31,17 @@
 
   /* Responsive hero typography clamps so the banner scales on any viewport */
   .hero-title {
-    font-size: clamp(2.4rem, 8vw, 12rem);
-    line-height: 0.82;
+    font-size: clamp(1.5rem, 6vw, 12rem);
+    line-height: 0.85;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
 
   .hero-subtitle {
-    font-size: clamp(1.1rem, 3vw, 3.5rem);
+    font-size: clamp(0.875rem, 2.5vw, 3.5rem);
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   /* Fluid typography for the home cover so it auto-resizes */
@@ -194,6 +199,9 @@
 .parallax-image {
   will-change: transform;
   backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Ensure rounded corners are preserved during scroll and transforms */
@@ -298,6 +306,27 @@
   animation: marker-bounce 0.6s ease-out;
   filter: drop-shadow(0 0 10px rgba(0, 230, 118, 0.6));
   transition: all 0.3s ease;
+}
+
+/* Custom SVG marker icon styling */
+.custom-marker-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.custom-marker-icon:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+/* Hide scrollbar for carousel but keep functionality */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Smooth scroll behavior for desktop only */
