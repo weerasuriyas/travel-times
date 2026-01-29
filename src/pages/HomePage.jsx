@@ -12,7 +12,7 @@ const HomePage = memo(({ setCurrentPage, activeTab, setActiveTab, isScrolled, pe
             showTabs={true}
         />
 
-        <main className="max-w-[1800px] mx-auto px-4 md:px-6 pb-24 pt-32 md:pt-48">
+        <main className="max-w-[1800px] mx-auto px-4 md:px-6 pb-24 pt-56 md:pt-52">
             {activeTab === 'feature' && (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
                     <section

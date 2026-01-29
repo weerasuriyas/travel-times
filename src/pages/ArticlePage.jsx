@@ -227,7 +227,7 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
                 showTabs={false}
             />
 
-            <main className="pt-32 md:pt-48 pb-32">
+            <main className="pt-56 md:pt-52 pb-32">
                 {/* Hero Section with Overlay */}
                 <div ref={heroRef} id="section-hero" className="max-w-[1800px] mx-auto px-4 md:px-6 mb-16 md:mb-20">
                     <div className="aspect-[4/3] sm:aspect-[16/10] md:aspect-[21/9] rounded-[24px] md:rounded-[48px] shadow-2xl relative group">

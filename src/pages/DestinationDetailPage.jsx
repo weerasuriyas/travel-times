@@ -76,7 +76,7 @@ const DestinationDetailPage = ({ slug, setCurrentPage, isScrolled }) => {
         showTabs={false}
       />
 
-      <main className="pt-32 md:pt-48 pb-32">
+      <main className="pt-56 md:pt-52 pb-32">
         {/* Hero Section */}
         <div className="max-w-[1800px] mx-auto px-4 md:px-6 mb-16">
           {/* Back Button */}

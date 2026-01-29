@@ -14,7 +14,7 @@ const DestinationsPage = ({ setCurrentPage, isScrolled }) => {
         showTabs={false}
       />
 
-      <main className="max-w-[1800px] mx-auto px-4 md:px-6 pt-32 md:pt-48 pb-32">
+      <main className="max-w-[1800px] mx-auto px-4 md:px-6 pt-56 md:pt-52 pb-32">
         {/* Hero Section */}
         <div className="mb-20 text-center">
           <div className="inline-block mb-6">
