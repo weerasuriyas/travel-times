@@ -19,9 +19,6 @@ const surfImg = "https://images.unsplash.com/photo-1581420456035-58b8efadcdea?au
 const foodImg = "https://images.unsplash.com/photo-1687688207113-34bea1617467?auto=format&fit=crop&q=80";
 const marketImg = "https://images.unsplash.com/photo-1743674453123-93356ade2891?auto=format&fit=crop&q=80";
 
-
-const App = () => {
-
 // Inner component that has access to AuthContext
 const AppContent = () => {
   const { user, isAdmin } = useAuth();
@@ -48,64 +45,6 @@ const AppContent = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [parallaxOffset, setParallaxOffset] = useState(0);
   const bannerStartRef = useRef(null);
-
-// Inner component that has access to AuthContext
-const AppContent = () => {
-  const { user, isAdmin } = useAuth();
-
-  // Use URL hash for routing to persist on refresh
-  const getPageFromHash = () => {
-    const hash = window.location.hash.replace('#', '');
-    const parts = hash.split('/');
-    const page = parts[0];
-
-    if (page === 'article') return { page: 'article', slug: parts[1] || 'kandy-perahera' };
-    if (page === 'destinations') return { page: 'destinations', slug: null };
-    if (page === 'destination') return { page: 'destination', slug: parts[1] || 'kandy' };
-    if (page === 'admin') return { page: 'admin', slug: null };
-    if (page === 'admin-editor') return { page: 'admin-editor', slug: null };
-    if (page === 'admin-login') return { page: 'admin-login', slug: null };
-    return { page: 'home', slug: null };
-  };
-
-  const initialRoute = getPageFromHash();
-  const [activeTab, setActiveTab] = useState('feature');
-  const [currentPage, setCurrentPage] = useState(initialRoute.page);
-  const [articleSlug, setArticleSlug] = useState(initialRoute.slug);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [parallaxOffset, setParallaxOffset] = useState(0);
-  const bannerStartRef = useRef(null);
-
-  // Update URL hash when page changes
-  const handlePageChange = (page, slug = null) => {
-    setCurrentPage(page);
-    setArticleSlug(slug);
-
-    if (page === 'home') {
-      window.location.hash = '';
-    } else if (page === 'article' && slug) {
-      window.location.hash = `article/${slug}`;
-    } else if (page === 'destination' && slug) {
-      window.location.hash = `destination/${slug}`;
-    } else {
-      window.location.hash = page;
-    }
-  };
-
-  // Handle browser back/forward buttons
-  useEffect(() => {
-    const handleHashChange = () => {
-      const route = getPageFromHash();
-      setCurrentPage(route.page);
-      setArticleSlug(route.slug);
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  const bannerStartRef = useRef(null);
-
 
   // Update URL hash when page changes
   const handlePageChange = (page, slug = null) => {
@@ -182,30 +121,6 @@ const AppContent = () => {
   return (
     <div className="min-h-screen bg-[#FDFDFB] text-[#1a1a1a] font-sans selection:bg-[#00E676] selection:text-white">
       {currentPage === 'home' ? (
-
-        <HomePage 
-          setCurrentPage={setCurrentPage}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          isScrolled={isScrolled}
-          peraheraImg={peraheraImg}
-          parallaxOffset={parallaxOffset}
-          trainImg={trainImg}
-          teaImg={teaImg}
-          beachImg={beachImg}
-          templeImg={templeImg}
-          wildlifeImg={wildlifeImg}
-          surfImg={surfImg}
-          foodImg={foodImg}
-          marketImg={marketImg}
-        />
-      ) : (
-        <ArticlePage 
-          setCurrentPage={setCurrentPage}
-          peraheraImg={peraheraImg}
-        />
-      )}
-
           <HomePage
             setCurrentPage={handlePageChange}
             activeTab={activeTab}
@@ -258,8 +173,7 @@ const AppContent = () => {
               setCurrentPage={handlePageChange}
             />
           </ProtectedRoute>
-        ) : null
-
+        ) : null}
 
         {currentPage !== 'admin-login' && (
           <footer className="bg-stone-950 text-white pt-32 pb-12 px-6 overflow-hidden relative">
