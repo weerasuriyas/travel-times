@@ -3,44 +3,35 @@ import { Globe, Clock, Quote, Flame, Calendar, Compass, Zap, Search, X, Trending
 import { UserProfile } from './UserProfile';
 
 export const SectionHeader = ({ title, subtitle, color = "#00E676" }) => (
-  <div className="mb-12">
-    <div className="flex items-center space-x-4 mb-4">
-      <div className="h-[2px] w-12" style={{ backgroundColor: color }}></div>
-      <h3 className="text-[11px] font-sans font-black uppercase tracking-[0.4em] text-stone-400">{subtitle}</h3>
+    <div className="mb-8 sm:mb-10 md:mb-12">
+        <div className="flex items-center space-x-3 sm:space-x-4 mb-3 sm:mb-4">
+            <div className="h-[2px] w-8 sm:w-10 md:w-12" style={{ backgroundColor: color }}></div>
+            <h3 className="text-[9px] sm:text-[10px] md:text-[11px] font-sans font-black uppercase tracking-[0.4em] text-stone-400">{subtitle}</h3>
+        </div>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-tighter leading-none italic">{title}</h2>
     </div>
-    <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic">{title}</h2>
-  </div>
 );
 
 export const InfoBanner = ({ currentTime }) => (
-  <div className="flex bg-white border-b border-stone-100 py-2 md:py-3.5 px-4 md:px-6 flex-wrap md:flex-nowrap justify-between items-center gap-2 md:gap-4 text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em]">
-    <div className="flex items-center space-x-4 md:space-x-6 text-stone-500 w-full md:w-auto justify-between md:justify-start">
-      <span className="flex items-center">
-        <Globe size={12} className="mr-2 text-[#00E676] md:mr-2.5 md:w-[14px] md:h-[14px]" /> <span className="hidden xs:inline">Dispatch: </span>Sri Lanka
-      </span>
-      <span className="hidden md:block opacity-30">|</span>
-      <span className="flex items-center"><span className="hidden xs:inline mr-2">Local Time:</span> {currentTime}</span>
+    <div className="flex bg-white border-b border-stone-100 py-1.5 md:py-2.5 px-4 md:px-6 flex-wrap md:flex-nowrap justify-between items-center gap-2 md:gap-4 text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em]">
+        <div className="flex items-center space-x-4 md:space-x-6 text-stone-500 w-full md:w-auto justify-between md:justify-start">
+            <span className="flex items-center">
+                <Globe size={12} className="mr-2 text-[#00E676] md:mr-2.5 md:w-[14px] md:h-[14px]" /> <span className="hidden xs:inline">Dispatch: </span>Sri Lanka
+            </span>
+            <span className="hidden md:block opacity-30">|</span>
+            <span className="flex items-center"><span className="hidden xs:inline mr-2">Local Time:</span> {currentTime}</span>
+        </div>
+        <button className="hidden md:block bg-black text-white px-4 md:px-5 py-1.5 md:py-2 rounded-full hover:bg-[#FF3D00] transition-all hover:scale-105 active:scale-95 shadow-lg hover-glow">Subscribe</button>
     </div>
-    <button className="hidden md:block bg-black text-white px-4 md:px-5 py-1.5 md:py-2 rounded-full hover:bg-[#FF3D00] transition-all hover:scale-105 active:scale-95 shadow-lg hover-glow">Subscribe</button>
-  </div>
 );
 
+// Modern minimal status bar - Ultra minimal with accent line
 export const LiveBanner = () => (
-  <div className="flex bg-stone-950 text-white py-2 overflow-hidden whitespace-nowrap border-b border-white/10">
-    <div className="flex animate-marquee items-center text-[10px] font-black uppercase tracking-[0.3em]">
-      {[1, 2, 3, 4].map((i) => (
-        <React.Fragment key={i}>
-          <span className="mx-8 text-[#00E676]">● DISPATCH FROM GALLE</span>
-          <span className="mx-8">WEATHER: 29°C HUMID</span>
-          <span className="mx-8 text-[#FF3D00]">● BREAKING: NEW NOMAD VISA ANNOUNCED</span>
-          <span className="mx-8">TRAIN DELAYS ON COAST LINE</span>
-        </React.Fragment>
-      ))}
+    <div className="relative h-[1px] bg-gradient-to-r from-transparent via-stone-200 to-transparent">
+        <div className="absolute left-1/2 -translate-x-1/2 w-24 h-[1px] bg-gradient-to-r from-transparent via-[#00E676] to-transparent"></div>
     </div>
-  </div>
 );
-<<<<<<< Updated upstream
-=======
+
 
 // Search Modal Component
 export const SearchModal = ({ isOpen, onClose, setCurrentPage }) => {
@@ -412,4 +403,4 @@ export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScroll
         </header>
     );
 };
->>>>>>> Stashed changes
+

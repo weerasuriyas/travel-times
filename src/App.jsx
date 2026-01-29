@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import HomePage from './pages/HomePage'
 import ArticlePage from './pages/ArticlePage'
 import DestinationsPage from './pages/DestinationsPage'
@@ -9,7 +9,7 @@ import AdminLogin from './pages/AdminLogin'
 import ProtectedRoute from './components/ProtectedRoute'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 
-const peraheraImg = "https://images.unsplash.com/photo-1566766188646-5d0310191714?auto=format&fit=crop&q=80";
+const peraheraImg = "/perahera_banner.jpg";
 const trainImg = "https://images.unsplash.com/photo-1566296314736-6eaac1ca0cb9?q=80&w=3402&auto=format&fit=crop";
 const teaImg = "https://images.unsplash.com/photo-1586511623600-cb6f44f647d8?auto=format&fit=crop&q=80";
 const beachImg = "https://images.unsplash.com/photo-1646894232861-a0ad84f1ad5d?auto=format&fit=crop&q=80";
@@ -19,13 +19,36 @@ const surfImg = "https://images.unsplash.com/photo-1581420456035-58b8efadcdea?au
 const foodImg = "https://images.unsplash.com/photo-1687688207113-34bea1617467?auto=format&fit=crop&q=80";
 const marketImg = "https://images.unsplash.com/photo-1743674453123-93356ade2891?auto=format&fit=crop&q=80";
 
-<<<<<<< Updated upstream
+
 const App = () => {
+
+// Inner component that has access to AuthContext
+const AppContent = () => {
+  const { user, isAdmin } = useAuth();
+
+  // Use URL hash for routing to persist on refresh
+  const getPageFromHash = () => {
+    const hash = window.location.hash.replace('#', '');
+    const parts = hash.split('/');
+    const page = parts[0];
+
+    if (page === 'article') return { page: 'article', slug: parts[1] || 'kandy-perahera' };
+    if (page === 'destinations') return { page: 'destinations', slug: null };
+    if (page === 'destination') return { page: 'destination', slug: parts[1] || 'kandy' };
+    if (page === 'admin') return { page: 'admin', slug: null };
+    if (page === 'admin-editor') return { page: 'admin-editor', slug: null };
+    if (page === 'admin-login') return { page: 'admin-login', slug: null };
+    return { page: 'home', slug: null };
+  };
+
+  const initialRoute = getPageFromHash();
+
   const [activeTab, setActiveTab] = useState('feature');
-  const [currentPage, setCurrentPage] = useState('home');
+  const [currentPage, setCurrentPage] = useState(initialRoute.page);
+  const [articleSlug, setArticleSlug] = useState(initialRoute.slug);
   const [isScrolled, setIsScrolled] = useState(false);
   const [parallaxOffset, setParallaxOffset] = useState(0);
-=======
+
 // Inner component that has access to AuthContext
 const AppContent = () => {
   const { user, isAdmin } = useAuth();
@@ -80,22 +103,86 @@ const AppContent = () => {
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
->>>>>>> Stashed changes
 
+  const bannerStartRef = useRef(null);
+
+
+  // Update URL hash when page changes
+  const handlePageChange = (page, slug = null) => {
+    setCurrentPage(page);
+    setArticleSlug(slug);
+
+    if (page === 'home') {
+      window.location.hash = '';
+    } else if (page === 'article' && slug) {
+      window.location.hash = `article/${slug}`;
+    } else if (page === 'destination' && slug) {
+      window.location.hash = `destination/${slug}`;
+    } else {
+      window.location.hash = page;
+    }
+  };
+
+  // Handle browser back/forward buttons
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-      setParallaxOffset(window.scrollY * 0.5);
+    const handleHashChange = () => {
+      const route = getPageFromHash();
+      setCurrentPage(route.page);
+      setArticleSlug(route.slug);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  useEffect(() => {
+    let ticking = false;
+    
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollY = Math.max(0, window.scrollY);
+          setIsScrolled(scrollY > 50);
+          
+          // Calculate parallax offset - ensure it's exactly 0 at top
+          // Use a threshold to prevent tiny offsets near the top
+          if (scrollY < 1) {
+            setParallaxOffset(0);
+          } else {
+            // Calculate parallax relative to when banner enters view
+            // Header: InfoBanner (~30px) + LiveBanner (1px) + Nav (~100px mobile, ~180px desktop) ≈ 131px mobile, 211px desktop
+            // Main padding: pt-32 (128px) mobile, pt-48 (192px) desktop
+            // Banner starts when scrollY reaches header + padding
+            const isDesktop = window.innerWidth >= 768;
+            const headerHeight = isDesktop ? 211 : 131;
+            const mainPadding = isDesktop ? 192 : 128;
+            const parallaxStart = headerHeight + mainPadding;
+            
+            if (scrollY <= parallaxStart) {
+              setParallaxOffset(0);
+            } else {
+              const relativeScroll = scrollY - parallaxStart;
+              setParallaxOffset(relativeScroll * 0.5);
+            }
+          }
+          
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    // Set initial state
+    handleScroll();
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <div className="min-h-screen bg-[#FDFDFB] text-[#1a1a1a] font-sans selection:bg-[#00E676] selection:text-white">
       {currentPage === 'home' ? (
-<<<<<<< Updated upstream
+
         <HomePage 
           setCurrentPage={setCurrentPage}
           activeTab={activeTab}
@@ -118,7 +205,7 @@ const AppContent = () => {
           peraheraImg={peraheraImg}
         />
       )}
-=======
+
           <HomePage
             setCurrentPage={handlePageChange}
             activeTab={activeTab}
@@ -171,8 +258,8 @@ const AppContent = () => {
               setCurrentPage={handlePageChange}
             />
           </ProtectedRoute>
-        ) : null}
->>>>>>> Stashed changes
+        ) : null
+
 
         {currentPage !== 'admin-login' && (
           <footer className="bg-stone-950 text-white pt-32 pb-12 px-6 overflow-hidden relative">
