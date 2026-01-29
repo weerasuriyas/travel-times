@@ -348,10 +348,13 @@ export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScroll
                     {/* Destinations Link - Always visible */}
                     <button
                         onClick={() => setCurrentPage('destinations')}
-                        className="flex items-center gap-1.5 px-2.5 md:px-4 py-1.5 md:py-2 rounded-full bg-stone-50 text-stone-600 hover:bg-black hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                        className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-1.5 py-1 md:px-4 md:py-2 rounded-xl md:rounded-full bg-stone-50 text-stone-600 hover:bg-black hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
                     >
                         <MapPin size={14} />
-                        <span className="hidden sm:inline text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em]">Destinations</span>
+                        <span className="text-[7px] md:text-[11px] font-black uppercase tracking-tight md:tracking-[0.15em]">
+                            <span className="md:hidden">Places</span>
+                            <span className="hidden md:inline">Destinations</span>
+                        </span>
                     </button>
 
                     {showTabs && (
@@ -365,7 +368,7 @@ export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScroll
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`relative flex items-center justify-center gap-1.5 px-2 py-2 md:px-4 md:py-2 rounded-full transition-all duration-300 group ${
+                                    className={`relative flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1.5 py-1 md:px-4 md:py-2 rounded-xl md:rounded-full transition-all duration-300 group ${
                                         activeTab === tab.id
                                             ? 'bg-black text-white shadow-lg scale-105'
                                             : 'bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-black hover:scale-105 active:scale-95'
@@ -374,12 +377,12 @@ export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScroll
                                     <span className={`transition-all duration-300 ${activeTab === tab.id ? 'text-white' : 'text-stone-400 group-hover:text-black'}`}>
                                         {tab.icon}
                                     </span>
-                                    <span className="hidden md:inline text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em]">
+                                    <span className={`text-[7px] md:text-[11px] font-black uppercase tracking-tight md:tracking-[0.15em] ${activeTab === tab.id ? 'text-white' : 'text-stone-500'}`}>
                                         {tab.label}
                                     </span>
                                     {activeTab === tab.id && (
                                         <div
-                                            className="absolute inset-0 rounded-full opacity-10 animate-pulse"
+                                            className="absolute inset-0 rounded-xl md:rounded-full opacity-10 animate-pulse"
                                             style={{ backgroundColor: tab.color }}
                                         ></div>
                                     )}
@@ -387,9 +390,10 @@ export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScroll
                             ))}
                             <button
                                 onClick={() => setIsSearchOpen(true)}
-                                className="flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full bg-stone-50 text-stone-600 hover:bg-black hover:text-white transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                                className="flex flex-col items-center justify-center gap-0.5 px-1.5 py-1 md:w-9 md:h-9 rounded-xl md:rounded-full bg-stone-50 text-stone-600 hover:bg-black hover:text-white transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
                             >
-                                <Search size={16} />
+                                <Search size={14} />
+                                <span className="text-[7px] font-black uppercase tracking-tight text-stone-500 md:hidden">Search</span>
                             </button>
                         </nav>
                     )}
