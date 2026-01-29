@@ -32,7 +32,6 @@ export const LiveBanner = () => (
     </div>
 );
 
-
 // Search Modal Component
 export const SearchModal = ({ isOpen, onClose, setCurrentPage }) => {
     const [searchQuery, setSearchQuery] = React.useState('');
@@ -403,4 +402,3 @@ export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScroll
         </header>
     );
 };
-

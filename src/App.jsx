@@ -42,12 +42,12 @@ const AppContent = () => {
   };
 
   const initialRoute = getPageFromHash();
-
   const [activeTab, setActiveTab] = useState('feature');
   const [currentPage, setCurrentPage] = useState(initialRoute.page);
   const [articleSlug, setArticleSlug] = useState(initialRoute.slug);
   const [isScrolled, setIsScrolled] = useState(false);
   const [parallaxOffset, setParallaxOffset] = useState(0);
+  const bannerStartRef = useRef(null);
 
 // Inner component that has access to AuthContext
 const AppContent = () => {

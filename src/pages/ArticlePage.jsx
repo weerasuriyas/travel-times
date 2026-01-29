@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { MapPin, ArrowUpRight, ChevronRight, Share2, Eye, Calendar, Clock, ArrowLeft, Layers, Flame, Compass, Info, Star, Building, Utensils } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
@@ -953,4 +952,3 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
 };
 
 export default ArticlePage;
-
