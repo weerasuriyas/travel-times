@@ -337,25 +337,25 @@ export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScroll
         <header className={`fixed top-0 w-full z-50 smooth-header header-initial-animation ${isScrolled ? 'bg-white/95 backdrop-blur-xl border-b border-stone-100 shadow-sm' : 'bg-[#FDFDFB]'}`}>
             <InfoBanner currentTime={currentTime} />
             <LiveBanner />
-            <div className={`max-w-[1800px] mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-3 md:gap-5 ${isScrolled ? 'py-2' : 'py-3 md:py-5'}`}>
+            <div className={`max-w-[1800px] mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-2 md:gap-5 ${isScrolled ? 'py-2' : 'py-2.5 md:py-5'}`}>
                 <div className="text-center md:text-left cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]" onClick={() => setCurrentPage('home')}>
-                    <h1 className={`${isScrolled ? 'text-2xl md:text-3xl' : 'text-2xl md:text-4xl lg:text-5xl'} font-black text-black uppercase tracking-tighter leading-[0.8] italic transition-all duration-300`}>
+                    <h1 className={`${isScrolled ? 'text-xl md:text-3xl' : 'text-xl md:text-4xl lg:text-5xl'} font-black text-black uppercase tracking-tighter leading-[0.8] italic transition-all duration-300`}>
                         TRAVEL<br />
                         TIMES<span className="text-stone-300">.</span>
                     </h1>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 md:gap-2 w-full md:w-auto justify-center md:justify-end">
                     {/* Destinations Link - Always visible */}
                     <button
                         onClick={() => setCurrentPage('destinations')}
-                        className="flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-stone-50 text-stone-600 hover:bg-black hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                        className="flex items-center gap-1.5 px-2.5 md:px-4 py-1.5 md:py-2 rounded-full bg-stone-50 text-stone-600 hover:bg-black hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
                     >
                         <MapPin size={14} />
-                        <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em]">Destinations</span>
+                        <span className="hidden sm:inline text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em]">Destinations</span>
                     </button>
 
                     {showTabs && (
-                        <nav className="flex flex-wrap justify-center items-center gap-1.5 md:gap-2.5">
+                        <nav className="flex items-center gap-1 md:gap-2.5">
                             {[
                                 { id: 'feature', label: 'Feature', icon: <Flame size={14} />, color: '#00E676' },
                                 { id: 'events', label: 'Journal', icon: <Calendar size={14} />, color: '#FF3D00' },
@@ -365,7 +365,7 @@ export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScroll
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`relative flex items-center gap-1.5 px-3 md:px-4 py-1.5 md:py-2 rounded-full transition-all duration-300 group ${
+                                    className={`relative flex items-center justify-center gap-1.5 px-2 py-2 md:px-4 md:py-2 rounded-full transition-all duration-300 group ${
                                         activeTab === tab.id
                                             ? 'bg-black text-white shadow-lg scale-105'
                                             : 'bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-black hover:scale-105 active:scale-95'
@@ -374,7 +374,7 @@ export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScroll
                                     <span className={`transition-all duration-300 ${activeTab === tab.id ? 'text-white' : 'text-stone-400 group-hover:text-black'}`}>
                                         {tab.icon}
                                     </span>
-                                    <span className={`text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em] transition-all duration-300 ${isScrolled ? 'hidden md:inline' : ''}`}>
+                                    <span className="hidden md:inline text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em]">
                                         {tab.label}
                                     </span>
                                     {activeTab === tab.id && (
@@ -387,7 +387,7 @@ export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScroll
                             ))}
                             <button
                                 onClick={() => setIsSearchOpen(true)}
-                                className="ml-1.5 md:ml-3 flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full bg-stone-50 text-stone-600 hover:bg-black hover:text-white transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                                className="flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full bg-stone-50 text-stone-600 hover:bg-black hover:text-white transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
                             >
                                 <Search size={16} />
                             </button>
