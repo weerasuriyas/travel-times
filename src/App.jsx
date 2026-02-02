@@ -1,13 +1,15 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, lazy, Suspense } from 'react'
 import HomePage from './pages/HomePage'
 import ArticlePage from './pages/ArticlePage'
-import DestinationsPage from './pages/DestinationsPage'
-import DestinationDetailPage from './pages/DestinationDetailPage'
-import AdminDashboard from './pages/AdminDashboard'
-import AdminArticleEditor from './pages/AdminArticleEditor'
-import AdminLogin from './pages/AdminLogin'
 import ProtectedRoute from './components/ProtectedRoute'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+
+// Lazy load heavy components (admin pages and map pages)
+const DestinationsPage = lazy(() => import('./pages/DestinationsPage'))
+const DestinationDetailPage = lazy(() => import('./pages/DestinationDetailPage'))
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
+const AdminArticleEditor = lazy(() => import('./pages/AdminArticleEditor'))
+const AdminLogin = lazy(() => import('./pages/AdminLogin'))
 
 const peraheraImg = "/perahera_banner.jpg";
 const trainImg = "https://images.unsplash.com/photo-1566296314736-6eaac1ca0cb9?q=80&w=3402&auto=format&fit=crop";
@@ -120,6 +122,14 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen bg-[#FDFDFB] text-[#1a1a1a] font-sans selection:bg-[#00E676] selection:text-white">
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-[#00E676] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-sm font-medium text-stone-600">Loading...</p>
+          </div>
+        </div>
+      }>
       {currentPage === 'home' ? (
           <HomePage
             setCurrentPage={handlePageChange}
@@ -174,6 +184,7 @@ const AppContent = () => {
             />
           </ProtectedRoute>
         ) : null}
+      </Suspense>
 
         {currentPage !== 'admin-login' && (
           <footer className="bg-stone-950 text-white pt-32 pb-12 px-6 overflow-hidden relative">

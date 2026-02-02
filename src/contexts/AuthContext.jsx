@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import { supabase } from '../lib/supabase'
 
 // Function to check if user is admin by querying admin_users table
@@ -208,13 +208,13 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     isAdmin,
     loading,
     signInWithGoogle,
     signOut
-  }
+  }), [user, isAdmin, loading])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
