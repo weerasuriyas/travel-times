@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Shield, AlertCircle, CheckCircle, XCircle } from 'lucide-react'
 
-export default function AdminLogin({ setCurrentPage }) {
+export default function AdminLogin() {
+  const navigate = useNavigate()
   const { signInWithGoogle, signOut, loading, user, isAdmin } = useAuth()
   const [error, setError] = useState(null)
   const [signingIn, setSigningIn] = useState(false)
@@ -16,17 +18,17 @@ export default function AdminLogin({ setCurrentPage }) {
   useEffect(() => {
     if (!loading && user && isAdmin) {
       console.log('User authenticated as admin, redirecting to dashboard...')
-      setCurrentPage('admin')
+      navigate('/admin', { replace: true })
     }
-  }, [loading, user, isAdmin, setCurrentPage])
+  }, [loading, user, isAdmin, navigate])
 
   // Redirect non-admin users back to home page
   useEffect(() => {
     if (!loading && user && !isAdmin) {
       console.log('User authenticated as non-admin, redirecting to home...')
-      setCurrentPage('home')
+      navigate('/', { replace: true })
     }
-  }, [loading, user, isAdmin, setCurrentPage])
+  }, [loading, user, isAdmin, navigate])
 
   const handleGoogleSignIn = async () => {
     try {
@@ -38,7 +40,7 @@ export default function AdminLogin({ setCurrentPage }) {
         setError(error.message)
       } else {
         // Redirect to admin dashboard after successful login
-        setCurrentPage('admin')
+        navigate('/admin', { replace: true })
       }
     } catch (err) {
       setError('Failed to sign in. Please try again.')
@@ -69,7 +71,7 @@ export default function AdminLogin({ setCurrentPage }) {
       <div className="w-full max-w-md relative z-10">
         {/* Back to site link */}
         <button
-          onClick={() => setCurrentPage('home')}
+          onClick={() => navigate('/')}
           className="absolute -top-16 left-0 text-stone-400 hover:text-white transition-colors text-sm"
         >
           ← Back to site
@@ -104,7 +106,7 @@ export default function AdminLogin({ setCurrentPage }) {
           {/* Show "Go to Dashboard" if already logged in as admin */}
           {user && isAdmin && (
             <button
-              onClick={() => setCurrentPage('admin')}
+              onClick={() => navigate('/admin')}
               className="w-full bg-[#00E676] hover:bg-[#00C853] text-stone-950 font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-lg mb-4"
             >
               <CheckCircle size={20} />

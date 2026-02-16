@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Globe, Clock, Quote, Flame, Calendar, Compass, Zap, Search, X, TrendingUp, MapPin, Utensils } from 'lucide-react';
 import { UserProfile } from './UserProfile';
 
@@ -33,7 +34,8 @@ export const LiveBanner = () => (
 );
 
 // Search Modal Component
-export const SearchModal = ({ isOpen, onClose, setCurrentPage }) => {
+export const SearchModal = ({ isOpen, onClose }) => {
+    const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = React.useState('');
     const inputRef = React.useRef(null);
 
@@ -59,16 +61,14 @@ export const SearchModal = ({ isOpen, onClose, setCurrentPage }) => {
     const handleResultClick = (item) => {
         // Navigate based on item type
         if (item.type === 'Article') {
-            // Map article titles to slugs
             const slugMap = {
                 'The Fire of Kandy': 'kandy-perahera',
                 'Ella to Kandy: The Slowest Express': 'ella-to-kandy',
                 'Dambatenne: Lipton\'s Lost Trail': 'dambatenne-liptons-trail'
             };
             const slug = slugMap[item.title] || 'kandy-perahera';
-            setCurrentPage('article', slug);
+            navigate('/event/' + slug);
         } else if (item.type === 'Destination') {
-            // Map destination titles to slugs
             const destinationSlugMap = {
                 'Kandy': 'kandy',
                 'Ella': 'ella',
@@ -78,10 +78,9 @@ export const SearchModal = ({ isOpen, onClose, setCurrentPage }) => {
                 'Sigiriya': 'sigiriya'
             };
             const slug = destinationSlugMap[item.title] || item.title.toLowerCase().replace(/\s+/g, '-');
-            setCurrentPage('destination', slug);
+            navigate('/destination/' + slug);
         } else {
-            // For other types, stay on home or navigate to home
-            setCurrentPage('home');
+            navigate('/');
         }
         onClose();
     };
@@ -272,7 +271,7 @@ export const SearchModal = ({ isOpen, onClose, setCurrentPage }) => {
                                             <button
                                                 key={idx}
                                                 onClick={() => {
-                                                    setCurrentPage('article', article.slug);
+                                                    navigate('/event/' + article.slug);
                                                     onClose();
                                                 }}
                                                 className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-stone-50 transition-colors text-left group"
@@ -313,7 +312,8 @@ export const SearchModal = ({ isOpen, onClose, setCurrentPage }) => {
 };
 
 // Shared Header Component
-export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScrolled, showTabs = true }) => {
+export const SharedHeader = ({ activeTab, setActiveTab, isScrolled, showTabs = true }) => {
+    const navigate = useNavigate();
     const [currentTime, setCurrentTime] = React.useState(new Date().toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
@@ -338,7 +338,7 @@ export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScroll
             <InfoBanner currentTime={currentTime} />
             <LiveBanner />
             <div className={`max-w-[1800px] mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-2 md:gap-5 ${isScrolled ? 'py-2' : 'py-2.5 md:py-5'}`}>
-                <div className="text-center md:text-left cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]" onClick={() => setCurrentPage('home')}>
+                <div className="text-center md:text-left cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]" onClick={() => navigate('/')}>
                     <h1 className={`${isScrolled ? 'text-xl md:text-3xl' : 'text-xl md:text-4xl lg:text-5xl'} font-black text-black uppercase tracking-tighter leading-[0.8] italic transition-all duration-300`}>
                         TRAVEL<br />
                         TIMES<span className="text-stone-300">.</span>
@@ -347,7 +347,7 @@ export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScroll
                 <div className="flex items-center gap-1.5 md:gap-2 w-full md:w-auto justify-center md:justify-end">
                     {/* Destinations Link - Always visible */}
                     <button
-                        onClick={() => setCurrentPage('destinations')}
+                        onClick={() => navigate('/destinations')}
                         className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-1.5 py-1 md:px-4 md:py-2 rounded-xl md:rounded-full bg-stone-50 text-stone-600 hover:bg-black hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
                     >
                         <MapPin size={14} />
@@ -363,7 +363,7 @@ export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScroll
                                 { id: 'feature', label: 'Feature', icon: <Flame size={14} />, color: '#00E676' },
                                 { id: 'events', label: 'Journal', icon: <Calendar size={14} />, color: '#FF3D00' },
                                 { id: 'attractions', label: 'Maps', icon: <Compass size={14} />, color: '#FFD600' },
-                                { id: 'todo', label: 'Gear', icon: <Zap size={14} />, color: '#00E676' }
+                                { id: 'todo', label: 'Plan', icon: <Zap size={14} />, color: '#00E676' }
                             ].map((tab) => (
                                 <button
                                     key={tab.id}
@@ -397,12 +397,12 @@ export const SharedHeader = ({ setCurrentPage, activeTab, setActiveTab, isScroll
                             </button>
                         </nav>
                     )}
-                    <UserProfile setCurrentPage={setCurrentPage} />
+                    <UserProfile />
                 </div>
             </div>
 
             {/* Search Modal */}
-            <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} setCurrentPage={setCurrentPage} />
+            <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
         </header>
     );
 };

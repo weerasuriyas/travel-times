@@ -1,15 +1,18 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MapPin, Calendar, Thermometer, Mountain, ArrowRight } from 'lucide-react';
 import { SharedHeader } from '../components/UI';
+import { useScrolled } from '../hooks/useScrolled';
 import { getAllDestinations } from '../data/destinations';
 
-const DestinationsPage = ({ setCurrentPage, isScrolled }) => {
+const DestinationsPage = () => {
+  const navigate = useNavigate();
+  const isScrolled = useScrolled(50);
   const destinations = getAllDestinations();
 
   return (
     <div className="min-h-screen bg-[#FDFDFB]">
       <SharedHeader
-        setCurrentPage={setCurrentPage}
         isScrolled={isScrolled}
         showTabs={false}
       />
@@ -35,7 +38,7 @@ const DestinationsPage = ({ setCurrentPage, isScrolled }) => {
           {destinations.map((destination, idx) => (
             <div
               key={destination.slug}
-              onClick={() => setCurrentPage('destination', destination.slug)}
+              onClick={() => navigate('/destination/' + destination.slug)}
               className="group cursor-pointer animate-in fade-in slide-in-from-bottom-8 duration-1000 hover-lift"
               style={{ animationDelay: `${idx * 100}ms` }}
             >
@@ -118,7 +121,7 @@ const DestinationsPage = ({ setCurrentPage, isScrolled }) => {
                   <div className="pt-4 border-t border-stone-100 flex items-center justify-between">
                     <div>
                       <p className="text-xs text-stone-500">
-                        {destination.events.length} event{destination.events.length !== 1 ? 's' : ''} · {destination.thingsToDo.length} activities
+                        {destination.events.length} event{destination.events.length !== 1 ? 's' : ''} · {(destination.generalThingsToDo || destination.thingsToDo || []).length} activities
                       </p>
                     </div>
                     <div className="flex items-center gap-2 text-[#00E676] group-hover:translate-x-1 transition-transform">

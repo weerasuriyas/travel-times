@@ -234,18 +234,14 @@
   transition: font-size 600ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Leaflet map styling */
-.leaflet-container {
+/* Google Maps styling */
+.gm-style {
   font-family: inherit;
 }
 
-.leaflet-popup-content-wrapper {
+.gm-style-iw {
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-}
-
-.leaflet-popup-content {
-  margin: 12px;
 }
 
 /* Modern card animations */
@@ -333,12 +329,13 @@
   }
 }
 
-.leaflet-interactive.perahera-route {
+/* Polyline route styling for Google Maps */
+.perahera-route {
   cursor: pointer;
   transition: opacity 0.3s ease;
 }
 
-.leaflet-interactive.perahera-route:hover {
+.perahera-route:hover {
   opacity: 1 !important;
 }
 
@@ -353,13 +350,9 @@
 }
 
 /* Prevent map from jittering */
-.leaflet-container {
+.gm-style {
   font-family: inherit;
   background: #f5f5f5;
-}
-
-.leaflet-tile-container {
-  transition: opacity 0.2s ease;
 }
 
 /* Prevent image copying and downloading */

@@ -1,55 +1,66 @@
-import React from 'react';
-import { MapPin, Calendar, Clock, ArrowRight, ArrowLeft, Star, DollarSign, Compass } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { MapPin, Calendar, Clock, ArrowRight, ArrowLeft, Star, DollarSign, Compass, Navigation2, Maximize2, Minimize2 } from 'lucide-react';
+import { APIProvider, Map, AdvancedMarker, InfoWindow } from '@vis.gl/react-google-maps';
 import { SharedHeader } from '../components/UI';
-import { getDestinationBySlug } from '../data/destinations';
+import { useScrolled } from '../hooks/useScrolled';
+import EventDateBadge from '../components/ui/EventDateBadge';
+import { getDestinationBySlug, isHappeningNow, isHappeningSoon, isInSeason, getEventsForDestination } from '../data/destinations';
 
-const DestinationDetailPage = ({ slug, setCurrentPage, isScrolled }) => {
+// Custom Google Maps styles for a polished, modern look
+const mapStyles = [
+  {
+    featureType: "poi",
+    elementType: "labels",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "transit",
+    elementType: "labels",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#a8dff0" }]
+  },
+  {
+    featureType: "landscape",
+    elementType: "geometry",
+    stylers: [{ color: "#f5f5f2" }]
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{ color: "#ffffff" }]
+  }
+];
+
+// Custom marker component with modern design
+const CustomMarker = ({ name }) => (
+  <div className="relative flex flex-col items-center animate-in zoom-in duration-500">
+    <div className="w-12 h-12 bg-[#00E676] border-4 border-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform duration-300 cursor-pointer">
+      <MapPin className="w-6 h-6 text-white" strokeWidth={3} />
+    </div>
+    <div className="mt-2 bg-white px-4 py-2 rounded-xl shadow-lg border border-stone-100">
+      <span className="text-xs font-black uppercase tracking-wider text-stone-800 whitespace-nowrap">
+        {name}
+      </span>
+    </div>
+    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-white"></div>
+  </div>
+);
+
+const DestinationDetailPage = () => {
+  const { slug } = useParams();
+  const navigate = useNavigate();
+  const isScrolled = useScrolled(50);
   const destination = getDestinationBySlug(slug);
+  const [infoWindowOpen, setInfoWindowOpen] = useState(true);
+  const [mapExpanded, setMapExpanded] = useState(false);
 
-  // Custom marker icon for destination
-  const destinationIcon = new L.DivIcon({
-    className: 'custom-destination-marker',
-    html: `
-      <div style="position: relative;">
-        <div style="
-          width: 40px;
-          height: 40px;
-          background: #00E676;
-          border: 4px solid white;
-          border-radius: 50%;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        ">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-            <circle cx="12" cy="10" r="3"></circle>
-          </svg>
-        </div>
-        <div style="
-          position: absolute;
-          top: 45px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: white;
-          padding: 4px 12px;
-          border-radius: 12px;
-          font-size: 11px;
-          font-weight: 900;
-          text-transform: uppercase;
-          white-space: nowrap;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-          letter-spacing: 0.5px;
-        ">${destination?.name || ''}</div>
-      </div>
-    `,
-    iconSize: [40, 40],
-    iconAnchor: [20, 20]
-  });
+  const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  const hasValidMapsKey = GOOGLE_MAPS_API_KEY && !GOOGLE_MAPS_API_KEY.startsWith('YOUR_');
 
   if (!destination) {
     return (
@@ -58,7 +69,7 @@ const DestinationDetailPage = ({ slug, setCurrentPage, isScrolled }) => {
           <h2 className="text-4xl font-black uppercase mb-4">Destination Not Found</h2>
           <p className="text-stone-600 mb-6">The destination you're looking for doesn't exist.</p>
           <button
-            onClick={() => setCurrentPage('destinations')}
+            onClick={() => navigate('/destinations')}
             className="px-6 py-3 bg-[#00E676] hover:bg-[#00C853] text-stone-950 rounded-full font-black uppercase tracking-widest text-sm transition-all"
           >
             Back to Destinations
@@ -68,10 +79,12 @@ const DestinationDetailPage = ({ slug, setCurrentPage, isScrolled }) => {
     );
   }
 
+  const sortedEvents = getEventsForDestination(slug);
+  const timelyCount = sortedEvents.filter(e => isHappeningNow(e) || isHappeningSoon(e) || isInSeason(e)).length;
+
   return (
     <div className="min-h-screen bg-[#FDFDFB]">
       <SharedHeader
-        setCurrentPage={setCurrentPage}
         isScrolled={isScrolled}
         showTabs={false}
       />
@@ -81,7 +94,7 @@ const DestinationDetailPage = ({ slug, setCurrentPage, isScrolled }) => {
         <div className="max-w-[1800px] mx-auto px-4 md:px-6 mb-16">
           {/* Back Button */}
           <button
-            onClick={() => setCurrentPage('destinations')}
+            onClick={() => navigate('/destinations')}
             className="flex items-center gap-2 text-stone-600 hover:text-[#00E676] transition-colors mb-8 group"
           >
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
@@ -90,35 +103,105 @@ const DestinationDetailPage = ({ slug, setCurrentPage, isScrolled }) => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-[48px] shadow-2xl overflow-hidden bg-white">
             {/* Map Section */}
-            <div className="relative h-[400px] lg:h-[600px]">
-              <MapContainer
-                center={[7.8731, 80.7718]} // Center of Sri Lanka
-                zoom={8}
-                style={{ height: '100%', width: '100%' }}
-                zoomControl={true}
-                scrollWheelZoom={false}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <Marker position={destination.coordinates} icon={destinationIcon}>
-                  <Popup>
-                    <div className="text-center p-2">
-                      <h3 className="font-black text-lg uppercase mb-1">{destination.name}</h3>
-                      <p className="text-xs text-stone-600">{destination.region}</p>
-                    </div>
-                  </Popup>
-                </Marker>
-              </MapContainer>
+            <div className="relative h-[400px] lg:h-[600px] group">
+              {hasValidMapsKey ? (
+              <>
+              <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+                <Map
+                  defaultCenter={{ lat: destination.coordinates[0], lng: destination.coordinates[1] }}
+                  defaultZoom={10}
+                  mapId="8e5e3d8a9c4a2b1c"
+                  gestureHandling="greedy"
+                  disableDefaultUI={false}
+                  zoomControl={true}
+                  mapTypeControl={false}
+                  scaleControl={true}
+                  streetViewControl={false}
+                  rotateControl={false}
+                  fullscreenControl={true}
+                  className="w-full h-full rounded-l-[48px]"
+                  styles={mapStyles}
+                >
+                  <AdvancedMarker
+                    position={{ lat: destination.coordinates[0], lng: destination.coordinates[1] }}
+                    onClick={() => setInfoWindowOpen(!infoWindowOpen)}
+                  >
+                    <CustomMarker name={destination.name} />
+                  </AdvancedMarker>
+
+                  {infoWindowOpen && (
+                    <InfoWindow
+                      position={{ lat: destination.coordinates[0], lng: destination.coordinates[1] }}
+                      onCloseClick={() => setInfoWindowOpen(false)}
+                      pixelOffset={[0, -60]}
+                    >
+                      <div className="p-4 min-w-[200px]">
+                        <h3 className="text-xl font-black uppercase mb-2 text-stone-900">
+                          {destination.name}
+                        </h3>
+                        <div className="flex items-center gap-2 mb-3">
+                          <MapPin size={14} className="text-[#00E676]" />
+                          <span className="text-sm font-bold text-stone-600">{destination.region}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          <div>
+                            <p className="font-black uppercase tracking-wider text-stone-400 mb-1">Elevation</p>
+                            <p className="font-bold text-stone-700">{destination.stats.elevation}</p>
+                          </div>
+                          <div>
+                            <p className="font-black uppercase tracking-wider text-stone-400 mb-1">Best Time</p>
+                            <p className="font-bold text-stone-700">{destination.stats.bestTime}</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => window.open(`https://www.google.com/maps/dir//${destination.coordinates[0]},${destination.coordinates[1]}`, '_blank')}
+                          className="mt-4 w-full px-4 py-2 bg-[#00E676] hover:bg-[#00C853] text-stone-950 rounded-full font-black uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-2"
+                        >
+                          <Navigation2 size={14} />
+                          <span>Get Directions</span>
+                        </button>
+                      </div>
+                    </InfoWindow>
+                  )}
+                </Map>
+              </APIProvider>
 
               {/* Map Overlay Label */}
-              <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg z-[1000]">
+              <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-xl shadow-lg z-10 border border-stone-100">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-[#00E676] rounded-full"></div>
-                  <span className="text-xs font-black uppercase tracking-widest text-stone-700">Location in Sri Lanka</span>
+                  <div className="w-3 h-3 bg-[#00E676] rounded-full animate-pulse"></div>
+                  <span className="text-xs font-black uppercase tracking-widest text-stone-700">
+                    Location in Sri Lanka
+                  </span>
                 </div>
               </div>
+
+              {/* Map Controls Overlay */}
+              <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-3 rounded-xl shadow-lg z-10 border border-stone-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-xs font-bold text-stone-600">Powered by Google Maps</span>
+                  </div>
+                  <button
+                    onClick={() => setMapExpanded(!mapExpanded)}
+                    className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
+                    title="Toggle fullscreen"
+                  >
+                    {mapExpanded ? <Minimize2 size={16} className="text-stone-600" /> : <Maximize2 size={16} className="text-stone-600" />}
+                  </button>
+                </div>
+              </div>
+              </>
+              ) : (
+                <div className="w-full h-full bg-stone-100 flex items-center justify-center rounded-l-[48px]">
+                  <div className="text-center p-8">
+                    <MapPin size={48} className="text-stone-300 mx-auto mb-4" />
+                    <p className="text-sm font-bold text-stone-500 mb-1">{destination.name}</p>
+                    <p className="text-xs text-stone-400">Google Maps API key required</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Content Section */}
@@ -192,7 +275,7 @@ const DestinationDetailPage = ({ slug, setCurrentPage, isScrolled }) => {
         </div>
 
         {/* Events Section */}
-        {destination.events.length > 0 && (
+        {sortedEvents.length > 0 && (
           <section className="max-w-7xl mx-auto px-6 mb-32">
             <div className="mb-12">
               <div className="flex items-center gap-3 mb-4">
@@ -200,14 +283,23 @@ const DestinationDetailPage = ({ slug, setCurrentPage, isScrolled }) => {
                 <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-stone-500">Events & Experiences</h2>
               </div>
               <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tight italic">What's Happening</h3>
+              {timelyCount > 0 && (
+                <p className="text-sm text-[#00E676] font-bold mt-2">{timelyCount} event{timelyCount !== 1 ? 's' : ''} happening soon</p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {destination.events.map((event, idx) => (
+              {sortedEvents.map((event, idx) => {
+                const isTimely = isHappeningNow(event) || isHappeningSoon(event);
+                return (
                 <div
                   key={idx}
-                  onClick={() => event.slug && setCurrentPage('article', event.slug)}
-                  className={`group ${event.slug ? 'cursor-pointer' : ''} bg-white rounded-[32px] overflow-hidden shadow-xl border border-stone-100 hover:shadow-2xl transition-all duration-500 hover-lift`}
+                  onClick={() => event.slug && navigate('/event/' + event.slug)}
+                  className={`group ${event.slug ? 'cursor-pointer' : ''} bg-white rounded-[32px] overflow-hidden shadow-xl border transition-all duration-500 hover-lift ${
+                    isTimely
+                      ? 'border-[#00E676] ring-2 ring-[#00E676]/30 shadow-[#00E676]/10'
+                      : 'border-stone-100 hover:shadow-2xl'
+                  }`}
                 >
                   <div className="relative aspect-[16/10] overflow-hidden">
                     <img
@@ -216,6 +308,10 @@ const DestinationDetailPage = ({ slug, setCurrentPage, isScrolled }) => {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+
+                    <div className="absolute top-4 left-4">
+                      <EventDateBadge event={event} />
+                    </div>
 
                     {event.featured && (
                       <div className="absolute top-4 right-4 bg-[#FFD600] text-stone-950 px-3 py-1.5 rounded-full flex items-center gap-2">
@@ -269,13 +365,14 @@ const DestinationDetailPage = ({ slug, setCurrentPage, isScrolled }) => {
                     )}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         )}
 
         {/* Things to Do Section */}
-        {destination.thingsToDo.length > 0 && (
+        {(destination.generalThingsToDo || destination.thingsToDo || []).length > 0 && (
           <section className="max-w-7xl mx-auto px-6 mb-32">
             <div className="mb-12">
               <div className="flex items-center gap-3 mb-4">
@@ -286,7 +383,7 @@ const DestinationDetailPage = ({ slug, setCurrentPage, isScrolled }) => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {destination.thingsToDo.map((activity, idx) => (
+              {(destination.generalThingsToDo || destination.thingsToDo || []).map((activity, idx) => (
                 <div
                   key={idx}
                   className="group bg-white rounded-[24px] overflow-hidden shadow-lg border border-stone-100 hover:shadow-xl transition-all duration-500 hover-lift"
@@ -342,7 +439,7 @@ const DestinationDetailPage = ({ slug, setCurrentPage, isScrolled }) => {
                 Discover more destinations across Sri Lanka and plan your perfect journey through the island.
               </p>
               <button
-                onClick={() => setCurrentPage('destinations')}
+                onClick={() => navigate('/destinations')}
                 className="px-8 py-4 bg-[#00E676] hover:bg-[#00C853] text-stone-950 rounded-full font-black uppercase tracking-widest text-sm transition-all hover:scale-105 shadow-xl inline-flex items-center gap-3"
               >
                 <span>Browse All Destinations</span>

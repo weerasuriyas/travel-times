@@ -1,14 +1,16 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Save, Eye, Upload, MapPin, Plus, X, Image as ImageIcon, Trash2, LogOut, User } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
-export default function AdminArticleEditor({ setCurrentPage }) {
+export default function AdminArticleEditor() {
+  const navigate = useNavigate()
   const { user, signOut } = useAuth()
 
   const handleSignOut = async () => {
     try {
       await signOut()
-      setCurrentPage('home')
+      navigate('/')
     } catch (error) {
       console.error('Error signing out:', error)
     }
@@ -60,7 +62,7 @@ export default function AdminArticleEditor({ setCurrentPage }) {
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setCurrentPage('admin')}
+                onClick={() => navigate('/admin')}
                 className="px-4 py-2 bg-stone-800 hover:bg-stone-700 rounded-lg transition-colors text-sm"
               >
                 Cancel

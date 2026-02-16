@@ -1,0 +1,23 @@
+{
+  "run_id": "a4a2a306-4359-4efa-bc37-e9768ecd9601",
+  "config": {
+    "goal": "react vite tailwind latest features and best practices",
+    "vault_path": "/Users/shanew/Documents/obsidian/shad",
+    "budget": {
+      "max_wall_time": 300,
+      "max_tokens": 100000,
+      "max_nodes": 50,
+      "max_depth": 2,
+      "max_branching_factor": 7
+    },
+    "voice": null,
+    "strategy_override": null,
+    "verify_level": "basic",
+    "write_files": false,
+    "output_path": null
+  },
+  "node_count": 1,
+  "cache_keys": [
+    "0ccf4c234b0de2a8"
+  ]
+}

@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import { Plus, Edit, Eye, Archive, Trash2, Search, Filter, LogOut, User } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Plus, Edit, Eye, Archive, Trash2, Search, Filter, LogOut, User, Upload } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
-export default function AdminDashboard({ setCurrentPage }) {
+export default function AdminDashboard() {
+  const navigate = useNavigate()
   const { user, signOut } = useAuth()
 
   const handleSignOut = async () => {
     try {
       await signOut()
-      setCurrentPage('home')
+      navigate('/')
     } catch (error) {
       console.error('Error signing out:', error)
     }
@@ -100,7 +102,7 @@ export default function AdminDashboard({ setCurrentPage }) {
 
               {/* Back to site button */}
               <button
-                onClick={() => setCurrentPage('home')}
+                onClick={() => navigate('/')}
                 className="px-4 py-2 bg-stone-800 hover:bg-stone-700 rounded-lg transition-colors text-sm"
               >
                 ← Back to Site
@@ -173,17 +175,26 @@ export default function AdminDashboard({ setCurrentPage }) {
               </div>
             </div>
 
-            {/* New Article Button */}
-            <button
-              onClick={() => setCurrentPage('admin-editor')}
-              className="flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-all shadow-sm whitespace-nowrap"
-              style={{ backgroundColor: '#00E676', color: '#1a1a1a' }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#00C853'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#00E676'}
-            >
-              <Plus size={20} />
-              New Article
-            </button>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate('/admin/ingest')}
+                className="flex items-center gap-2 px-6 py-2 bg-stone-950 text-white rounded-lg font-medium transition-all shadow-sm whitespace-nowrap hover:bg-stone-800"
+              >
+                <Upload size={20} />
+                Ingest Folder
+              </button>
+              <button
+                onClick={() => navigate('/admin/editor')}
+                className="flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-all shadow-sm whitespace-nowrap"
+                style={{ backgroundColor: '#00E676', color: '#1a1a1a' }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#00C853'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#00E676'}
+              >
+                <Plus size={20} />
+                New Article
+              </button>
+            </div>
           </div>
         </div>
 
@@ -242,14 +253,14 @@ export default function AdminDashboard({ setCurrentPage }) {
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={() => setCurrentPage('article')}
+                          onClick={() => navigate('/event/' + article.slug)}
                           className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
                           title="Preview"
                         >
                           <Eye size={18} className="text-stone-600" />
                         </button>
                         <button
-                          onClick={() => setCurrentPage('admin-editor')}
+                          onClick={() => navigate('/admin/editor')}
                           className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
                           title="Edit"
                         >

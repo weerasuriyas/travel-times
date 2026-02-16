@@ -55,7 +55,6 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     console.log('AuthProvider: Initializing...')
     console.log('Current URL:', window.location.href)
-    console.log('URL hash:', window.location.hash)
 
     // Check if we have an OAuth code in the URL
     const urlParams = new URLSearchParams(window.location.search)

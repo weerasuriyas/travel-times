@@ -1,17 +1,9 @@
+import { Navigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { useEffect } from 'react'
 
-export default function ProtectedRoute({ children, setCurrentPage }) {
+export default function ProtectedRoute({ children }) {
   const { user, isAdmin, loading } = useAuth()
 
-  useEffect(() => {
-    // If not loading and user is not authenticated or not an admin, redirect to login
-    if (!loading && (!user || !isAdmin)) {
-      setCurrentPage('admin-login')
-    }
-  }, [user, isAdmin, loading, setCurrentPage])
-
-  // Show loading state while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
@@ -23,12 +15,9 @@ export default function ProtectedRoute({ children, setCurrentPage }) {
     )
   }
 
-  // If user is not authenticated or not an admin, don't render anything
-  // (useEffect will handle the redirect)
   if (!user || !isAdmin) {
-    return null
+    return <Navigate to="/admin/login" replace />
   }
 
-  // User is authenticated and is an admin, render the protected content
   return children
 }

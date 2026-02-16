@@ -1,61 +1,64 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, ArrowUpRight, ChevronRight, Share2, Eye, Calendar, Clock, ArrowLeft, Layers, Flame, Compass, Info, Star, Building, Utensils } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
-import L from 'leaflet';
+import { APIProvider, Map, AdvancedMarker, InfoWindow, useMap } from '@vis.gl/react-google-maps';
 import { SectionHeader, SharedHeader } from '../components/UI';
-import { getArticleBySlug } from '../data/articles';
+import { useScrolled } from '../hooks/useScrolled';
+import { getEventBySlug, getDestinationBySlug } from '../data/destinations';
+import EventDateBadge from '../components/ui/EventDateBadge';
 import plateEmblems from '../assets/images/plate_emblems.jpg';
 import plateRituals from '../assets/images/plate_rituals.jpg';
 import plateGuard from '../assets/images/plate_guard.jpg';
 
-// Custom Map Controller
+const peraheraImg = "/perahera_banner.jpg";
+
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const hasValidMapsKey = GOOGLE_MAPS_API_KEY && !GOOGLE_MAPS_API_KEY.startsWith('YOUR_');
+
+const MapPlaceholder = ({ height = '500px', label = 'Map' }) => (
+    <div className="rounded-[32px] overflow-hidden border-4 border-white bg-stone-100 flex items-center justify-center" style={{ height }}>
+        <div className="text-center p-8">
+            <MapPin size={48} className="text-stone-300 mx-auto mb-4" />
+            <p className="text-sm font-bold text-stone-500 mb-1">{label}</p>
+            <p className="text-xs text-stone-400">Google Maps API key required</p>
+        </div>
+    </div>
+);
+
+// Custom Map Controller for Google Maps
 const MapViewController = ({ selectedHotel, hotels }) => {
     const map = useMap();
 
     useEffect(() => {
-        if (selectedHotel !== null) {
+        if (selectedHotel !== null && map) {
             const hotel = hotels[selectedHotel];
-            map.flyTo(hotel.coordinates, 16, {
-                duration: 2,
-                easeLinearity: 0.25
-            });
+            map.panTo({ lat: hotel.coordinates[0], lng: hotel.coordinates[1] });
+            map.setZoom(16);
         }
     }, [selectedHotel, map, hotels]);
 
     return null;
 };
 
-// Custom SVG marker icons (inline to avoid external dependencies)
-const createMarkerIcon = (color, isSelected = false) => {
+// Custom marker component for Google Maps
+const CustomMapMarker = ({ color = '#78716c', isSelected = false, icon }) => {
     const size = isSelected ? 36 : 28;
-    const svg = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="${size}" height="${size * 1.5}">
-            <defs>
-                <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/>
-                </filter>
-            </defs>
-            <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24c0-6.6-5.4-12-12-12z" 
-                  fill="${color}" 
-                  filter="url(#shadow)"
-                  stroke="white" 
-                  stroke-width="2"/>
-            <circle cx="12" cy="12" r="5" fill="white"/>
-        </svg>
-    `;
 
-    return L.divIcon({
-        html: svg,
-        className: 'custom-marker-icon',
-        iconSize: [size, size * 1.5],
-        iconAnchor: [size / 2, size * 1.5],
-        popupAnchor: [0, -size * 1.2]
-    });
+    return (
+        <div className="relative flex flex-col items-center">
+            <div
+                className={`rounded-full border-4 border-white shadow-2xl flex items-center justify-center transition-all duration-300 ${isSelected ? 'scale-110' : ''}`}
+                style={{
+                    width: `${size}px`,
+                    height: `${size}px`,
+                    backgroundColor: color
+                }}
+            >
+                {icon || <MapPin className="text-white" size={size * 0.6} strokeWidth={3} />}
+            </div>
+        </div>
+    );
 };
-
-const defaultIcon = createMarkerIcon('#78716c'); // stone-500
-const selectedIcon = createMarkerIcon('#00E676', true); // green
-const templeIcon = createMarkerIcon('#FFB300'); // gold/amber
 
 const accommodations = [
     {
@@ -128,22 +131,25 @@ const peraheraRoute = [
     [7.2936, 80.6413]  // Return to Temple
 ];
 
-const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setActiveTab, isScrolled, peraheraImg }) => {
+const EventDetailPage = () => {
+    const { slug = 'kandy-perahera' } = useParams();
+    const navigate = useNavigate();
+    const isScrolled = useScrolled(50);
     const [selectedHotel, setSelectedHotel] = useState(null);
     const [selectedRestaurant, setSelectedRestaurant] = useState(null);
 
-    // Load article data based on slug
-    const articleData = getArticleBySlug(slug);
+    // Load event data from unified destinations model
+    const eventData = getEventBySlug(slug);
 
-    // If article doesn't exist, show error
-    if (!articleData) {
+    // If event doesn't exist, show error
+    if (!eventData) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#FDFDFB]">
                 <div className="text-center px-6">
-                    <h2 className="text-4xl font-black uppercase mb-4">Article Not Found</h2>
-                    <p className="text-stone-600 mb-8">The article you're looking for doesn't exist.</p>
+                    <h2 className="text-4xl font-black uppercase mb-4">Event Not Found</h2>
+                    <p className="text-stone-600 mb-8">The event you're looking for doesn't exist.</p>
                     <button
-                        onClick={() => setCurrentPage('home')}
+                        onClick={() => navigate('/')}
                         className="px-6 py-3 bg-black text-white font-bold uppercase tracking-widest text-xs rounded-full hover:bg-[#00E676] transition-all"
                     >
                         Back to Home
@@ -153,8 +159,12 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
         );
     }
 
-    // Use article accommodations or fallback to hardcoded ones
-    const articleAccommodations = articleData.accommodations || accommodations;
+    // Use event accommodations or fallback to hardcoded ones
+    const eventAccommodations = eventData.accommodations || accommodations;
+    const eventRestaurants = eventData.restaurants || [];
+    const article = eventData.article;
+    const destData = getDestinationBySlug(eventData.destination.slug);
+    const destCoordinates = destData?.coordinates || [7.2906, 80.6337];
 
     // Scroll tracking
     const [scrollY, setScrollY] = useState(0);
@@ -219,15 +229,20 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
 
     return (
         <div className="animate-in slide-in-from-right duration-700">
-            <SharedHeader 
-                setCurrentPage={setCurrentPage}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
+            <SharedHeader
                 isScrolled={isScrolled}
                 showTabs={false}
             />
 
             <main className="pt-56 md:pt-52 pb-32">
+                {/* Breadcrumb */}
+                <div className="max-w-[1800px] mx-auto px-4 md:px-6 mb-6">
+                    <button onClick={() => navigate(`/destination/${eventData.destination.slug}`)} className="flex items-center gap-2 text-stone-600 hover:text-[#00E676] transition-colors group">
+                        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                        <span className="text-sm font-bold uppercase tracking-widest">Back to {eventData.destination.name}</span>
+                    </button>
+                </div>
+
                 {/* Hero Section with Overlay */}
                 <div ref={heroRef} id="section-hero" className="max-w-[1800px] mx-auto px-4 md:px-6 mb-16 md:mb-20">
                     <div className="aspect-[4/3] sm:aspect-[16/10] md:aspect-[21/9] rounded-[24px] md:rounded-[48px] shadow-2xl relative group">
@@ -241,18 +256,19 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
                         {/* Overlay Content */}
                         <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4 py-8 md:p-20">
                             <div className="flex flex-wrap justify-center gap-2 md:space-x-4 mb-6 md:mb-8 animate-in slide-in-from-bottom duration-700 fade-in">
-                                <span className="bg-[#00E676] text-white text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em] px-4 py-2 rounded-full shadow-lg">{articleData.category}</span>
-                                <span className="text-white/90 text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em] px-4 py-2 border-2 border-white/30 rounded-full backdrop-blur-sm bg-white/10">{articleData.readTime} Min Read</span>
+                                <EventDateBadge event={eventData} size="large" />
+                                <span className="bg-[#00E676] text-white text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em] px-4 py-2 rounded-full shadow-lg">{article?.category || eventData.type}</span>
+                                {article?.readTime && <span className="text-white/90 text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em] px-4 py-2 border-2 border-white/30 rounded-full backdrop-blur-sm bg-white/10">{article?.readTime} Min Read</span>}
                             </div>
 
                             <h1 className="hero-title font-black uppercase tracking-tighter italic mb-6 md:mb-10 text-white drop-shadow-2xl animate-in slide-in-from-bottom duration-1000 fade-in delay-100 px-2">
-                                {articleData.title}
+                                {article?.title || eventData.name}
                             </h1>
 
                             <div className="relative max-w-3xl mx-auto">
                                 <div className="absolute -left-4 top-0 text-white/20 text-6xl md:text-8xl font-serif leading-none">"</div>
                                 <p className="relative text-base md:text-xl font-serif italic text-white/95 leading-relaxed drop-shadow-lg animate-in slide-in-from-bottom duration-1000 fade-in delay-200 px-4 md:px-12">
-                                    {articleData.subtitle}
+                                    {article?.subtitle || eventData.description}
                                 </p>
                             </div>
                         </div>
@@ -264,11 +280,11 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
                     <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-stone-900">
                         <div className="group bg-white border border-stone-200 hover:border-[#00E676]/30 px-6 py-3 rounded-2xl flex items-center gap-3 min-w-[200px] shadow-sm hover:shadow-md transition-all duration-300">
                             <div className="w-8 h-8 bg-gradient-to-br from-[#00E676] to-[#00C853] rounded-full flex items-center justify-center text-white font-bold text-xs">
-                                {articleData.author.name.split(' ').map(n => n[0]).join('')}
+                                {article?.author.name.split(' ').map(n => n[0]).join('')}
                             </div>
                             <div className="text-left">
                                 <p className="text-[8px] font-black uppercase tracking-[0.25em] text-stone-400">Author</p>
-                                <p className="text-xs font-bold text-stone-700">{articleData.author.name}</p>
+                                <p className="text-xs font-bold text-stone-700">{article?.author.name}</p>
                             </div>
                         </div>
 
@@ -280,7 +296,7 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
                             </div>
                             <div className="text-left">
                                 <p className="text-[8px] font-black uppercase tracking-[0.25em] text-stone-400">Location</p>
-                                <p className="text-xs font-bold text-stone-700">{articleData.location.name}</p>
+                                <p className="text-xs font-bold text-stone-700">{eventData.destination.name}</p>
                             </div>
                         </div>
 
@@ -292,7 +308,7 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
                             </div>
                             <div className="text-left">
                                 <p className="text-[8px] font-black uppercase tracking-[0.25em] text-stone-400">Read Time</p>
-                                <p className="text-xs font-bold text-stone-700">{articleData.readTime} Minutes</p>
+                                <p className="text-xs font-bold text-stone-700">{article?.readTime} Minutes</p>
                             </div>
                         </div>
                     </div>
@@ -584,50 +600,59 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
                                 </div>
                             </div>
 
+                            {hasValidMapsKey ? (
                             <div className="rounded-[32px] overflow-hidden shadow-xl border-4 border-white h-[400px] md:h-[500px] relative">
-                                <MapContainer center={[7.2906, 80.6337]} zoom={13} style={{ height: "100%", width: "100%" }}>
-                                    <TileLayer
-                                        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                                    />
-                                    <MapViewController selectedHotel={selectedHotel} hotels={articleAccommodations} />
-
-                                    {/* Hotel Markers */}
-                                    {articleAccommodations.map((hotel, idx) => (
-                                        <Marker
-                                            key={idx}
-                                            position={hotel.coordinates}
-                                            icon={selectedHotel === idx ? selectedIcon : defaultIcon}
-                                            eventHandlers={{
-                                                click: () => setSelectedHotel(idx),
-                                            }}
-                                        >
-                                            <Popup className="font-sans">
-                                                <div className="text-center">
-                                                    <h3 className="font-black uppercase text-sm">{hotel.name}</h3>
-                                                    <p className="text-xs text-stone-500">{hotel.type}</p>
-                                                    <p className="text-xs font-bold text-[#00E676] mt-1">{hotel.price}</p>
-                                                </div>
-                                            </Popup>
-                                        </Marker>
-                                    ))}
-
-                                    {/* Perahera Route */}
-                                    <Polyline
-                                        positions={peraheraRoute}
-                                        color="#FF3D00"
-                                        dashArray="10, 10"
-                                        weight={4}
-                                        className="perahera-route"
+                                <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+                                    <Map
+                                        defaultCenter={{ lat: 7.2906, lng: 80.6337 }}
+                                        defaultZoom={13}
+                                        mapId="8e5e3d8a9c4a2b1c"
+                                        gestureHandling="greedy"
+                                        disableDefaultUI={false}
+                                        zoomControl={true}
+                                        className="w-full h-full"
                                     >
-                                        <Popup>Esala Perahera Procession Route</Popup>
-                                    </Polyline>
+                                        <MapViewController selectedHotel={selectedHotel} hotels={eventAccommodations} />
 
-                                    {/* Temple of the Tooth Marker */}
-                                    <Marker position={[7.2936, 80.6413]} icon={templeIcon}>
-                                        <Popup>Sri Dalada Maligawa (Temple of the Tooth)</Popup>
-                                    </Marker>
-                                </MapContainer>
+                                        {/* Hotel Markers */}
+                                        {eventAccommodations.map((hotel, idx) => (
+                                            <AdvancedMarker
+                                                key={idx}
+                                                position={{ lat: hotel.coordinates[0], lng: hotel.coordinates[1] }}
+                                                onClick={() => setSelectedHotel(idx)}
+                                            >
+                                                <CustomMapMarker
+                                                    color={selectedHotel === idx ? '#00E676' : '#78716c'}
+                                                    isSelected={selectedHotel === idx}
+                                                />
+                                            </AdvancedMarker>
+                                        ))}
+
+                                        {/* Temple of the Tooth Marker */}
+                                        <AdvancedMarker
+                                            position={{ lat: 7.2936, lng: 80.6413 }}
+                                        >
+                                            <CustomMapMarker color="#FFB300" icon={<Building className="text-white" size={16} />} />
+                                        </AdvancedMarker>
+
+                                        {/* Info Windows for Selected Hotel */}
+                                        {selectedHotel !== null && (
+                                            <InfoWindow
+                                                position={{
+                                                    lat: eventAccommodations[selectedHotel].coordinates[0],
+                                                    lng: eventAccommodations[selectedHotel].coordinates[1]
+                                                }}
+                                                onCloseClick={() => setSelectedHotel(null)}
+                                            >
+                                                <div className="text-center p-2">
+                                                    <h3 className="font-black uppercase text-sm">{eventAccommodations[selectedHotel].name}</h3>
+                                                    <p className="text-xs text-stone-500">{eventAccommodations[selectedHotel].type}</p>
+                                                    <p className="text-xs font-bold text-[#00E676] mt-1">{eventAccommodations[selectedHotel].price}</p>
+                                                </div>
+                                            </InfoWindow>
+                                        )}
+                                    </Map>
+                                </APIProvider>
 
                                 {/* Map Legend */}
                                 <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-md p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest z-[1000] shadow-xl">
@@ -651,12 +676,15 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
                                     </div>
                                 </div>
                             </div>
+                            ) : (
+                                <MapPlaceholder height="500px" label="Hotel Locations" />
+                            )}
                         </div>
                     </div>
 
                     {/* Hotel Cards Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                        {articleAccommodations.map((hotel, idx) => (
+                        {eventAccommodations.map((hotel, idx) => (
                             <div
                                 key={idx}
                                 onMouseEnter={() => setSelectedHotel(idx)}
@@ -765,7 +793,7 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
                 </div>
 
                 {/* Where to Eat Section */}
-                {articleData.restaurants && articleData.restaurants.length > 0 && (
+                {eventRestaurants && eventRestaurants.length > 0 && (
                     <div ref={eatRef} id="section-eat" className="max-w-[1800px] mx-auto px-4 md:px-6 mb-32">
                         <SectionHeader title="Where to Eat" subtitle="Dining & Cuisine" color="#FF3D00" />
 
@@ -780,43 +808,62 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
                                     <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight italic">Restaurant Map</h3>
                                     <div className="flex items-center gap-3 px-4 py-2 bg-white rounded-full border border-orange-200 shadow-sm">
                                         <Utensils size={16} className="text-[#FF3D00]" />
-                                        <span className="text-sm font-bold text-stone-700">{articleData.restaurants.length} Restaurants</span>
+                                        <span className="text-sm font-bold text-stone-700">{eventRestaurants.length} Restaurants</span>
                                     </div>
                                 </div>
 
                                 {/* Map Container */}
+                                {hasValidMapsKey ? (
                                 <div className="relative rounded-[32px] overflow-hidden shadow-2xl border-4 border-white" style={{ height: "500px" }}>
-                                    <MapContainer center={articleData.location.coordinates} zoom={14} style={{ height: "100%", width: "100%" }}>
-                                        <TileLayer
-                                            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                                        />
-                                        <MapViewController selectedHotel={selectedRestaurant} hotels={articleData.restaurants} />
+                                    <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+                                        <Map
+                                            defaultCenter={{ lat: destCoordinates[0], lng: destCoordinates[1] }}
+                                            defaultZoom={14}
+                                            mapId="8e5e3d8a9c4a2b1c"
+                                            gestureHandling="greedy"
+                                            disableDefaultUI={false}
+                                            zoomControl={true}
+                                            className="w-full h-full"
+                                        >
+                                            <MapViewController selectedHotel={selectedRestaurant} hotels={eventRestaurants} />
 
-                                        {/* Restaurant Markers */}
-                                        {articleData.restaurants.map((restaurant, idx) => (
-                                            <Marker
-                                                key={idx}
-                                                position={restaurant.coordinates}
-                                                icon={selectedRestaurant === idx ? createMarkerIcon('#FF3D00', true) : createMarkerIcon('#FF3D00')}
-                                                eventHandlers={{
-                                                    click: () => setSelectedRestaurant(idx),
-                                                }}
-                                            >
-                                                <Popup className="font-sans">
+                                            {/* Restaurant Markers */}
+                                            {eventRestaurants.map((restaurant, idx) => (
+                                                <AdvancedMarker
+                                                    key={idx}
+                                                    position={{ lat: restaurant.coordinates[0], lng: restaurant.coordinates[1] }}
+                                                    onClick={() => setSelectedRestaurant(idx)}
+                                                >
+                                                    <CustomMapMarker
+                                                        color="#FF3D00"
+                                                        isSelected={selectedRestaurant === idx}
+                                                        icon={<Utensils className="text-white" size={14} />}
+                                                    />
+                                                </AdvancedMarker>
+                                            ))}
+
+                                            {/* Info Window for Selected Restaurant */}
+                                            {selectedRestaurant !== null && (
+                                                <InfoWindow
+                                                    position={{
+                                                        lat: eventRestaurants[selectedRestaurant].coordinates[0],
+                                                        lng: eventRestaurants[selectedRestaurant].coordinates[1]
+                                                    }}
+                                                    onCloseClick={() => setSelectedRestaurant(null)}
+                                                >
                                                     <div className="p-2">
-                                                        <h4 className="font-black text-base mb-1">{restaurant.name}</h4>
-                                                        <p className="text-xs text-stone-600 mb-2">{restaurant.type}</p>
+                                                        <h4 className="font-black text-base mb-1">{eventRestaurants[selectedRestaurant].name}</h4>
+                                                        <p className="text-xs text-stone-600 mb-2">{eventRestaurants[selectedRestaurant].type}</p>
                                                         <div className="flex items-center gap-2 text-xs">
                                                             <Star size={12} className="text-[#FFD600] fill-[#FFD600]" />
-                                                            <span className="font-bold">{restaurant.rating}</span>
-                                                            <span className="text-stone-500">• {restaurant.price}</span>
+                                                            <span className="font-bold">{eventRestaurants[selectedRestaurant].rating}</span>
+                                                            <span className="text-stone-500">• {eventRestaurants[selectedRestaurant].price}</span>
                                                         </div>
                                                     </div>
-                                                </Popup>
-                                            </Marker>
-                                        ))}
-                                    </MapContainer>
+                                                </InfoWindow>
+                                            )}
+                                        </Map>
+                                    </APIProvider>
 
                                     {/* Map Legend */}
                                     <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-lg border border-orange-200">
@@ -826,6 +873,9 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
                                         </div>
                                     </div>
                                 </div>
+                                ) : (
+                                    <MapPlaceholder height="500px" label="Restaurant Locations" />
+                                )}
 
                                 <p className="text-sm text-stone-500 mt-6 text-center">
                                     💡 <span className="font-bold">Tip:</span> Click on markers to see details • Hover over cards below to locate on map
@@ -835,7 +885,7 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
 
                         {/* Restaurant Cards Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                            {articleData.restaurants.map((restaurant, idx) => (
+                            {eventRestaurants.map((restaurant, idx) => (
                                 <div
                                     key={idx}
                                     onMouseEnter={() => setSelectedRestaurant(idx)}
@@ -951,4 +1001,4 @@ const ArticlePage = ({ slug = 'kandy-perahera', setCurrentPage, activeTab, setAc
     );
 };
 
-export default ArticlePage;
+export default EventDetailPage;
