@@ -39,6 +39,6 @@ match($resource) {
     'images'         => require __DIR__ . '/routes/images.php',
     'staging'        => require __DIR__ . '/routes/staging.php',
     'staging-images' => require __DIR__ . '/routes/staging-images.php',
-    'health'         => json_response(['status' => 'ok', 'time' => date('c')]),
+    'health'         => json_response(['status' => 'ok', 'time' => date('c'), 'jwt_set' => SUPABASE_JWT_SECRET !== 'your-supabase-jwt-secret', 'jwt_len' => strlen(SUPABASE_JWT_SECRET)]),
     default          => json_response(['error' => 'Not found'], 404),
 };
