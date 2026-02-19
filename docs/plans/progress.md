@@ -1,137 +1,75 @@
 # Travel Times Sri Lanka - Progress Tracker
 
-**Last Updated:** 2026-02-12
+**Last Updated:** 2026-02-17
+
+---
+
+## Current Health
+
+- `npm run lint`: PASS
+- `npm run build`: PASS
+- `npm test`: Not configured (`package.json` has no test script)
 
 ---
 
 ## Phase 1: Restructure & Ship v1
 
-### 1.1 Restructure Data Model
-**Status:** DONE
-
-- Merged article content (restaurants, accommodations, thingsToDo) into `destinations.js` events
-- Added date fields (`startDate`, `endDate`, `season`) to all events
-- Added helper functions: `isHappeningNow`, `isHappeningSoon`, `isInSeason`, `daysUntilEvent`, `getTimelyEvents`, `getEventBySlug`, `getAllEvents`, `getEventsForDestination`, `getFeaturedTimelyEvents`
-- Uses `date-fns` for date calculations
-- Renamed destination-level `thingsToDo` to `generalThingsToDo` to avoid collision with event-level data
-
-### 1.2 Migrate to React Router
-**Status:** DONE
-
-- Replaced custom hash-based routing (`window.location.hash` + `currentPage` state) with `react-router-dom` v7 library mode
-- Route structure implemented:
-  - `/` → HomePage
-  - `/destinations` → DestinationsPage
-  - `/destination/:slug` → DestinationDetailPage
-  - `/event/:slug` → ArticlePage
-  - `/admin/login` → AdminLogin
-  - `/admin` → AdminDashboard (protected)
-  - `/admin/editor` → AdminArticleEditor (protected)
-  - `*` → NotFoundPage (404)
-- New files created:
-  - `src/components/ScrollToTop.jsx` - scrolls to top on route change
-  - `src/hooks/useScrolled.js` - shared `useScrolled(threshold)` hook
-  - `src/components/Layout.jsx` - footer wrapper with `<Outlet />`
-  - `src/pages/NotFoundPage.jsx` - 404 catch-all page
-- `src/main.jsx` wrapped with `<BrowserRouter>`
-- `src/App.jsx` rewritten as clean route tree (no more routing state, scroll state, or image constants)
-- Eliminated `setCurrentPage` prop-drilling from all 12+ components
-- `ProtectedRoute` now uses `<Navigate to="/admin/login" replace />` instead of `useEffect` redirect
-- SharedHeader and SearchModal use `useNavigate()` internally
-- Each page manages its own `isScrolled` via `useScrolled()` hook
-- HomePage absorbed: image constants, parallax scroll effect, `activeTab`/`setActiveTab` state
-- ArticlePage and DestinationDetailPage use `useParams()` for slug
-- Admin pages use `useNavigate()` with `{ replace: true }` for redirects
-- Fixed bug: AdminDashboard preview button now includes article slug in URL
-- Removed debug `console.log('URL hash:...')` from AuthContext
-- Added Google Maps API key guard: maps gracefully degrade with placeholder when key is invalid/missing
-
-### 1.3 Restructure EventDetailPage
-**Status:** DONE
-
-- Renamed `ArticlePage.jsx` → `EventDetailPage.jsx` via `git mv`
-- Switched data source from `getArticleBySlug` (legacy `articles.js`) to `getEventBySlug` + `getDestinationBySlug` from `destinations.js`
-- Added `EventDateBadge` in hero section
-- Added "Back to [Destination Name]" breadcrumb link
-- All `articleData` references replaced with event/article equivalents
-- Kandy Perahera magazine layout preserved; other event slugs use same layout with nullable article fields
-
-### 1.4 Restructure DestinationDetailPage
-**Status:** DONE
-
-- Events sorted by timeliness using `getEventsForDestination(slug)` with date-aware sorting
-- Timely events get green ring visual treatment (`isTimely` check)
-- `timelyCount` badge shown when timely events exist
-- `EventDateBadge` displayed on each event card
-
-### 1.5 Add "Happening Soon" to Homepage
-**Status:** DONE
-
-- "What's Happening" section shows timely events from `getTimelyEvents()`
-- Cards with destination name, event name, date badge (via `EventDateBadge`), hero image
-- Click navigates to event detail or destination page
-- `EventDateBadge` component created (`src/components/ui/EventDateBadge.jsx`) showing "Happening Now", "Starts in X days", "In Season" states
-
-### 1.6 Build Homepage Tabs
-**Status:** DONE
-
-- Feature tab: DONE (hero event, happening soon, destinations grid, featured stories, visual gallery, newsletter CTA)
-- Journal tab: DONE (`src/pages/tabs/JournalTab.jsx`) — chronological event feed with category filters, EventDateBadge
-- Maps tab: DONE (`src/pages/tabs/MapsTab.jsx`) — interactive Google Maps with destination markers, graceful fallback to card grid
-- Plan Your Trip tab: DONE (`src/pages/tabs/PlanYourTripTab.jsx`) — static travel info: best time to visit, getting around, quick tips
-
-### 1.7 Fix All Dead UI
-**Status:** DONE
-
-- Tab label "Gear" → "Plan" in SharedHeader (`UI.jsx`)
-- Footer links wired: Destinations → `/destinations`, About Us → `/about`, Contact → `/contact`, Privacy → `/privacy`, Terms → `/terms`
-- Created static pages: `AboutPage.jsx`, `ContactPage.jsx`, `PrivacyPage.jsx`, `TermsPage.jsx`
-- Added lazy imports and routes for all 4 static pages in `App.jsx`
-
-### 1.8 Mobile-First Audit & Fixes
-**Status:** NOT STARTED
-
-### 1.9 Add More Destinations
-**Status:** NOT STARTED
-
-- Currently: 6 destinations (Kandy, Ella, Haputale, Galle, Arugam Bay, Sigiriya)
-- Target: 12+ destinations
-
-### 1.10 Deploy to Hostinger
-**Status:** NOT STARTED
+| Item | Status | Notes |
+|---|---|---|
+| 1.1 Restructure Data Model | DONE | Unified event/destination model in `src/data/destinations.js` with date-aware helpers. |
+| 1.2 Migrate to React Router | DONE | Route tree in `src/App.jsx`, protected admin routes in place. |
+| 1.3 Restructure EventDetailPage | DONE | `EventDetailPage` reads unified event data and destination context. |
+| 1.4 Restructure DestinationDetailPage | DONE | Destination page reads event data with timeliness sorting and badges. |
+| 1.5 Add "Happening Soon" to Homepage | DONE | Homepage pulls timely events and links into event detail. |
+| 1.6 Build Homepage Tabs | DONE | Feature, Journal, Maps, and Plan tabs implemented. |
+| 1.7 Fix Dead UI | DONE | Footer links/pages and CTA/navigation wiring completed. |
+| 1.8 Mobile-First Audit & Fixes | NOT STARTED | Needs a formal viewport-by-viewport audit checklist and fixes. |
+| 1.9 Add More Destinations | NOT STARTED | Still at initial destination set; target remains 12+. |
+| 1.10 Deploy to Hostinger | NOT STARTED | Frontend + API deployment + env verification still pending. |
 
 ---
 
-## Known Issues
+## Ingestion/API Track (2026-02-15 plan)
+
+| Item | Status | Notes |
+|---|---|---|
+| PHP API scaffold (`api/`) | DONE (local) | Core files and route files are present in repo. |
+| Frontend API client (`src/lib/api.js`) | DONE | CRUD/upload helpers wired for ingestion flow. |
+| Admin ingestion UI (`/admin/ingest`) | DONE | Folder drop + markdown parsing + image upload + article submit flow exists. |
+| Hostinger API deployment | NOT STARTED | `VITE_API_URL` is still placeholder; production endpoint not live. |
+| Admin dashboard live data | NOT STARTED | Dashboard still uses mock article rows. |
+
+---
+
+## Known Gaps / Risks
 
 | Issue | Severity | Notes |
-|-------|----------|-------|
-| Google Maps API key is placeholder | Medium | `.env` has `YOUR_GOOGLE_MAPS_API_KEY_HERE` - maps show placeholder. Need real key. |
-| ~~Homepage tabs only show "Feature" content~~ | ~~Low~~ | FIXED — Journal, Maps, Plan tabs all built |
-| ~~Footer links are non-functional~~ | ~~Low~~ | FIXED — Destinations, About, Contact, Privacy, Terms all wired |
-| Newsletter form is cosmetic only | Low | No backend to store emails yet |
-| Admin CMS uses mock data | Medium | No real CRUD - prototype only |
+|---|---|---|
+| Google Maps API key is placeholder | Medium | `.env` still contains `YOUR_GOOGLE_MAPS_API_KEY_HERE`; maps degrade gracefully but stay in fallback mode. |
+| API URL is placeholder | High | `.env` has `VITE_API_URL=https://yourdomain.com/api`; ingestion will fail against production until real endpoint is set. |
+| Admin Dashboard is mock-backed | Medium | `src/pages/AdminDashboard.jsx` is not yet reading live API data. |
+| No automated test suite | Medium | Build/lint gates are present; behavior regressions rely on manual QA. |
 
 ---
 
-## Files Modified/Created in This Session
+## Next Implementation Plan (Priority Order)
 
-| File | Action | Summary |
-|------|--------|---------|
-| `src/main.jsx` | Modified | Added `<BrowserRouter>` wrapper |
-| `src/App.jsx` | Rewritten | Clean route tree, removed all routing/scroll state |
-| `src/components/ProtectedRoute.jsx` | Modified | Uses `<Navigate>` component |
-| `src/components/UserProfile.jsx` | Modified | Uses `useNavigate()` |
-| `src/components/UI.jsx` | Modified | SharedHeader + SearchModal use `useNavigate()` |
-| `src/pages/HomePage.jsx` | Modified | Absorbed images, parallax, activeTab; uses `useNavigate()` |
-| `src/pages/ArticlePage.jsx` | Modified | `useParams()` + `useNavigate()` + maps guard |
-| `src/pages/DestinationsPage.jsx` | Modified | `useNavigate()` + `useScrolled()` |
-| `src/pages/DestinationDetailPage.jsx` | Modified | `useParams()` + `useNavigate()` + maps guard |
-| `src/pages/AdminLogin.jsx` | Modified | `useNavigate()` with replace |
-| `src/pages/AdminDashboard.jsx` | Modified | `useNavigate()`, fixed preview slug bug |
-| `src/pages/AdminArticleEditor.jsx` | Modified | `useNavigate()` |
-| `src/contexts/AuthContext.jsx` | Modified | Removed debug console.log |
-| `src/components/ScrollToTop.jsx` | **Created** | Scroll to top on route change |
-| `src/hooks/useScrolled.js` | **Created** | Shared scroll threshold hook |
-| `src/components/Layout.jsx` | **Created** | Footer wrapper with `<Outlet />` |
-| `src/pages/NotFoundPage.jsx` | **Created** | 404 page |
+1. **Deploy API to Hostinger and set real env values**
+   - Deploy `api/` to hosting.
+   - Set real DB/JWT config in Hostinger.
+   - Update `VITE_API_URL` to production API URL.
+2. **Replace dashboard mock data with live API reads/writes**
+   - Load article list from API.
+   - Support status changes and delete/archive actions against real endpoints.
+3. **Run Phase 1.8 mobile-first audit**
+   - Audit key routes on common breakpoints and fix layout/interaction issues.
+4. **Expand destination coverage (Phase 1.9)**
+   - Add at least 6 more destinations/events to reach minimum launch content depth.
+5. **Complete production deployment hardening (Phase 1.10)**
+   - Smoke tests, auth checks, ingestion smoke run, and rollback plan.
+
+---
+
+## Definition of "Next"
+
+The immediate next implementation item is **Step 1: deploy the API and wire real production environment variables**. Without this, the ingestion workflow cannot be used end-to-end in production.

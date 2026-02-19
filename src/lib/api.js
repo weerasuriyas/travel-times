@@ -17,6 +17,14 @@ export async function apiGet(path) {
   return res.json()
 }
 
+export async function apiGetAuth(path) {
+  const headers = await getAuthHeaders()
+  const res = await fetch(`${API_URL}/${path}`, { headers })
+  const json = await res.json()
+  if (!res.ok) throw new Error(json.error || `API error: ${res.status}`)
+  return json
+}
+
 export async function apiPost(path, data) {
   const headers = await getAuthHeaders()
   const res = await fetch(`${API_URL}/${path}`, {
@@ -68,5 +76,26 @@ export async function apiUploadImage(file, entityType, entityId, role = 'gallery
   })
   const json = await res.json()
   if (!res.ok) throw new Error(json.error || 'Upload failed')
+  return json
+}
+
+export async function apiUploadStagingImage(file, stagingId, role = 'gallery', altText = '', sortOrder = 0) {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.access_token) throw new Error('Not authenticated')
+
+  const fd = new FormData()
+  fd.append('image', file)
+  fd.append('staging_id', String(stagingId))
+  fd.append('role', role)
+  fd.append('alt_text', altText)
+  fd.append('sort_order', String(sortOrder))
+
+  const res = await fetch(`${API_URL}/staging-images`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${session.access_token}` },
+    body: fd,
+  })
+  const json = await res.json()
+  if (!res.ok) throw new Error(json.error || 'Staging upload failed')
   return json
 }

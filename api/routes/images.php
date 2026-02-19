@@ -1,6 +1,8 @@
 <?php
 // api/routes/images.php
 $user = require_auth(); // All image ops need auth
+$prodBaseDir = rtrim(defined('PROD_UPLOAD_DIR') ? PROD_UPLOAD_DIR : (UPLOAD_DIR . 'data/prod/'), '/') . '/';
+$prodBaseUrl = rtrim(defined('PROD_UPLOAD_URL') ? PROD_UPLOAD_URL : (UPLOAD_URL . 'data/prod/'), '/') . '/';
 
 if ($method === 'POST') {
     if (empty($_FILES['image'])) {
@@ -26,7 +28,8 @@ if ($method === 'POST') {
     }
 
     $filename = uniqid() . '_' . time() . '.' . $ext;
-    $dir = UPLOAD_DIR . $entity_type . '/';
+    $isArticleEntity = $entity_type === 'article';
+    $dir = $isArticleEntity ? $prodBaseDir : (rtrim(UPLOAD_DIR, '/') . '/' . $entity_type . '/');
 
     if (!is_dir($dir)) mkdir($dir, 0755, true);
 
@@ -34,7 +37,9 @@ if ($method === 'POST') {
         json_response(['error' => 'Upload failed'], 500);
     }
 
-    $url = UPLOAD_URL . $entity_type . '/' . $filename;
+    $url = $isArticleEntity
+        ? ($prodBaseUrl . $filename)
+        : (rtrim(UPLOAD_URL, '/') . '/' . $entity_type . '/' . $filename);
 
     $db = get_db();
     $stmt = $db->prepare("INSERT INTO images (filename, url, alt_text, role, entity_type, entity_id) VALUES (?,?,?,?,?,?)");
@@ -65,7 +70,9 @@ if ($method === 'DELETE') {
     $img = $stmt->fetch();
 
     if ($img) {
-        $filepath = UPLOAD_DIR . $img['entity_type'] . '/' . $img['filename'];
+        $filepath = ($img['entity_type'] ?? '') === 'article'
+            ? ($prodBaseDir . $img['filename'])
+            : (rtrim(UPLOAD_DIR, '/') . '/' . $img['entity_type'] . '/' . $img['filename']);
         if (file_exists($filepath)) @unlink($filepath);
         $db->prepare("DELETE FROM images WHERE id = ?")->execute([$id]);
     }

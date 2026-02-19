@@ -30,12 +30,15 @@ if (($segments[0] ?? '') === 'api') array_shift($segments);
 
 $resource = $segments[0] ?? '';
 $id = $segments[1] ?? null;
+$action = $segments[2] ?? null;
 
 match($resource) {
     'articles'       => require __DIR__ . '/routes/articles.php',
     'events'         => require __DIR__ . '/routes/events.php',
     'destinations'   => require __DIR__ . '/routes/destinations.php',
     'images'         => require __DIR__ . '/routes/images.php',
+    'staging'        => require __DIR__ . '/routes/staging.php',
+    'staging-images' => require __DIR__ . '/routes/staging-images.php',
     'health'         => json_response(['status' => 'ok', 'time' => date('c')]),
     default          => json_response(['error' => 'Not found'], 404),
 };

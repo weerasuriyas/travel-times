@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState, useEffect, useRef } from 'react';
+import React, { memo, useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight, MapPin, Clock, ChevronRight } from 'lucide-react';
 import { SharedHeader, SectionHeader } from '../components/UI';

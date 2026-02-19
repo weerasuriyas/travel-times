@@ -1,0 +1,24 @@
+# ── Hostinger Environment Variables ──────────────────────────────
+# Copy these into Hostinger hPanel > Deployments > Environment Variables
+# Then fill in your actual values.
+
+# Database (hPanel > Databases > MySQL Databases)
+API_DB_HOST=82.197.82.71
+API_DB_NAME=u142852704_staging
+API_DB_USER=u142852704_admin
+API_DB_PASS=S5amwxJfu:a7
+
+# Supabase JWT (Supabase Dashboard > Settings > API > JWT Secret)
+API_SUPABASE_JWT_SECRET=
+
+# Upload paths (replace <username> with your Hostinger user, e.g. u123456789)
+# and <yourdomain> with your actual domain
+API_UPLOAD_DIR=/data
+API_UPLOAD_URL=https://<yourdomain>/uploads/
+API_STAGING_UPLOAD_DIR=/data/staging
+API_STAGING_UPLOAD_URL=https://darkslategray-squirrel-171439.hostingersite.com/uploads/data/staging/
+API_PROD_UPLOAD_DIR=/data/prod
+API_PROD_UPLOAD_URL=https://darkslategray-squirrel-171439.hostingersite.com/uploads/data/prod/
+
+# CORS (your frontend domain)
+API_ALLOWED_ORIGINS=https://darkslategray-squirrel-171439.hostingersite.com/

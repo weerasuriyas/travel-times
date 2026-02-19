@@ -1,76 +1,122 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Edit, Eye, Archive, Trash2, Search, Filter, LogOut, User, Upload } from 'lucide-react'
+import { Plus, Edit, Eye, Archive, Trash2, Search, Filter, LogOut, User, Upload, Loader2, RefreshCw } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { apiGetAuth } from '../lib/api'
+
+function toTimestamp(value) {
+  const ms = new Date(value || 0).getTime()
+  return Number.isNaN(ms) ? 0 : ms
+}
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
   const { user, signOut } = useAuth()
 
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [rows, setRows] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const loadDashboardData = useCallback(async () => {
+    setLoading(true)
+    setError('')
+
+    try {
+      const [articlesData, stagingData] = await Promise.all([
+        apiGetAuth('articles'),
+        apiGetAuth('staging?review_status=pending'),
+      ])
+
+      const articleRows = (Array.isArray(articlesData) ? articlesData : []).map((article) => ({
+        id: `article-${article.id}`,
+        source: 'article',
+        recordId: article.id,
+        title: article.title || 'Untitled',
+        slug: article.slug || '',
+        category: article.category || 'Uncategorized',
+        status: article.status || 'draft',
+        author: article.author_name || 'Editorial Team',
+        publishedDate: article.published_at || null,
+        createdAt: article.created_at || null,
+        views: Number(article.views || 0),
+        isFeatured: false,
+      }))
+
+      const stagingRows = (Array.isArray(stagingData) ? stagingData : []).map((staged) => ({
+        id: `staging-${staged.id}`,
+        source: 'staging',
+        recordId: staged.id,
+        title: staged.title || 'Untitled',
+        slug: staged.slug || '',
+        category: staged.category || 'Uncategorized',
+        status: 'draft',
+        author: staged.author_name || 'Editorial Team',
+        publishedDate: null,
+        createdAt: staged.created_at || null,
+        views: 0,
+        isFeatured: false,
+      }))
+
+      const combined = [...stagingRows, ...articleRows].sort(
+        (a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt)
+      )
+      setRows(combined)
+    } catch (err) {
+      setError(err.message || 'Failed to load dashboard data')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadDashboardData()
+  }, [loadDashboardData])
+
   const handleSignOut = async () => {
     try {
       await signOut()
       navigate('/')
-    } catch (error) {
-      console.error('Error signing out:', error)
+    } catch (err) {
+      console.error('Error signing out:', err)
     }
   }
-  const [searchQuery, setSearchQuery] = useState('')
-  const [filterStatus, setFilterStatus] = useState('all')
 
-  // Mock article data for prototype
-  const mockArticles = [
-    {
-      id: 1,
-      title: 'THE FIRE OF KANDY.',
-      slug: 'kandy-perahera',
-      category: 'Culture',
-      status: 'published',
-      author: 'Sanath Weerasuriya',
-      publishedDate: '2026-01-15',
-      views: 2547,
-      isFeatured: true
-    },
-    {
-      id: 2,
-      title: 'Ella to Kandy: The Slowest Express',
-      slug: 'ella-train',
-      category: 'Travel',
-      status: 'draft',
-      author: 'Sanath Weerasuriya',
-      publishedDate: null,
-      views: 0,
-      isFeatured: false
-    },
-    {
-      id: 3,
-      title: "Dambatenne: Lipton's Lost Trail",
-      slug: 'dambatenne-tea',
-      category: 'Culture',
-      status: 'published',
-      author: 'Sanath Weerasuriya',
-      publishedDate: '2026-01-10',
-      views: 1832,
-      isFeatured: false
+  const filteredArticles = useMemo(() => (
+    rows.filter((article) => {
+      const search = searchQuery.toLowerCase()
+      const matchesSearch =
+        article.title.toLowerCase().includes(search) ||
+        article.slug.toLowerCase().includes(search)
+      const matchesFilter = filterStatus === 'all' || article.status === filterStatus
+      return matchesSearch && matchesFilter
+    })
+  ), [rows, searchQuery, filterStatus])
+
+  const stats = useMemo(() => ({
+    total: rows.length,
+    published: rows.filter((a) => a.status === 'published').length,
+    draft: rows.filter((a) => a.status === 'draft').length,
+    archived: rows.filter((a) => a.status === 'archived').length,
+  }), [rows])
+
+  const openRecord = (article) => {
+    if (article.source === 'staging') {
+      navigate('/admin/staging')
+      return
     }
-  ]
 
-  const filteredArticles = mockArticles.filter(article => {
-    const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesFilter = filterStatus === 'all' || article.status === filterStatus
-    return matchesSearch && matchesFilter
-  })
+    if (article.status === 'published' && article.slug) {
+      navigate('/event/' + article.slug)
+      return
+    }
 
-  const stats = {
-    total: mockArticles.length,
-    published: mockArticles.filter(a => a.status === 'published').length,
-    draft: mockArticles.filter(a => a.status === 'draft').length,
-    archived: mockArticles.filter(a => a.status === 'archived').length
+    navigate('/admin/editor')
   }
 
   return (
     <div className="min-h-screen bg-stone-50">
-      {/* Admin Header */}
       <div className="bg-stone-950 text-stone-50 shadow-lg">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -79,7 +125,6 @@ export default function AdminDashboard() {
               <p className="text-stone-400 text-sm mt-1">Travel Times Sri Lanka</p>
             </div>
             <div className="flex items-center gap-4">
-              {/* User info */}
               <div className="flex items-center gap-3 px-4 py-2 bg-stone-800 rounded-lg">
                 <div className="w-8 h-8 rounded-full bg-[#00E676] flex items-center justify-center">
                   {user?.user_metadata?.avatar_url ? (
@@ -100,7 +145,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Back to site button */}
               <button
                 onClick={() => navigate('/')}
                 className="px-4 py-2 bg-stone-800 hover:bg-stone-700 rounded-lg transition-colors text-sm"
@@ -108,7 +152,6 @@ export default function AdminDashboard() {
                 ← Back to Site
               </button>
 
-              {/* Logout button */}
               <button
                 onClick={handleSignOut}
                 className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-sm"
@@ -123,7 +166,12 @@ export default function AdminDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Stats Cards */}
+        {error && (
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
             <div className="text-stone-500 text-sm font-medium mb-2">Total Articles</div>
@@ -143,11 +191,9 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Actions Bar */}
         <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6 mb-6">
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
             <div className="flex flex-col md:flex-row gap-4 flex-1 w-full md:w-auto">
-              {/* Search */}
               <div className="relative flex-1 md:max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={20} />
                 <input
@@ -159,7 +205,6 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              {/* Filter */}
               <div className="relative">
                 <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={20} />
                 <select
@@ -175,14 +220,27 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex items-center gap-3">
+              <button
+                onClick={loadDashboardData}
+                className="flex items-center gap-2 px-4 py-2 bg-stone-200 hover:bg-stone-300 rounded-lg font-medium transition-colors text-sm"
+              >
+                {loading ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+                Refresh
+              </button>
               <button
                 onClick={() => navigate('/admin/ingest')}
                 className="flex items-center gap-2 px-6 py-2 bg-stone-950 text-white rounded-lg font-medium transition-all shadow-sm whitespace-nowrap hover:bg-stone-800"
               >
                 <Upload size={20} />
                 Ingest Folder
+              </button>
+              <button
+                onClick={() => navigate('/admin/staging')}
+                className="flex items-center gap-2 px-6 py-2 bg-stone-700 text-white rounded-lg font-medium transition-all shadow-sm whitespace-nowrap hover:bg-stone-600"
+              >
+                <Eye size={20} />
+                Review Queue
               </button>
               <button
                 onClick={() => navigate('/admin/editor')}
@@ -198,7 +256,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Articles Table */}
         <div className="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -222,7 +279,14 @@ export default function AdminDashboard() {
                           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#FFD600' }} title="Featured" />
                         )}
                         <div>
-                          <div className="font-medium text-stone-950">{article.title}</div>
+                          <div className="font-medium text-stone-950 flex items-center gap-2">
+                            <span>{article.title}</span>
+                            {article.source === 'staging' && (
+                              <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-bold uppercase text-yellow-800">
+                                Staging
+                              </span>
+                            )}
+                          </div>
                           <div className="text-sm text-stone-500">/{article.slug}</div>
                         </div>
                       </div>
@@ -253,30 +317,32 @@ export default function AdminDashboard() {
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={() => navigate('/event/' + article.slug)}
+                          onClick={() => openRecord(article)}
                           className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
-                          title="Preview"
+                          title={article.source === 'staging' ? 'Open review' : 'Preview'}
                         >
                           <Eye size={18} className="text-stone-600" />
                         </button>
                         <button
-                          onClick={() => navigate('/admin/editor')}
+                          onClick={() => navigate(article.source === 'staging' ? '/admin/staging' : '/admin/editor')}
                           className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
-                          title="Edit"
+                          title={article.source === 'staging' ? 'Review' : 'Edit'}
                         >
                           <Edit size={18} className="text-stone-600" />
                         </button>
                         <button
                           className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
                           title="Archive"
+                          disabled={article.source === 'staging'}
                         >
-                          <Archive size={18} className="text-stone-600" />
+                          <Archive size={18} className={article.source === 'staging' ? 'text-stone-300' : 'text-stone-600'} />
                         </button>
                         <button
                           className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                           title="Delete"
+                          disabled={article.source === 'staging'}
                         >
-                          <Trash2 size={18} className="text-red-600" />
+                          <Trash2 size={18} className={article.source === 'staging' ? 'text-stone-300' : 'text-red-600'} />
                         </button>
                       </div>
                     </td>
@@ -287,7 +353,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {filteredArticles.length === 0 && (
+        {!loading && filteredArticles.length === 0 && (
           <div className="text-center py-12 text-stone-500">
             No articles found matching your search.
           </div>

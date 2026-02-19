@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, ArrowUpRight, ChevronRight, Share2, Eye, Calendar, Clock, ArrowLeft, Layers, Flame, Compass, Info, Star, Building, Utensils } from 'lucide-react';
 import { APIProvider, Map, AdvancedMarker, InfoWindow, useMap } from '@vis.gl/react-google-maps';
@@ -123,20 +123,18 @@ const accommodations = [
     }
 ];
 
-const peraheraRoute = [
-    [7.2936, 80.6413], // Temple of the Tooth
-    [7.2928, 80.6405], // Queen's Hotel Junction
-    [7.2915, 80.6410], // Lake Round
-    [7.2905, 80.6425], // Maligawa Square
-    [7.2936, 80.6413]  // Return to Temple
-];
-
 const EventDetailPage = () => {
     const { slug = 'kandy-perahera' } = useParams();
     const navigate = useNavigate();
     const isScrolled = useScrolled(50);
     const [selectedHotel, setSelectedHotel] = useState(null);
     const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+    const heroRef = useRef(null);
+    const platesRef = useRef(null);
+    const storyRef = useRef(null);
+    const tuskerRef = useRef(null);
+    const stayRef = useRef(null);
+    const eatRef = useRef(null);
 
     // Load event data from unified destinations model
     const eventData = getEventBySlug(slug);
@@ -165,67 +163,6 @@ const EventDetailPage = () => {
     const article = eventData.article;
     const destData = getDestinationBySlug(eventData.destination.slug);
     const destCoordinates = destData?.coordinates || [7.2906, 80.6337];
-
-    // Scroll tracking
-    const [scrollY, setScrollY] = useState(0);
-    const [currentSection, setCurrentSection] = useState('hero');
-
-    // Section refs for scroll tracking
-    const heroRef = useRef(null);
-    const platesRef = useRef(null);
-    const storyRef = useRef(null);
-    const tuskerRef = useRef(null);
-    const stayRef = useRef(null);
-    const eatRef = useRef(null);
-
-    // Track scroll position
-    useEffect(() => {
-        const handleScroll = () => {
-            setScrollY(window.scrollY);
-
-            // Update current section based on scroll position
-            const sections = [
-                { id: 'hero', ref: heroRef },
-                { id: 'plates', ref: platesRef },
-                { id: 'story', ref: storyRef },
-                { id: 'tusker', ref: tuskerRef },
-                { id: 'stay', ref: stayRef },
-                { id: 'eat', ref: eatRef }
-            ];
-
-            for (let i = sections.length - 1; i >= 0; i--) {
-                const section = sections[i];
-                if (section.ref.current) {
-                    const rect = section.ref.current.getBoundingClientRect();
-                    if (rect.top <= 200) {
-                        setCurrentSection(section.id);
-                        break;
-                    }
-                }
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    // Scroll to section function
-    const scrollToSection = (sectionId) => {
-        const refs = {
-            hero: heroRef,
-            plates: platesRef,
-            story: storyRef,
-            tusker: tuskerRef,
-            stay: stayRef
-        };
-
-        const ref = refs[sectionId];
-        if (ref?.current) {
-            ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    };
-
-
 
     return (
         <div className="animate-in slide-in-from-right duration-700">

@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 
 export default function AdminArticleEditor() {
   const navigate = useNavigate()
-  const { user, signOut } = useAuth()
+  const { signOut } = useAuth()
 
   const handleSignOut = async () => {
     try {

@@ -2,16 +2,36 @@ import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Upload, FolderOpen, FileText, Image as ImageIcon, Check, AlertCircle, X, LogOut, ArrowLeft, Loader2 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { apiPost, apiUploadImage } from '../lib/api'
+import { apiPost, apiUploadStagingImage } from '../lib/api'
 import matter from 'gray-matter'
+
+function readEntry(entry) {
+  return new Promise((resolve) => {
+    if (entry.isFile) {
+      entry.file(file => resolve([file]))
+      return
+    }
+
+    if (entry.isDirectory) {
+      const reader = entry.createReader()
+      reader.readEntries(async (entries) => {
+        const results = await Promise.all(entries.map(readEntry))
+        resolve(results.flat())
+      })
+      return
+    }
+
+    resolve([])
+  })
+}
 
 export default function AdminIngestion() {
   const navigate = useNavigate()
-  const { user, signOut } = useAuth()
+  const { signOut } = useAuth()
 
   const [step, setStep] = useState('drop')
-  const [files, setFiles] = useState([])
   const [images, setImages] = useState([])
+  const [folderName, setFolderName] = useState('')
   const [markdown, setMarkdown] = useState('')
   const [meta, setMeta] = useState({
     title: '', slug: '', subtitle: '', category: 'Culture',
@@ -34,8 +54,10 @@ export default function AdminIngestion() {
       /\.(jpe?g|png|webp|avif|gif)$/i.test(f.name)
     )
     const mdFile = allFiles.find(f => /\.(md|txt)$/i.test(f.name))
+    const firstPath = allFiles[0]?.webkitRelativePath || ''
+    const derivedFolder = firstPath ? firstPath.split('/')[0] : ''
+    setFolderName(derivedFolder)
 
-    setFiles(allFiles)
     setImages(imageFiles.map(f => ({
       file: f,
       preview: URL.createObjectURL(f),
@@ -96,20 +118,6 @@ export default function AdminIngestion() {
     }
   }, [handleFiles])
 
-  const readEntry = (entry) => {
-    return new Promise((resolve) => {
-      if (entry.isFile) {
-        entry.file(file => resolve([file]))
-      } else if (entry.isDirectory) {
-        const reader = entry.createReader()
-        reader.readEntries(async (entries) => {
-          const results = await Promise.all(entries.map(readEntry))
-          resolve(results.flat())
-        })
-      }
-    })
-  }
-
   const handleInputChange = (e) => {
     handleFiles(e.target.files)
   }
@@ -130,11 +138,12 @@ export default function AdminIngestion() {
     setStep('uploading')
     setError(null)
     const total = 1 + images.length
-    setProgress({ current: 0, total, message: 'Creating article...' })
+    setProgress({ current: 0, total, message: 'Creating staging record...' })
 
     try {
       const tags = meta.tags.split(',').map(t => t.trim()).filter(Boolean)
-      const articleRes = await apiPost('articles', {
+      const stagingRes = await apiPost('staging', {
+        folder_name: folderName || null,
         title: meta.title,
         slug: meta.slug || undefined,
         subtitle: meta.subtitle,
@@ -145,10 +154,12 @@ export default function AdminIngestion() {
         author_role: meta.author_role,
         read_time: parseInt(meta.read_time) || null,
         body: markdown,
+        destination: meta.destination || undefined,
+        event_slug: meta.event_slug || undefined,
         status: meta.status,
       })
 
-      setProgress({ current: 1, total, message: 'Uploading images...' })
+      setProgress({ current: 1, total, message: 'Uploading staged images...' })
 
       const uploadedImages = []
       for (let i = 0; i < images.length; i++) {
@@ -156,20 +167,16 @@ export default function AdminIngestion() {
         setProgress({
           current: 1 + i,
           total,
-          message: `Uploading ${img.name} (${i + 1}/${images.length})...`
+          message: `Uploading to staging: ${img.name} (${i + 1}/${images.length})...`
         })
-        const imgRes = await apiUploadImage(
-          img.file, 'article', articleRes.id, img.role, img.name
+        const imgRes = await apiUploadStagingImage(
+          img.file, stagingRes.id, img.role, img.name, i
         )
         uploadedImages.push(imgRes)
-
-        if (img.role === 'hero') {
-          await apiPost(`articles/${articleRes.id}`, { ...meta, cover_image: imgRes.url }).catch(() => {})
-        }
       }
 
-      setProgress({ current: total, total, message: 'Done!' })
-      setResult({ article: articleRes, images: uploadedImages })
+      setProgress({ current: total, total, message: 'Staging complete' })
+      setResult({ staging: stagingRes, images: uploadedImages })
       setStep('done')
     } catch (err) {
       setError(err.message)
@@ -179,8 +186,8 @@ export default function AdminIngestion() {
 
   const reset = () => {
     setStep('drop')
-    setFiles([])
     setImages([])
+    setFolderName('')
     setMarkdown('')
     setMeta({
       title: '', slug: '', subtitle: '', category: 'Culture',
@@ -284,7 +291,7 @@ export default function AdminIngestion() {
                 <button onClick={handleSubmit}
                   className="flex items-center gap-2 px-6 py-2 rounded-lg font-medium text-stone-950 shadow-sm"
                   style={{ backgroundColor: '#00E676' }}>
-                  <Upload size={18} /> Ingest Article
+                  <Upload size={18} /> Stage Article
                 </button>
               </div>
             </div>
@@ -405,7 +412,7 @@ export default function AdminIngestion() {
         {step === 'uploading' && (
           <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-12 text-center">
             <Loader2 className="mx-auto mb-4 text-[#00E676] animate-spin" size={48} />
-            <h2 className="text-xl font-bold text-stone-950 mb-2">Ingesting...</h2>
+            <h2 className="text-xl font-bold text-stone-950 mb-2">Staging...</h2>
             <p className="text-stone-500 mb-6">{progress.message}</p>
             <div className="w-full max-w-md mx-auto bg-stone-100 rounded-full h-3">
               <div className="bg-[#00E676] h-3 rounded-full transition-all duration-300"
@@ -421,12 +428,12 @@ export default function AdminIngestion() {
             <div className="w-16 h-16 rounded-full bg-[#00E676]/20 flex items-center justify-center mx-auto mb-4">
               <Check className="text-[#00E676]" size={32} />
             </div>
-            <h2 className="text-xl font-bold text-stone-950 mb-2">Article Ingested!</h2>
+            <h2 className="text-xl font-bold text-stone-950 mb-2">Article Staged for Review</h2>
             <p className="text-stone-500 mb-2">
-              Article #{result.article.id} — <code className="bg-stone-100 px-2 py-0.5 rounded text-sm">{result.article.slug}</code>
+              Staging #{result.staging.id} — <code className="bg-stone-100 px-2 py-0.5 rounded text-sm">{result.staging.slug}</code>
             </p>
             <p className="text-stone-400 text-sm mb-8">
-              {result.images.length} image{result.images.length !== 1 ? 's' : ''} uploaded
+              {result.images.length} image{result.images.length !== 1 ? 's' : ''} uploaded to staging
             </p>
             <div className="flex gap-3 justify-center">
               <button onClick={reset}
@@ -434,9 +441,9 @@ export default function AdminIngestion() {
                 style={{ backgroundColor: '#00E676' }}>
                 Ingest Another
               </button>
-              <button onClick={() => navigate('/admin')}
+              <button onClick={() => navigate('/admin/staging')}
                 className="px-6 py-2 bg-stone-200 hover:bg-stone-300 rounded-lg font-medium text-sm">
-                Back to Dashboard
+                Review Queue
               </button>
             </div>
           </div>

@@ -118,7 +118,7 @@ async function migrateWithSafety() {
           display_order: index
         }));
 
-        const { data: accomData, error: accomError } = await supabase
+        const { error: accomError } = await supabase
           .from('accommodations')
           .insert(accommodationsData);
 
@@ -147,7 +147,7 @@ async function migrateWithSafety() {
           display_order: index
         }));
 
-        const { data: restData, error: restError } = await supabase
+        const { error: restError } = await supabase
           .from('restaurants')
           .insert(restaurantsData);
 
@@ -190,7 +190,7 @@ async function migrateWithSafety() {
         status: 'published'
       };
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('destinations')
         .insert(dbDestination)
         .select()
