@@ -4,6 +4,7 @@ import { Upload, FolderOpen, FileText, Image as ImageIcon, Check, AlertCircle, X
 import { useAuth } from '../contexts/AuthContext'
 import { apiPost, apiUploadStagingImage } from '../lib/api'
 import matter from 'gray-matter'
+import mammoth from 'mammoth'
 
 function readEntry(entry) {
   return new Promise((resolve) => {
@@ -54,6 +55,7 @@ export default function AdminIngestion() {
       /\.(jpe?g|png|webp|avif|gif)$/i.test(f.name)
     )
     const mdFile = allFiles.find(f => /\.(md|txt)$/i.test(f.name))
+    const docxFile = allFiles.find(f => /\.docx$/i.test(f.name))
     const firstPath = allFiles[0]?.webkitRelativePath || ''
     const derivedFolder = firstPath ? firstPath.split('/')[0] : ''
     setFolderName(derivedFolder)
@@ -65,7 +67,29 @@ export default function AdminIngestion() {
       name: f.name,
     })))
 
-    if (mdFile) {
+    if (docxFile) {
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        try {
+          const result = await mammoth.convertToHtml({ arrayBuffer: e.target.result })
+          const html = result.value
+          // Extract title from first <h1> or <p> tag
+          const titleMatch = html.match(/<h1[^>]*>(.*?)<\/h1>/i)
+          const title = titleMatch
+            ? titleMatch[1].replace(/<[^>]+>/g, '').trim()
+            : docxFile.name.replace(/\.docx$/i, '').replace(/[-_]/g, ' ')
+          setMarkdown(html)
+          setMeta(prev => ({
+            ...prev,
+            title: title || prev.title,
+          }))
+        } catch {
+          setError('Failed to parse Word document')
+        }
+        setStep('preview')
+      }
+      reader.readAsArrayBuffer(docxFile)
+    } else if (mdFile) {
       const reader = new FileReader()
       reader.onload = (e) => {
         const raw = e.target.result
@@ -250,7 +274,7 @@ export default function AdminIngestion() {
             <FolderOpen className="mx-auto mb-4 text-stone-400" size={64} />
             <h2 className="text-2xl font-bold text-stone-950 mb-2">Drop Article Folder Here</h2>
             <p className="text-stone-500 mb-6">
-              Folder should contain <code className="bg-stone-100 px-2 py-0.5 rounded text-sm">article.md</code> and an <code className="bg-stone-100 px-2 py-0.5 rounded text-sm">images/</code> folder
+              Folder should contain <code className="bg-stone-100 px-2 py-0.5 rounded text-sm">article.md</code> or <code className="bg-stone-100 px-2 py-0.5 rounded text-sm">.docx</code> and an <code className="bg-stone-100 px-2 py-0.5 rounded text-sm">images/</code> folder
             </p>
             <label className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-stone-950 cursor-pointer transition-all shadow-sm"
               style={{ backgroundColor: '#00E676' }}>
@@ -271,6 +295,7 @@ export default function AdminIngestion() {
               <h3 className="font-bold text-sm text-stone-700 mb-3">Expected folder format:</h3>
               <pre className="text-xs text-stone-600 font-mono leading-relaxed">{`my-article/
   article.md        ← YAML frontmatter + body
+  article.docx      ← or a Word document
   images/
     cover.jpg       ← named "hero/cover/banner" = auto-hero
     photo1.jpg
