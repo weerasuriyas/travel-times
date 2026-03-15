@@ -51,6 +51,29 @@ function readDirectChildren(entry) {
   })
 }
 
+function cleanContent(text) {
+  return text
+    // Remove HYPERLINK artifacts from old Word docs
+    .replace(/HYPERLINK\s+"[^"]*"\s*(?:\\n\s*)?\s*(?:o\s+"[^"]*"\s*)?/g, '')
+    // Normalize line endings
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    // Clean up excessive blank lines
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
+async function parseArticleJson(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try { resolve(JSON.parse(e.target.result)) }
+      catch (err) { reject(new Error('Invalid article.json: ' + err.message)) }
+    }
+    reader.readAsText(file)
+  })
+}
+
 async function parseDocx(file) {
   return new Promise((resolve) => {
     const reader = new FileReader()
@@ -113,39 +136,9 @@ function defaultMeta(overrides = {}) {
   }
 }
 
+// Returns an array of articles (JSON can contain multiple)
 async function buildArticle(folderName, files) {
   const imageFiles = files.filter(f => /\.(jpe?g|png|webp|avif|gif)$/i.test(f.name))
-  const docxFile = files.find(f => /\.docx?$/i.test(f.name))
-  const mdFile = files.find(f => /\.(md|txt)$/i.test(f.name))
-
-  let body = ''
-  let meta = defaultMeta()
-  let fallback = false
-
-  if (docxFile) {
-    const { body: b, title, fallback: fb } = await parseDocx(docxFile)
-    body = b
-    fallback = fb
-    meta = defaultMeta({ title })
-  } else if (mdFile) {
-    const { body: b, fm } = await parseMd(mdFile)
-    body = b
-    meta = defaultMeta({
-      title: fm.title || '',
-      slug: fm.slug || fm['event-slug'] || '',
-      subtitle: fm.subtitle || '',
-      category: fm.category || 'Culture',
-      tags: Array.isArray(fm.tags) ? fm.tags.join(', ') : (fm.tags || ''),
-      issue: fm.issue || '',
-      author_name: fm['author-name'] || fm.author || 'Sanath Weerasuriya',
-      author_role: fm['author-role'] || 'Field Correspondent',
-      read_time: fm['read-time'] || fm.readTime || 8,
-      destination: fm.destination || '',
-      event_slug: fm['event-slug'] || '',
-      status: fm.status || 'draft',
-    })
-  }
-
   const images = imageFiles.map(f => ({
     file: f,
     preview: URL.createObjectURL(f),
@@ -153,7 +146,57 @@ async function buildArticle(folderName, files) {
     name: f.name,
   }))
 
-  return { folderName, body, meta, images, fallback }
+  const jsonFile = files.find(f => f.name === 'article.json')
+  const docxFile = files.find(f => /\.docx?$/i.test(f.name))
+  const mdFile = files.find(f => /\.(md|txt)$/i.test(f.name))
+
+  // ── article.json ──────────────────────────────────────────────
+  if (jsonFile) {
+    const json = await parseArticleJson(jsonFile)
+    const articles = json.articles || []
+    return articles.map((a, idx) => ({
+      folderName,
+      body: cleanContent(a.content || ''),
+      meta: defaultMeta({
+        title: a.title || '',
+        slug: a.slug || '',
+        category: json.category || 'Culture',
+      }),
+      images: idx === 0 ? images : [], // images go to first article only
+      fallback: false,
+    }))
+  }
+
+  // ── .docx / .doc ──────────────────────────────────────────────
+  if (docxFile) {
+    const { body, title, fallback } = await parseDocx(docxFile)
+    return [{ folderName, body, meta: defaultMeta({ title }), images, fallback }]
+  }
+
+  // ── markdown ──────────────────────────────────────────────────
+  if (mdFile) {
+    const { body, fm } = await parseMd(mdFile)
+    return [{
+      folderName, body, images, fallback: false,
+      meta: defaultMeta({
+        title: fm.title || '',
+        slug: fm.slug || fm['event-slug'] || '',
+        subtitle: fm.subtitle || '',
+        category: fm.category || 'Culture',
+        tags: Array.isArray(fm.tags) ? fm.tags.join(', ') : (fm.tags || ''),
+        issue: fm.issue || '',
+        author_name: fm['author-name'] || fm.author || 'Sanath Weerasuriya',
+        author_role: fm['author-role'] || 'Field Correspondent',
+        read_time: fm['read-time'] || fm.readTime || 8,
+        destination: fm.destination || '',
+        event_slug: fm['event-slug'] || '',
+        status: fm.status || 'draft',
+      }),
+    }]
+  }
+
+  // Images only
+  return [{ folderName, body: '', meta: defaultMeta(), images, fallback: false }]
 }
 
 export default function AdminIngestion() {
@@ -206,8 +249,8 @@ export default function AdminIngestion() {
           const dir = subDirs[i]
           setBatchProgress(p => ({ ...p, current: i, currentName: dir.name }))
           const files = await readEntryFiles(dir)
-          const article = await buildArticle(dir.name, files)
-          articles.push(article)
+          const built = await buildArticle(dir.name, files)
+          articles.push(...built)
         }
 
         setBatch(articles)
@@ -257,8 +300,8 @@ export default function AdminIngestion() {
           setMode('batch')
           const articles = []
           for (const folder of folders) {
-            const article = await buildArticle(folder, byFolder[folder])
-            articles.push(article)
+            const built = await buildArticle(folder, byFolder[folder])
+            articles.push(...built)
           }
           setBatch(articles)
           return
@@ -280,8 +323,8 @@ export default function AdminIngestion() {
       setMode('batch')
       const articles = []
       for (const folder of Object.keys(byFolder)) {
-        const article = await buildArticle(folder, byFolder[folder])
-        articles.push(article)
+        const built = await buildArticle(folder, byFolder[folder])
+        articles.push(...built)
       }
       setBatch(articles)
     }
@@ -299,6 +342,34 @@ export default function AdminIngestion() {
       role: /hero|cover|banner/i.test(f.name) ? 'hero' : 'gallery',
       name: f.name,
     })))
+
+    const jsonFile = allFiles.find(f => f.name === 'article.json')
+
+    if (jsonFile) {
+      parseArticleJson(jsonFile).then(json => {
+        const articles = json.articles || []
+        if (articles.length > 1) {
+          // Multiple articles in this JSON — switch to batch mode
+          setMode('batch')
+          setBatch(articles.map((a, idx) => ({
+            folderName: derivedFolder,
+            body: cleanContent(a.content || ''),
+            meta: defaultMeta({ title: a.title || '', slug: a.slug || '', category: json.category || 'Culture' }),
+            images: idx === 0 ? Array.from(allFiles)
+              .filter(f => /\.(jpe?g|png|webp|avif|gif)$/i.test(f.name))
+              .map(f => ({ file: f, preview: URL.createObjectURL(f), role: /hero|cover|banner/i.test(f.name) ? 'hero' : 'gallery', name: f.name }))
+              : [],
+            fallback: false,
+          })))
+        } else if (articles.length === 1) {
+          const a = articles[0]
+          setMarkdown(cleanContent(a.content || ''))
+          setMeta(prev => ({ ...prev, title: a.title || prev.title, slug: a.slug || prev.slug, category: json.category || prev.category }))
+          setStep('preview')
+        }
+      }).catch(() => setError('Failed to parse article.json'))
+      return
+    }
 
     if (docxFile) {
       parseDocx(docxFile).then(({ body, title, fallback }) => {
