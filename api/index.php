@@ -51,6 +51,6 @@ match($resource) {
     'images'         => require __DIR__ . '/routes/images.php',
     'staging'        => require __DIR__ . '/routes/staging.php',
     'staging-images' => require __DIR__ . '/routes/staging-images.php',
-    'health'         => json_response(['status' => 'ok', 'time' => date('c'), 'jwt_set' => SUPABASE_JWT_SECRET !== 'your-supabase-jwt-secret', 'jwt_len' => strlen(SUPABASE_JWT_SECRET), 'jwt_start' => substr(SUPABASE_JWT_SECRET, 0, 4), 'jwt_end' => substr(SUPABASE_JWT_SECRET, -4)]),
+    'health'         => json_response(['status' => 'ok', 'time' => date('c'), 'jwt_set' => SUPABASE_JWT_SECRET !== 'your-supabase-jwt-secret', 'jwt_len' => strlen(SUPABASE_JWT_SECRET), 'jwt_start' => substr(SUPABASE_JWT_SECRET, 0, 4), 'jwt_end' => substr(SUPABASE_JWT_SECRET, -4), 'staging_url' => STAGING_UPLOAD_URL, 'staging_dir_exists' => is_dir(STAGING_UPLOAD_DIR), 'prod_url' => PROD_UPLOAD_URL]),
     default          => json_response(['error' => 'Not found'], 404),
 };
