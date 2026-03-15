@@ -1,122 +1,131 @@
 <?php
 // api/routes/staging-images.php
-$user = require_auth(); // staging image ops require auth
-$db = get_db();
+$user = require_auth();
 
 $stagingBaseDir = rtrim(defined('STAGING_UPLOAD_DIR') ? STAGING_UPLOAD_DIR : (UPLOAD_DIR . 'data/staging/'), '/') . '/';
 $stagingBaseUrl = rtrim(defined('STAGING_UPLOAD_URL') ? STAGING_UPLOAD_URL : (UPLOAD_URL . 'data/staging/'), '/') . '/';
+
+function read_staging_json_img(string $baseDir, string $folder): ?array {
+    $path = $baseDir . $folder . '/article.json';
+    if (!is_file($path)) return null;
+    $raw = file_get_contents($path);
+    if ($raw === false) return null;
+    $data = json_decode($raw, true);
+    return is_array($data) ? $data : null;
+}
+
+function write_staging_json_img(string $baseDir, string $folder, array $data): void {
+    file_put_contents(
+        $baseDir . $folder . '/article.json',
+        json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+    );
+}
+
+function sanitize_folder(string $folder): string {
+    return preg_replace('/[^a-zA-Z0-9\-_]/', '', $folder);
+}
 
 if ($method === 'POST') {
     if (empty($_FILES['image'])) {
         json_response(['error' => 'No file uploaded'], 400);
     }
 
-    $stagingId = (int)($_POST['staging_id'] ?? 0);
-    if ($stagingId <= 0) {
-        json_response(['error' => 'staging_id is required'], 400);
+    $stagingFolder = sanitize_folder(trim($_POST['staging_folder'] ?? ''));
+    if ($stagingFolder === '') {
+        json_response(['error' => 'staging_folder is required'], 400);
     }
 
-    $stagingStmt = $db->prepare("SELECT id, review_status FROM staged_ingestions WHERE id = ?");
-    $stagingStmt->execute([$stagingId]);
-    $staging = $stagingStmt->fetch();
-
-    if (!$staging) {
+    $staged = read_staging_json_img($stagingBaseDir, $stagingFolder);
+    if ($staged === null) {
         json_response(['error' => 'Staging record not found'], 404);
     }
-    if (($staging['review_status'] ?? '') !== 'pending') {
+    if (($staged['review_status'] ?? '') !== 'pending') {
         json_response(['error' => 'Only pending staging records can receive images'], 409);
     }
 
-    $role = $_POST['role'] ?? 'gallery';
-    $altText = $_POST['alt_text'] ?? '';
+    $role      = $_POST['role'] ?? 'gallery';
+    $altText   = $_POST['alt_text'] ?? '';
     $sortOrder = (int)($_POST['sort_order'] ?? 0);
 
-    $file = $_FILES['image'];
-    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $file    = $_FILES['image'];
+    $ext     = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     $allowed = ['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif'];
 
     if (!in_array($ext, $allowed, true)) {
         json_response(['error' => 'File type not allowed: ' . $ext], 400);
     }
-
-    // Max 10MB
     if (($file['size'] ?? 0) > 10 * 1024 * 1024) {
         json_response(['error' => 'File too large (max 10MB)'], 400);
     }
 
-    $storageDirRel = 'data/staging/' . $stagingId . '/';
-    $storageDirAbs = $stagingBaseDir . $stagingId . '/';
-    if (!is_dir($storageDirAbs) && !mkdir($storageDirAbs, 0755, true) && !is_dir($storageDirAbs)) {
-        json_response(['error' => 'Could not create staging upload directory'], 500);
+    $folderDir = $stagingBaseDir . $stagingFolder . '/';
+    if (!is_dir($folderDir) && !mkdir($folderDir, 0755, true) && !is_dir($folderDir)) {
+        json_response(['error' => 'Could not create staging directory'], 500);
     }
 
     $storedFilename = 'stg_' . bin2hex(random_bytes(8)) . '_' . time() . '.' . $ext;
-    $storagePath = $storageDirRel . $storedFilename;
+    $absolutePath   = $folderDir . $storedFilename;
 
-    $absolutePath = $storageDirAbs . $storedFilename;
     if (!move_uploaded_file($file['tmp_name'], $absolutePath)) {
         json_response(['error' => 'Upload failed'], 500);
     }
 
-    $url = $stagingBaseUrl . $stagingId . '/' . $storedFilename;
-    $stmt = $db->prepare("INSERT INTO staged_images
-        (staging_id, filename, stored_filename, storage_path, url, alt_text, role, sort_order)
-        VALUES (?,?,?,?,?,?,?,?)");
-    $stmt->execute([
-        $stagingId,
-        $file['name'],
-        $storedFilename,
-        $storagePath,
-        $url,
-        $altText,
-        $role,
-        $sortOrder,
-    ]);
+    $url = $stagingBaseUrl . $stagingFolder . '/' . $storedFilename;
+
+    $staged['images'][] = [
+        'stored_filename'   => $storedFilename,
+        'original_filename' => $file['name'],
+        'role'              => $role,
+        'alt_text'          => $altText,
+        'sort_order'        => $sortOrder,
+        'url'               => $url,
+    ];
+    write_staging_json_img($stagingBaseDir, $stagingFolder, $staged);
 
     json_response([
-        'id' => (int)$db->lastInsertId(),
-        'staging_id' => $stagingId,
-        'filename' => $file['name'],
-        'url' => $url,
-        'role' => $role,
-        'sort_order' => $sortOrder,
+        'staging_folder'    => $stagingFolder,
+        'stored_filename'   => $storedFilename,
+        'original_filename' => $file['name'],
+        'url'               => $url,
+        'role'              => $role,
+        'sort_order'        => $sortOrder,
     ], 201);
 }
 
 if ($method === 'GET') {
-    $stagingId = (int)($_GET['staging_id'] ?? 0);
-
-    if ($stagingId > 0) {
-        $stmt = $db->prepare("SELECT * FROM staged_images WHERE staging_id = ? ORDER BY sort_order ASC, uploaded_at ASC");
-        $stmt->execute([$stagingId]);
-        json_response($stmt->fetchAll());
+    $stagingFolder = sanitize_folder(trim($_GET['staging_folder'] ?? ''));
+    if ($stagingFolder === '') {
+        json_response(['error' => 'staging_folder is required'], 400);
     }
-
-    $stmt = $db->query("SELECT * FROM staged_images ORDER BY uploaded_at DESC LIMIT 200");
-    json_response($stmt->fetchAll());
+    $staged = read_staging_json_img($stagingBaseDir, $stagingFolder);
+    if ($staged === null) {
+        json_response(['error' => 'Not found'], 404);
+    }
+    json_response($staged['images'] ?? []);
 }
 
 if ($method === 'DELETE') {
-    if (!$id) {
-        json_response(['error' => 'ID required'], 400);
+    $stagingFolder = sanitize_folder(trim($_GET['staging_folder'] ?? ''));
+    $filename      = basename(trim($_GET['filename'] ?? ''));
+
+    if ($stagingFolder === '' || $filename === '') {
+        json_response(['error' => 'staging_folder and filename are required'], 400);
     }
 
-    $stmt = $db->prepare("SELECT id, staging_id, storage_path FROM staged_images WHERE id = ?");
-    $stmt->execute([$id]);
-    $img = $stmt->fetch();
-
-    if (!$img) {
-        json_response(['deleted' => true]);
+    $staged = read_staging_json_img($stagingBaseDir, $stagingFolder);
+    if ($staged !== null) {
+        $staged['images'] = array_values(array_filter(
+            $staged['images'] ?? [],
+            fn($img) => ($img['stored_filename'] ?? '') !== $filename
+        ));
+        write_staging_json_img($stagingBaseDir, $stagingFolder, $staged);
     }
 
-    $filename = basename((string)($img['storage_path'] ?? ''));
-    $stagingId = (int)($img['staging_id'] ?? 0);
-    $fullPath = $stagingBaseDir . ($stagingId > 0 ? ($stagingId . '/') : '') . $filename;
-    if ($filename && file_exists($fullPath)) {
-        @unlink($fullPath);
+    $filePath = $stagingBaseDir . $stagingFolder . '/' . $filename;
+    if (file_exists($filePath)) {
+        @unlink($filePath);
     }
 
-    $db->prepare("DELETE FROM staged_images WHERE id = ?")->execute([$id]);
     json_response(['deleted' => true]);
 }
 

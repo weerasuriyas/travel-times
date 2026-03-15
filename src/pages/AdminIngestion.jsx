@@ -376,7 +376,7 @@ export default function AdminIngestion() {
       for (let i = 0; i < images.length; i++) {
         const img = images[i]
         setProgress({ current: 1 + i, total, message: `Uploading ${img.name} (${i + 1}/${images.length})...` })
-        const imgRes = await apiUploadStagingImage(img.file, stagingRes.id, img.role, img.name, i)
+        const imgRes = await apiUploadStagingImage(img.file, stagingRes.folder, img.role, img.name, i)
         uploadedImages.push(imgRes)
       }
 
@@ -425,7 +425,7 @@ export default function AdminIngestion() {
 
         for (let j = 0; j < article.images.length; j++) {
           const img = article.images[j]
-          await apiUploadStagingImage(img.file, stagingRes.id, img.role, img.name, j)
+          await apiUploadStagingImage(img.file, stagingRes.folder, img.role, img.name, j)
         }
       } catch (err) {
         errors.push({ folder: article.folderName, error: err.message })
@@ -749,7 +749,7 @@ export default function AdminIngestion() {
             </div>
             <h2 className="text-xl font-bold text-stone-950 mb-2">Article Staged for Review</h2>
             <p className="text-stone-500 mb-2">
-              Staging #{result.staging.id} — <code className="bg-stone-100 px-2 py-0.5 rounded text-sm">{result.staging.slug}</code>
+              Folder: <code className="bg-stone-100 px-2 py-0.5 rounded text-sm">{result.staging.folder}</code>
             </p>
             <p className="text-stone-400 text-sm mb-8">
               {result.images.length} image{result.images.length !== 1 ? 's' : ''} uploaded

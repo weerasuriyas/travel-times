@@ -57,8 +57,8 @@ export default function AdminStagingQueue() {
         return
       }
 
-      if (!rows.some((row) => row.id === selectedId)) {
-        setSelectedId(rows[0].id)
+      if (!rows.some((row) => row.folder === selectedId)) {
+        setSelectedId(rows[0].folder)
       }
     } catch (err) {
       setError(err.message || 'Failed to load staging queue')
@@ -104,12 +104,12 @@ export default function AdminStagingQueue() {
     setActionLoading('approve')
     setError('')
     try {
-      await apiPost(`staging/${selectedStaging.id}/approve`, {
+      await apiPost(`staging/${selectedStaging.folder}/approve`, {
         status: publishStatus,
         review_notes: reviewNotes,
       })
       await loadQueue()
-      await loadDetail(selectedStaging.id)
+      await loadDetail(selectedStaging.folder)
     } catch (err) {
       setError(err.message || 'Approval failed')
     } finally {
@@ -123,11 +123,11 @@ export default function AdminStagingQueue() {
     setActionLoading('reject')
     setError('')
     try {
-      await apiPost(`staging/${selectedStaging.id}/reject`, {
+      await apiPost(`staging/${selectedStaging.folder}/reject`, {
         review_notes: reviewNotes,
       })
       await loadQueue()
-      await loadDetail(selectedStaging.id)
+      await loadDetail(selectedStaging.folder)
     } catch (err) {
       setError(err.message || 'Rejection failed')
     } finally {
@@ -204,15 +204,15 @@ export default function AdminStagingQueue() {
               <div className="space-y-3">
                 {queue.map((row) => (
                   <button
-                    key={row.id}
-                    onClick={() => setSelectedId(row.id)}
+                    key={row.folder}
+                    onClick={() => setSelectedId(row.folder)}
                     className={`w-full rounded-lg border px-4 py-3 text-left transition-colors ${
-                      selectedId === row.id
+                      selectedId === row.folder
                         ? 'border-[#00E676] bg-[#00E676]/10'
                         : 'border-stone-200 bg-stone-50 hover:bg-stone-100'
                     }`}
                   >
-                    <p className="text-xs uppercase tracking-wider text-stone-500">#{row.id}</p>
+                    <p className="text-xs uppercase tracking-wider text-stone-500 font-mono">{row.folder}</p>
                     <p className="font-semibold text-stone-900">{row.title}</p>
                     <p className="text-xs text-stone-600">/{row.slug}</p>
                     <div className="mt-2 flex items-center justify-between text-xs text-stone-500">
@@ -246,11 +246,11 @@ export default function AdminStagingQueue() {
                   </div>
                   <div className="rounded-lg border border-stone-200 bg-stone-50 p-3">
                     <p className="text-xs uppercase text-stone-500">Folder</p>
-                    <p className="text-sm text-stone-800">{selectedStaging.folder_name || '—'}</p>
+                    <p className="text-sm font-mono text-stone-800">{selectedStaging.folder || '—'}</p>
                   </div>
                   <div className="rounded-lg border border-stone-200 bg-stone-50 p-3">
                     <p className="text-xs uppercase text-stone-500">Submitted</p>
-                    <p className="text-sm text-stone-800">{formatDate(selectedStaging.created_at)}</p>
+                    <p className="text-sm text-stone-800">{formatDate(selectedStaging.submitted_at)}</p>
                   </div>
                   <div className="rounded-lg border border-stone-200 bg-stone-50 p-3">
                     <p className="text-xs uppercase text-stone-500">Desired Status</p>
@@ -272,9 +272,9 @@ export default function AdminStagingQueue() {
                   ) : (
                     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                       {selectedImages.map((img) => (
-                        <div key={img.id} className="rounded-lg border border-stone-200 bg-stone-50 p-2">
-                          <img src={img.url} alt={img.filename} className="aspect-square w-full rounded object-cover" />
-                          <p className="mt-1 truncate text-[11px] text-stone-600">{img.filename}</p>
+                        <div key={img.stored_filename} className="rounded-lg border border-stone-200 bg-stone-50 p-2">
+                          <img src={img.url} alt={img.original_filename} className="aspect-square w-full rounded object-cover" />
+                          <p className="mt-1 truncate text-[11px] text-stone-600">{img.original_filename}</p>
                           <p className="text-[10px] uppercase text-stone-500">{img.role}</p>
                         </div>
                       ))}
@@ -284,7 +284,8 @@ export default function AdminStagingQueue() {
 
                 {!isPending && selectedStaging.final_article_id ? (
                   <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
-                    Published to article #{selectedStaging.final_article_id}. Final linked images: {approvedImages.length}.
+                    Published to article #{selectedStaging.final_article_id}
+                    {selectedStaging.review_notes ? ` — ${selectedStaging.review_notes}` : ''}
                   </div>
                 ) : null}
 

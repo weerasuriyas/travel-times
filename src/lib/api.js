@@ -79,13 +79,13 @@ export async function apiUploadImage(file, entityType, entityId, role = 'gallery
   return json
 }
 
-export async function apiUploadStagingImage(file, stagingId, role = 'gallery', altText = '', sortOrder = 0) {
+export async function apiUploadStagingImage(file, stagingFolder, role = 'gallery', altText = '', sortOrder = 0) {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session?.access_token) throw new Error('Not authenticated')
 
   const fd = new FormData()
   fd.append('image', file)
-  fd.append('staging_id', String(stagingId))
+  fd.append('staging_folder', String(stagingFolder))
   fd.append('role', role)
   fd.append('alt_text', altText)
   fd.append('sort_order', String(sortOrder))
