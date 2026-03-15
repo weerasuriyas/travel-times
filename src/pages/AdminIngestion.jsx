@@ -52,18 +52,39 @@ function readDirectChildren(entry) {
 }
 
 async function parseDocx(file) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const reader = new FileReader()
     reader.onload = async (e) => {
+      const buffer = e.target.result
+
+      // Try mammoth first (works for .docx and some newer formats)
       try {
-        const result = await mammoth.convertToHtml({ arrayBuffer: e.target.result })
+        const result = await mammoth.convertToHtml({ arrayBuffer: buffer })
         const html = result.value
         const titleMatch = html.match(/<h1[^>]*>(.*?)<\/h1>/i)
         const title = titleMatch
           ? titleMatch[1].replace(/<[^>]+>/g, '').trim()
-          : file.name.replace(/\.docx$/i, '').replace(/[-_]/g, ' ')
-        resolve({ body: html, title })
-      } catch (err) { reject(err) }
+          : file.name.replace(/\.docx?$/i, '').replace(/[-_]/g, ' ')
+        resolve({ body: html, title, fallback: false })
+        return
+      } catch { /* fall through to legacy extraction */ }
+
+      // Fallback: old .doc binary stores text in UTF-16 LE chunks
+      try {
+        const utf16 = new TextDecoder('utf-16le', { fatal: false }).decode(buffer)
+        const chunks = utf16.match(/[\x20-\x7E\u00A0-\uFFFF]{4,}/g) || []
+        const text = chunks
+          .map(c => c.trim())
+          .filter(c => c.length > 3 && /[a-zA-Z]{2,}/.test(c))
+          .join('\n')
+          .replace(/\n{3,}/g, '\n\n')
+
+        const firstLine = text.split('\n').find(l => l.trim().length > 3) || ''
+        const title = file.name.replace(/\.docx?$/i, '').replace(/[-_]/g, ' ')
+        resolve({ body: text, title: firstLine || title, fallback: true })
+      } catch {
+        resolve({ body: '', title: file.name.replace(/\.docx?$/i, ''), fallback: true })
+      }
     }
     reader.readAsArrayBuffer(file)
   })
@@ -94,15 +115,17 @@ function defaultMeta(overrides = {}) {
 
 async function buildArticle(folderName, files) {
   const imageFiles = files.filter(f => /\.(jpe?g|png|webp|avif|gif)$/i.test(f.name))
-  const docxFile = files.find(f => /\.docx$/i.test(f.name))
+  const docxFile = files.find(f => /\.docx?$/i.test(f.name))
   const mdFile = files.find(f => /\.(md|txt)$/i.test(f.name))
 
   let body = ''
   let meta = defaultMeta()
+  let fallback = false
 
   if (docxFile) {
-    const { body: b, title } = await parseDocx(docxFile)
+    const { body: b, title, fallback: fb } = await parseDocx(docxFile)
     body = b
+    fallback = fb
     meta = defaultMeta({ title })
   } else if (mdFile) {
     const { body: b, fm } = await parseMd(mdFile)
@@ -130,7 +153,7 @@ async function buildArticle(folderName, files) {
     name: f.name,
   }))
 
-  return { folderName, body, meta, images }
+  return { folderName, body, meta, images, fallback }
 }
 
 export default function AdminIngestion() {
@@ -237,7 +260,7 @@ export default function AdminIngestion() {
   function handleSingleFiles(allFiles, derivedFolder) {
     const imageFiles = allFiles.filter(f => /\.(jpe?g|png|webp|avif|gif)$/i.test(f.name))
     const mdFile = allFiles.find(f => /\.(md|txt)$/i.test(f.name))
-    const docxFile = allFiles.find(f => /\.docx$/i.test(f.name))
+    const docxFile = allFiles.find(f => /\.docx?$/i.test(f.name))
     setFolderName(derivedFolder)
 
     setImages(imageFiles.map(f => ({
@@ -248,9 +271,10 @@ export default function AdminIngestion() {
     })))
 
     if (docxFile) {
-      parseDocx(docxFile).then(({ body, title }) => {
+      parseDocx(docxFile).then(({ body, title, fallback }) => {
         setMarkdown(body)
         setMeta(prev => ({ ...prev, title: title || prev.title }))
+        if (fallback) setError('⚠️ Old Word format detected — text extracted as plain text. Please review and clean up the body before staging.')
         setStep('preview')
       }).catch(() => setError('Failed to parse Word document'))
     } else if (mdFile) {
@@ -425,6 +449,7 @@ export default function AdminIngestion() {
               <Upload size={20} />
               Select Folder
               <input type="file" webkitdirectory="true" directory="true" multiple
+                accept=".doc,.docx,.md,.txt,.jpg,.jpeg,.png,.webp,.avif,.gif"
                 onChange={handleInputChange} className="hidden" />
             </label>
             <p className="text-xs text-stone-400 mt-4">Or drag and drop</p>
