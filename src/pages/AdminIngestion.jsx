@@ -520,7 +520,7 @@ export default function AdminIngestion() {
         )}
 
         {/* Scanning batch */}
-        {mode === 'batch' && batchProgress && !batchProgress.done && (
+        {mode === 'batch' && batchProgress && !batchProgress.done && batch.length === 0 && (
           <div className="bg-white rounded-xl border border-stone-200 p-12 text-center">
             <Loader2 className="mx-auto mb-4 text-[#00E676] animate-spin" size={48} />
             <h2 className="text-xl font-bold text-stone-950 mb-2">
