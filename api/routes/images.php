@@ -27,7 +27,7 @@ if ($method === 'POST') {
         json_response(['error' => 'File too large (max 10MB)'], 400);
     }
 
-    $filename = uniqid() . '_' . time() . '.' . $ext;
+    $filename = bin2hex(random_bytes(8)) . '_' . time() . '.' . $ext;
     $isArticleEntity = $entity_type === 'article';
     $dir = $isArticleEntity ? $prodBaseDir : (rtrim(UPLOAD_DIR, '/') . '/' . $entity_type . '/');
 

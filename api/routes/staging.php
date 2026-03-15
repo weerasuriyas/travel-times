@@ -181,7 +181,7 @@ if ($method === 'POST') {
                 }
 
                 $ext = strtolower(pathinfo($img['stored_filename'], PATHINFO_EXTENSION));
-                $newFilename = uniqid('article_', true) . '_' . time() . ($ext ? '.' . $ext : '');
+                $newFilename = 'article_' . bin2hex(random_bytes(8)) . '_' . time() . ($ext ? '.' . $ext : '');
                 $newRelativePath = 'data/prod/' . $newFilename;
                 $newAbsolutePath = $prodBaseDir . $newFilename;
                 $newDir = dirname($newAbsolutePath);

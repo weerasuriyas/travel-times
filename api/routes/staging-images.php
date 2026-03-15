@@ -50,7 +50,7 @@ if ($method === 'POST') {
         json_response(['error' => 'Could not create staging upload directory'], 500);
     }
 
-    $storedFilename = uniqid('stg_', true) . '_' . time() . '.' . $ext;
+    $storedFilename = 'stg_' . bin2hex(random_bytes(8)) . '_' . time() . '.' . $ext;
     $storagePath = $storageDirRel . $storedFilename;
 
     $absolutePath = $storageDirAbs . $storedFilename;
