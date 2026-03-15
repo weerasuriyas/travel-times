@@ -147,10 +147,7 @@ async function buildArticle(folderName, files) {
   }))
 
   const jsonFile = files.find(f => f.name === 'article.json')
-  const docxFile = files.find(f => /\.docx?$/i.test(f.name))
-  const mdFile = files.find(f => /\.(md|txt)$/i.test(f.name))
 
-  // ── article.json ──────────────────────────────────────────────
   if (jsonFile) {
     const json = await parseArticleJson(jsonFile)
     const articles = json.articles || []
@@ -162,41 +159,13 @@ async function buildArticle(folderName, files) {
         slug: a.slug || '',
         category: json.category || 'Culture',
       }),
-      images: idx === 0 ? images : [], // images go to first article only
+      images: idx === 0 ? images : [],
       fallback: false,
     }))
   }
 
-  // ── .docx / .doc ──────────────────────────────────────────────
-  if (docxFile) {
-    const { body, title, fallback } = await parseDocx(docxFile)
-    return [{ folderName, body, meta: defaultMeta({ title }), images, fallback }]
-  }
-
-  // ── markdown ──────────────────────────────────────────────────
-  if (mdFile) {
-    const { body, fm } = await parseMd(mdFile)
-    return [{
-      folderName, body, images, fallback: false,
-      meta: defaultMeta({
-        title: fm.title || '',
-        slug: fm.slug || fm['event-slug'] || '',
-        subtitle: fm.subtitle || '',
-        category: fm.category || 'Culture',
-        tags: Array.isArray(fm.tags) ? fm.tags.join(', ') : (fm.tags || ''),
-        issue: fm.issue || '',
-        author_name: fm['author-name'] || fm.author || 'Sanath Weerasuriya',
-        author_role: fm['author-role'] || 'Field Correspondent',
-        read_time: fm['read-time'] || fm.readTime || 8,
-        destination: fm.destination || '',
-        event_slug: fm['event-slug'] || '',
-        status: fm.status || 'draft',
-      }),
-    }]
-  }
-
-  // Images only
-  return [{ folderName, body: '', meta: defaultMeta(), images, fallback: false }]
+  // No article.json found — skip this folder
+  return []
 }
 
 export default function AdminIngestion() {
@@ -348,59 +317,32 @@ export default function AdminIngestion() {
     if (jsonFile) {
       parseArticleJson(jsonFile).then(json => {
         const articles = json.articles || []
+        const imgFiles = allFiles.filter(f => /\.(jpe?g|png|webp|avif|gif)$/i.test(f.name))
+        const imgs = imgFiles.map(f => ({ file: f, preview: URL.createObjectURL(f), role: /hero|cover|banner/i.test(f.name) ? 'hero' : 'gallery', name: f.name }))
+
         if (articles.length > 1) {
-          // Multiple articles in this JSON — switch to batch mode
           setMode('batch')
           setBatch(articles.map((a, idx) => ({
             folderName: derivedFolder,
             body: cleanContent(a.content || ''),
             meta: defaultMeta({ title: a.title || '', slug: a.slug || '', category: json.category || 'Culture' }),
-            images: idx === 0 ? Array.from(allFiles)
-              .filter(f => /\.(jpe?g|png|webp|avif|gif)$/i.test(f.name))
-              .map(f => ({ file: f, preview: URL.createObjectURL(f), role: /hero|cover|banner/i.test(f.name) ? 'hero' : 'gallery', name: f.name }))
-              : [],
+            images: idx === 0 ? imgs : [],
             fallback: false,
           })))
         } else if (articles.length === 1) {
           const a = articles[0]
+          setImages(imgs)
           setMarkdown(cleanContent(a.content || ''))
           setMeta(prev => ({ ...prev, title: a.title || prev.title, slug: a.slug || prev.slug, category: json.category || prev.category }))
           setStep('preview')
+        } else {
+          setError('No articles found in article.json')
         }
       }).catch(() => setError('Failed to parse article.json'))
       return
     }
 
-    if (docxFile) {
-      parseDocx(docxFile).then(({ body, title, fallback }) => {
-        setMarkdown(body)
-        setMeta(prev => ({ ...prev, title: title || prev.title }))
-        if (fallback) setError('⚠️ Old Word format detected — text extracted as plain text. Please review and clean up the body before staging.')
-        setStep('preview')
-      }).catch(() => setError('Failed to parse Word document'))
-    } else if (mdFile) {
-      parseMd(mdFile).then(({ body, fm }) => {
-        setMarkdown(body)
-        setMeta(prev => ({
-          ...prev,
-          title: fm.title || prev.title,
-          slug: fm.slug || fm['event-slug'] || prev.slug,
-          subtitle: fm.subtitle || prev.subtitle,
-          category: fm.category || prev.category,
-          tags: Array.isArray(fm.tags) ? fm.tags.join(', ') : (fm.tags || prev.tags),
-          issue: fm.issue || prev.issue,
-          author_name: fm['author-name'] || fm.author || prev.author_name,
-          author_role: fm['author-role'] || prev.author_role,
-          read_time: fm['read-time'] || fm.readTime || prev.read_time,
-          destination: fm.destination || prev.destination,
-          event_slug: fm['event-slug'] || prev.event_slug,
-          status: fm.status || prev.status,
-        }))
-        setStep('preview')
-      }).catch(() => { setMarkdown(''); setStep('preview') })
-    } else if (imageFiles.length > 0) {
-      setStep('preview')
-    }
+    setError('No article.json found in this folder. Only article.json format is supported.')
   }
 
   const updateMeta = (field, value) => setMeta(prev => ({ ...prev, [field]: value }))
