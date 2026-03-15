@@ -1,5 +1,7 @@
 -- schema.sql — Run in Hostinger phpMyAdmin
 
+SET FOREIGN_KEY_CHECKS = 0;
+
 CREATE TABLE destinations (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   slug VARCHAR(255) NOT NULL UNIQUE,
@@ -165,3 +167,5 @@ CREATE TABLE staged_images (
   INDEX idx_staging (staging_id),
   FOREIGN KEY (staging_id) REFERENCES staged_ingestions(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SET FOREIGN_KEY_CHECKS = 1;
