@@ -2,7 +2,6 @@
 // api/routes/staging.php
 $user = require_auth();
 $userId = $user['sub'] ?? ($user['user_id'] ?? null);
-$db = get_db();
 
 $stagingBaseDir = rtrim(defined('STAGING_UPLOAD_DIR') ? STAGING_UPLOAD_DIR : (UPLOAD_DIR . 'data/staging/'), '/') . '/';
 $stagingBaseUrl = rtrim(defined('STAGING_UPLOAD_URL') ? STAGING_UPLOAD_URL : (UPLOAD_URL . 'data/staging/'), '/') . '/';
@@ -146,6 +145,7 @@ if ($method === 'POST') {
         }
 
         try {
+            $db = get_db();
             $db->beginTransaction();
 
             $destinationId = null;
