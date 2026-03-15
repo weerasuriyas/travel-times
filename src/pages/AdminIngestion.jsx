@@ -392,6 +392,13 @@ export default function AdminIngestion() {
   // ── Batch submit ──────────────────────────────────────────────
   const handleBatchSubmit = async () => {
     const errors = []
+
+    // Refresh session before starting long upload to prevent mid-upload expiry
+    try {
+      const { supabase } = await import('../lib/supabase')
+      await supabase.auth.refreshSession()
+    } catch { /* non-fatal, continue anyway */ }
+
     setBatchProgress({ current: 0, total: batch.length, currentName: '', done: false, errors: [] })
 
     for (let i = 0; i < batch.length; i++) {
