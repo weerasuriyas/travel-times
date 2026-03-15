@@ -136,9 +136,14 @@ define('DB_NAME', env_first(['API_DB_NAME', 'DB_NAME'], 'your_db_name'));
 define('DB_USER', env_first(['API_DB_USER', 'DB_USER'], 'your_db_user'));
 define('DB_PASS', env_first(['API_DB_PASS', 'DB_PASS'], 'your_db_pass'));
 
+define('SUPABASE_URL', env_first(
+    ['API_SUPABASE_URL', 'SUPABASE_URL', 'VITE_SUPABASE_URL'],
+    ''
+));
+
 define('SUPABASE_JWT_SECRET', env_first(
     ['API_SUPABASE_JWT_SECRET', 'SUPABASE_JWT_SECRET'],
-    'your-supabase-jwt-secret'
+    ''
 ));
 
 define('UPLOAD_DIR', normalize_dir(
