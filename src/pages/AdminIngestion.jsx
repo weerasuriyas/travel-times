@@ -231,29 +231,59 @@ export default function AdminIngestion() {
     const allFiles = Array.from(e.target.files)
     if (!allFiles.length) return
 
-    // Group by top-level folder
-    const byFolder = {}
-    for (const f of allFiles) {
-      const parts = (f.webkitRelativePath || f.name).split('/')
-      const top = parts[0]
-      if (!byFolder[top]) byFolder[top] = []
-      byFolder[top].push(f)
-    }
+    const paths = allFiles.map(f => (f.webkitRelativePath || f.name).split('/'))
+    const topFolders = [...new Set(paths.map(p => p[0]))]
 
-    const folders = Object.keys(byFolder)
+    if (topFolders.length === 1) {
+      // All files share the same top-level folder.
+      // Check if there are article subfolders inside it (depth >= 3: parent/article/file)
+      const hasSubfolders = paths.some(p => p.length >= 3)
 
-    if (folders.length > 1) {
-      // Batch mode
+      if (hasSubfolders) {
+        // Batch mode — group by second-level folder (the article folders)
+        const byFolder = {}
+        for (const f of allFiles) {
+          const parts = (f.webkitRelativePath || f.name).split('/')
+          if (parts.length >= 3) {
+            const subfolder = parts[1]
+            if (!byFolder[subfolder]) byFolder[subfolder] = []
+            byFolder[subfolder].push(f)
+          }
+          // Files sitting directly in the parent root are ignored in batch mode
+        }
+
+        const folders = Object.keys(byFolder)
+        if (folders.length > 1) {
+          setMode('batch')
+          const articles = []
+          for (const folder of folders) {
+            const article = await buildArticle(folder, byFolder[folder])
+            articles.push(article)
+          }
+          setBatch(articles)
+          return
+        }
+      }
+
+      // Single mode — one article folder
+      setMode('single')
+      handleSingleFiles(allFiles, topFolders[0] || '')
+    } else {
+      // Multiple top-level folders dropped — batch mode
+      const byFolder = {}
+      for (const f of allFiles) {
+        const parts = (f.webkitRelativePath || f.name).split('/')
+        const top = parts[0]
+        if (!byFolder[top]) byFolder[top] = []
+        byFolder[top].push(f)
+      }
       setMode('batch')
       const articles = []
-      for (const folder of folders) {
+      for (const folder of Object.keys(byFolder)) {
         const article = await buildArticle(folder, byFolder[folder])
         articles.push(article)
       }
       setBatch(articles)
-    } else {
-      setMode('single')
-      handleSingleFiles(allFiles, folders[0] || '')
     }
   }, [])
 
