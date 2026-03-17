@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, ArrowUpRight, ChevronRight, Share2, Eye, Calendar, Clock, ArrowLeft, Layers, Flame, Compass, Info, Star, Building, Utensils } from 'lucide-react';
-import { APIProvider, Map, AdvancedMarker, InfoWindow, useMap } from '@vis.gl/react-google-maps';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import { SectionHeader, SharedHeader } from '../components/UI';
 import { useScrolled } from '../hooks/useScrolled';
 import { getEventBySlug, getDestinationBySlug } from '../data/destinations';
@@ -12,52 +13,31 @@ import plateGuard from '../assets/images/plate_guard.jpg';
 
 const peraheraImg = "/perahera_banner.jpg";
 
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-const hasValidMapsKey = GOOGLE_MAPS_API_KEY && !GOOGLE_MAPS_API_KEY.startsWith('YOUR_');
+function makeIcon(color, svgInner, size = 28) {
+    return L.divIcon({
+        className: '',
+        html: `<div style="width:${size}px;height:${size}px;background:${color};border:3px solid white;border-radius:50%;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
+            <svg width="${size * 0.55}" height="${size * 0.55}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${svgInner}</svg>
+        </div>`,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
+        popupAnchor: [0, -(size / 2 + 4)],
+    });
+}
 
-const MapPlaceholder = ({ height = '500px', label = 'Map' }) => (
-    <div className="rounded-[32px] overflow-hidden border-4 border-white bg-stone-100 flex items-center justify-center" style={{ height }}>
-        <div className="text-center p-8">
-            <MapPin size={48} className="text-stone-300 mx-auto mb-4" />
-            <p className="text-sm font-bold text-stone-500 mb-1">{label}</p>
-            <p className="text-xs text-stone-400">Google Maps API key required</p>
-        </div>
-    </div>
-);
+const PIN_SVG = '<path d="M20 10c0 6-8 13-8 13s-8-7-8-13a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>';
+const BUILDING_SVG = '<rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M16 6h.01M12 6h.01M12 10h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01M12 14h.01"/>';
+const UTENSILS_SVG = '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>';
 
-// Custom Map Controller for Google Maps
-const MapViewController = ({ selectedHotel, hotels }) => {
+const MapViewController = ({ selectedIdx, items }) => {
     const map = useMap();
-
     useEffect(() => {
-        if (selectedHotel !== null && map) {
-            const hotel = hotels[selectedHotel];
-            map.panTo({ lat: hotel.coordinates[0], lng: hotel.coordinates[1] });
+        if (selectedIdx !== null && map && items[selectedIdx]) {
+            map.panTo([items[selectedIdx].coordinates[0], items[selectedIdx].coordinates[1]]);
             map.setZoom(16);
         }
-    }, [selectedHotel, map, hotels]);
-
+    }, [selectedIdx, items, map]);
     return null;
-};
-
-// Custom marker component for Google Maps
-const CustomMapMarker = ({ color = '#78716c', isSelected = false, icon }) => {
-    const size = isSelected ? 36 : 28;
-
-    return (
-        <div className="relative flex flex-col items-center">
-            <div
-                className={`rounded-full border-4 border-white shadow-2xl flex items-center justify-center transition-all duration-300 ${isSelected ? 'scale-110' : ''}`}
-                style={{
-                    width: `${size}px`,
-                    height: `${size}px`,
-                    backgroundColor: color
-                }}
-            >
-                {icon || <MapPin className="text-white" size={size * 0.6} strokeWidth={3} />}
-            </div>
-        </div>
-    );
 };
 
 const accommodations = [
@@ -537,85 +517,43 @@ const EventDetailPage = () => {
                                 </div>
                             </div>
 
-                            {hasValidMapsKey ? (
                             <div className="rounded-[32px] overflow-hidden shadow-xl border-4 border-white h-[400px] md:h-[500px] relative">
-                                <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-                                    <Map
-                                        defaultCenter={{ lat: 7.2906, lng: 80.6337 }}
-                                        defaultZoom={13}
-                                        mapId="8e5e3d8a9c4a2b1c"
-                                        gestureHandling="greedy"
-                                        disableDefaultUI={false}
-                                        zoomControl={true}
-                                        className="w-full h-full"
-                                    >
-                                        <MapViewController selectedHotel={selectedHotel} hotels={eventAccommodations} />
-
-                                        {/* Hotel Markers */}
-                                        {eventAccommodations.map((hotel, idx) => (
-                                            <AdvancedMarker
-                                                key={idx}
-                                                position={{ lat: hotel.coordinates[0], lng: hotel.coordinates[1] }}
-                                                onClick={() => setSelectedHotel(idx)}
-                                            >
-                                                <CustomMapMarker
-                                                    color={selectedHotel === idx ? '#00E676' : '#78716c'}
-                                                    isSelected={selectedHotel === idx}
-                                                />
-                                            </AdvancedMarker>
-                                        ))}
-
-                                        {/* Temple of the Tooth Marker */}
-                                        <AdvancedMarker
-                                            position={{ lat: 7.2936, lng: 80.6413 }}
+                                <MapContainer center={[7.2906, 80.6337]} zoom={13} style={{ width: '100%', height: '100%' }}>
+                                    <TileLayer
+                                        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                                        subdomains="abcd"
+                                        maxZoom={19}
+                                    />
+                                    <MapViewController selectedIdx={selectedHotel} items={eventAccommodations} />
+                                    {eventAccommodations.map((hotel, idx) => (
+                                        <Marker
+                                            key={idx}
+                                            position={[hotel.coordinates[0], hotel.coordinates[1]]}
+                                            icon={makeIcon(selectedHotel === idx ? '#00E676' : '#78716c', PIN_SVG, selectedHotel === idx ? 36 : 28)}
+                                            eventHandlers={{ click: () => setSelectedHotel(idx) }}
                                         >
-                                            <CustomMapMarker color="#FFB300" icon={<Building className="text-white" size={16} />} />
-                                        </AdvancedMarker>
-
-                                        {/* Info Windows for Selected Hotel */}
-                                        {selectedHotel !== null && (
-                                            <InfoWindow
-                                                position={{
-                                                    lat: eventAccommodations[selectedHotel].coordinates[0],
-                                                    lng: eventAccommodations[selectedHotel].coordinates[1]
-                                                }}
-                                                onCloseClick={() => setSelectedHotel(null)}
-                                            >
-                                                <div className="text-center p-2">
-                                                    <h3 className="font-black uppercase text-sm">{eventAccommodations[selectedHotel].name}</h3>
-                                                    <p className="text-xs text-stone-500">{eventAccommodations[selectedHotel].type}</p>
-                                                    <p className="text-xs font-bold text-[#00E676] mt-1">{eventAccommodations[selectedHotel].price}</p>
+                                            <Popup>
+                                                <div style={{ textAlign: 'center', padding: '4px' }}>
+                                                    <h3 style={{ fontWeight: 900, textTransform: 'uppercase', fontSize: '13px' }}>{hotel.name}</h3>
+                                                    <p style={{ fontSize: '11px', color: '#78716c' }}>{hotel.type}</p>
+                                                    <p style={{ fontSize: '11px', fontWeight: 700, color: '#00C853', marginTop: '4px' }}>{hotel.price}</p>
                                                 </div>
-                                            </InfoWindow>
-                                        )}
-                                    </Map>
-                                </APIProvider>
-
-                                {/* Map Legend */}
+                                            </Popup>
+                                        </Marker>
+                                    ))}
+                                    <Marker position={[7.2936, 80.6413]} icon={makeIcon('#FFB300', BUILDING_SVG, 28)}>
+                                        <Popup><div style={{ fontWeight: 900, fontSize: '12px' }}>Temple of the Tooth</div></Popup>
+                                    </Marker>
+                                </MapContainer>
                                 <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-md p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest z-[1000] shadow-xl">
                                     <div className="flex flex-wrap justify-center gap-6">
-                                        <div className="flex items-center gap-2">
-                                            <span className="w-3 h-3 rounded-full bg-[#00E676]"></span>
-                                            <span>Selected</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="w-3 h-3 rounded-full bg-stone-400"></span>
-                                            <span>Hotel</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="w-3 h-3 rounded-full bg-[#FFB300]"></span>
-                                            <span>Temple</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="w-3 h-3 rounded-full bg-[#FF3D00]"></span>
-                                            <span>Route</span>
-                                        </div>
+                                        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#00E676]"></span><span>Selected</span></div>
+                                        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-stone-400"></span><span>Hotel</span></div>
+                                        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#FFB300]"></span><span>Temple</span></div>
                                     </div>
                                 </div>
                             </div>
-                            ) : (
-                                <MapPlaceholder height="500px" label="Hotel Locations" />
-                            )}
                         </div>
                     </div>
 
@@ -750,69 +688,42 @@ const EventDetailPage = () => {
                                 </div>
 
                                 {/* Map Container */}
-                                {hasValidMapsKey ? (
                                 <div className="relative rounded-[32px] overflow-hidden shadow-2xl border-4 border-white" style={{ height: "500px" }}>
-                                    <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-                                        <Map
-                                            defaultCenter={{ lat: destCoordinates[0], lng: destCoordinates[1] }}
-                                            defaultZoom={14}
-                                            mapId="8e5e3d8a9c4a2b1c"
-                                            gestureHandling="greedy"
-                                            disableDefaultUI={false}
-                                            zoomControl={true}
-                                            className="w-full h-full"
-                                        >
-                                            <MapViewController selectedHotel={selectedRestaurant} hotels={eventRestaurants} />
-
-                                            {/* Restaurant Markers */}
-                                            {eventRestaurants.map((restaurant, idx) => (
-                                                <AdvancedMarker
-                                                    key={idx}
-                                                    position={{ lat: restaurant.coordinates[0], lng: restaurant.coordinates[1] }}
-                                                    onClick={() => setSelectedRestaurant(idx)}
-                                                >
-                                                    <CustomMapMarker
-                                                        color="#FF3D00"
-                                                        isSelected={selectedRestaurant === idx}
-                                                        icon={<Utensils className="text-white" size={14} />}
-                                                    />
-                                                </AdvancedMarker>
-                                            ))}
-
-                                            {/* Info Window for Selected Restaurant */}
-                                            {selectedRestaurant !== null && (
-                                                <InfoWindow
-                                                    position={{
-                                                        lat: eventRestaurants[selectedRestaurant].coordinates[0],
-                                                        lng: eventRestaurants[selectedRestaurant].coordinates[1]
-                                                    }}
-                                                    onCloseClick={() => setSelectedRestaurant(null)}
-                                                >
-                                                    <div className="p-2">
-                                                        <h4 className="font-black text-base mb-1">{eventRestaurants[selectedRestaurant].name}</h4>
-                                                        <p className="text-xs text-stone-600 mb-2">{eventRestaurants[selectedRestaurant].type}</p>
-                                                        <div className="flex items-center gap-2 text-xs">
-                                                            <Star size={12} className="text-[#FFD600] fill-[#FFD600]" />
-                                                            <span className="font-bold">{eventRestaurants[selectedRestaurant].rating}</span>
-                                                            <span className="text-stone-500">• {eventRestaurants[selectedRestaurant].price}</span>
+                                    <MapContainer center={[destCoordinates[0], destCoordinates[1]]} zoom={14} style={{ width: '100%', height: '100%' }}>
+                                        <TileLayer
+                                            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                                            subdomains="abcd"
+                                            maxZoom={19}
+                                        />
+                                        <MapViewController selectedIdx={selectedRestaurant} items={eventRestaurants} />
+                                        {eventRestaurants.map((restaurant, idx) => (
+                                            <Marker
+                                                key={idx}
+                                                position={[restaurant.coordinates[0], restaurant.coordinates[1]]}
+                                                icon={makeIcon('#FF3D00', UTENSILS_SVG, selectedRestaurant === idx ? 36 : 28)}
+                                                eventHandlers={{ click: () => setSelectedRestaurant(idx) }}
+                                            >
+                                                <Popup>
+                                                    <div style={{ padding: '4px' }}>
+                                                        <h4 style={{ fontWeight: 900, fontSize: '14px', marginBottom: '4px' }}>{restaurant.name}</h4>
+                                                        <p style={{ fontSize: '11px', color: '#57534e', marginBottom: '6px' }}>{restaurant.type}</p>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
+                                                            <span style={{ fontWeight: 700 }}>{restaurant.rating}</span>
+                                                            <span style={{ color: '#78716c' }}>• {restaurant.price}</span>
                                                         </div>
                                                     </div>
-                                                </InfoWindow>
-                                            )}
-                                        </Map>
-                                    </APIProvider>
-
-                                    {/* Map Legend */}
-                                    <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-lg border border-orange-200">
+                                                </Popup>
+                                            </Marker>
+                                        ))}
+                                    </MapContainer>
+                                    <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-lg border border-orange-200 z-[1000]">
                                         <div className="flex items-center gap-2">
                                             <div className="w-3 h-3 rounded-full bg-[#FF3D00]"></div>
                                             <span className="text-xs font-bold text-stone-700">Restaurants</span>
                                         </div>
                                     </div>
                                 </div>
-                                ) : (
-                                    <MapPlaceholder height="500px" label="Restaurant Locations" />
-                                )}
 
                                 <p className="text-sm text-stone-500 mt-6 text-center">
                                     💡 <span className="font-bold">Tip:</span> Click on markers to see details • Hover over cards below to locate on map

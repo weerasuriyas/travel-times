@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(npm install:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(shad search:*)",
+      "Bash(shad context:*)",
+      "Bash(shad --help:*)",
+      "Bash(shad vault:*)"
     ]
   }
 }

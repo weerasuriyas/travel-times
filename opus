@@ -1,0 +1,139 @@
+Based on my training knowledge and the retrieved context from your vault (Arthur Shield quickstart docs), here's a comprehensive deep-dive:
+
+---
+
+## Arthur Shield
+
+### What Is It?
+
+**Arthur Shield** is an AI security and guardrails platform from [Arthur AI](https://www.arthur.ai/). It sits as a **proxy layer between your application and LLM providers** (OpenAI, Anthropic, etc.), intercepting prompts and responses to enforce safety, compliance, and quality policies in real time.
+
+It's designed for enterprises deploying LLMs in production — think: preventing prompt injection, blocking PII leakage, filtering toxic content, and enforcing topical scope.
+
+---
+
+### Core Architecture
+
+```
+User / App
+    ↓  (prompt)
+Arthur Shield (proxy)
+    ↓  (validated prompt)
+LLM Provider (OpenAI, Anthropic, etc.)
+    ↓  (response)
+Arthur Shield (proxy)
+    ↓  (validated response)
+User / App
+```
+
+Shield operates **bidirectionally** — it evaluates both:
+- **Inputs** (user prompts)
+- **Outputs** (model responses)
+
+---
+
+### Key Components / Contents
+
+#### 1. **Rules Engine**
+A configurable set of policies applied to every request/response. Rules can be:
+- **Block** — reject the request outright
+- **Redact** — mask sensitive data and pass through
+- **Warn/Log** — allow but flag for review
+- **Rewrite** — modify content before passing on
+
+#### 2. **Built-in Detectors**
+Shield ships with detectors across several categories:
+
+| Category | What It Catches |
+|---|---|
+| **PII Detection** | Names, emails, SSNs, credit cards, phone numbers |
+| **Prompt Injection** | Jailbreaks, instruction overrides, adversarial prompts |
+| **Toxicity** | Hate speech, harassment, violence |
+| **Hallucination** | Responses not grounded in provided context (RAG use cases) |
+| **Sensitive Topics** | Politics, self-harm, regulated industries (finance, medical) |
+| **Off-topic** | Responses outside the defined task scope |
+| **Secrets/Credentials** | API keys, passwords in prompts/responses |
+
+#### 3. **RAG Grounding / Faithfulness**
+For retrieval-augmented generation (RAG) pipelines, Shield can verify that model outputs are **faithful to the retrieved context** — catching hallucinations where the model invents facts not present in the source.
+
+#### 4. **Metrics & Observability**
+Every request is logged with:
+- Latency
+- Rule evaluation results
+- Which detectors fired
+- Input/output token counts
+- Custom metadata you attach
+
+This feeds into Arthur's **dashboard** for monitoring trends, alerting, and auditing.
+
+#### 5. **Policy Configuration**
+Rules are defined via:
+- **UI** (dashboard)
+- **YAML/JSON config files** (version-controllable)
+- **API** (programmatic rule management)
+
+Policies can be scoped per:
+- Model
+- Environment (dev/staging/prod)
+- User group or tenant
+
+---
+
+### How It Works — Step by Step
+
+1. **Integration**: You point your app at the Shield endpoint instead of directly at OpenAI/Anthropic. Shield proxies the call using your provider API key (stored server-side). Supports OpenAI-compatible API format, so most SDKs work with just a base URL change.
+
+2. **Input Evaluation**: When a prompt arrives, Shield runs it through configured detectors in parallel. If a detector triggers a blocking rule, Shield returns an error (or a safe fallback response) without ever calling the LLM.
+
+3. **LLM Call**: If the prompt passes, Shield forwards it to the LLM provider and awaits the response.
+
+4. **Output Evaluation**: The response is evaluated through output-side detectors (hallucination, PII in response, toxicity, etc.).
+
+5. **Enforcement**: Depending on the rule action:
+   - Blocked responses → Shield returns a configured fallback
+   - Redacted responses → PII is masked before returning to the app
+   - Passed → response returned as-is
+
+6. **Logging**: All data (prompt, response, rule evaluations, metadata) is stored for observability and audit.
+
+---
+
+### Deployment Modes
+
+- **Cloud (SaaS)** — Hosted by Arthur, fastest to get started
+- **Self-hosted / VPC** — Shield runs in your infrastructure, prompts never leave your environment (critical for regulated industries)
+
+---
+
+### Version Context (from your vault)
+
+The retrieved context shows Shield is actively versioned (v2.0.253 through v2.0.704+), indicating rapid iteration. The v2.x line appears to be the current major generation as of early 2026.
+
+---
+
+### Typical Use Cases
+
+- **Enterprise chatbots** that must not leak customer PII
+- **Customer-facing copilots** that need to stay on-topic
+- **RAG applications** requiring hallucination detection
+- **Regulated industries** (healthcare, finance, legal) with compliance requirements
+- **Multi-tenant SaaS** with per-customer policy isolation
+
+---
+
+### Comparison to Alternatives
+
+| Tool | Approach |
+|---|---|
+| Arthur Shield | Proxy-based, enterprise focus, bidirectional |
+| Guardrails AI | Python library, in-process |
+| LlamaGuard (Meta) | Open-source model-based classifier |
+| Nemo Guardrails (NVIDIA) | Dialogue flow control |
+| Lakera Guard | API-based, prompt injection focus |
+
+Arthur Shield's differentiation is its **enterprise-grade proxy architecture**, **deep observability**, and **self-hosted deployment option** — making it appealing where data residency and audit trails matter.
+
+---
+
+**Source:** Arthur Shield Quickstart documentation (retrieved from your vault: `arthur_shield/sources/shield-docs-arthur-ai/2026-02-20/arthur-shield-quickstart.md`)
