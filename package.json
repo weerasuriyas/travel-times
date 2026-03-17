@@ -17,6 +17,9 @@
   },
   "dependencies": {
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.2",
+    "mysql2": "^3.14.0",
     "@supabase/supabase-js": "^2.97.0",
     "@vis.gl/react-google-maps": "^1.7.1",
     "date-fns": "^4.1.0",
