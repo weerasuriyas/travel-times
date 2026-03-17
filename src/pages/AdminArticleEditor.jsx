@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Loader2, LogOut } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { apiGet, apiPatch } from '../lib/api'
+import { apiGetAuth, apiPatch } from '../lib/api'
 import ArticlePreview from '../components/ArticlePreview'
 
 const SAVE_DEBOUNCE_MS = 800
@@ -30,21 +30,26 @@ export default function AdminArticleEditor() {
   // Always holds the latest fields so the debounced save doesn't use stale closure values
   const fieldsRef = useRef(fields)
 
-  // beforeunload guard
+  // beforeunload guard — also fires during active save to catch mid-save navigation
   useEffect(() => {
     const handler = (e) => {
-      if (saveStatus === 'error') { e.preventDefault(); e.returnValue = 'You have unsaved changes' }
+      if (saveStatus === 'saving' || saveStatus === 'error') { e.preventDefault(); e.returnValue = 'You have unsaved changes' }
     }
     window.addEventListener('beforeunload', handler)
     return () => window.removeEventListener('beforeunload', handler)
   }, [saveStatus])
+
+  // Clear debounce timer on unmount to prevent state updates after navigation
+  useEffect(() => {
+    return () => clearTimeout(debounceRef.current)
+  }, [])
 
   const loadArticle = useCallback(async () => {
     if (!id) return
     setLoading(true)
     setError('')
     try {
-      const data = await apiGet(`articles/${id}`)
+      const data = await apiGetAuth(`articles/${id}`)
       if (data?.error) { setError(data.error); return }
       setArticle(data)
       setFields({
