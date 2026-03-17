@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Edit, Eye, Archive, Trash2, Search, Filter, LogOut, User, Upload, Loader2, RefreshCw } from 'lucide-react'
+import { Edit, Eye, Archive, Trash2, Search, Filter, LogOut, User, Upload, Loader2, RefreshCw } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { apiGetAuth } from '../lib/api'
 
@@ -246,16 +246,6 @@ export default function AdminDashboard() {
               >
                 <Edit size={20} />
                 Articles
-              </button>
-              <button
-                onClick={() => navigate('/admin/articles')}
-                className="flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-all shadow-sm whitespace-nowrap"
-                style={{ backgroundColor: '#00E676', color: '#1a1a1a' }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#00C853'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#00E676'}
-              >
-                <Plus size={20} />
-                New Article
               </button>
             </div>
           </div>
