@@ -80,6 +80,20 @@ export default function ArticlePreview({ article }) {
         <div className="text-base leading-relaxed text-stone-800 whitespace-pre-wrap font-serif">
           {article.body || <span className="text-stone-300 italic">Article body will appear here…</span>}
         </div>
+
+        {/* Gallery images */}
+        {article.images?.length > 0 && (
+          <div className="mt-10">
+            <p className="text-xs font-black uppercase tracking-widest text-stone-400 mb-4">Photos</p>
+            <div className="grid grid-cols-2 gap-3">
+              {article.images.map((img, i) => (
+                <div key={img.id ?? i} className="rounded-lg overflow-hidden bg-stone-100 aspect-[4/3]">
+                  <img src={img.url} alt={img.alt_text || ''} className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

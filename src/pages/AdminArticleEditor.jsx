@@ -20,6 +20,7 @@ export default function AdminArticleEditor() {
   const { signOut } = useAuth()
 
   const [article, setArticle] = useState(null)
+  const [articleImages, setArticleImages] = useState([])
   const [fields, setFields] = useState({
     title: '', subtitle: '', body: '', category: '', tags: '', author_name: '', status: 'draft',
   })
@@ -49,9 +50,13 @@ export default function AdminArticleEditor() {
     setLoading(true)
     setError('')
     try {
-      const data = await apiGetAuth(`articles/${id}`)
+      const [data, imgs] = await Promise.all([
+        apiGetAuth(`articles/${id}`),
+        apiGetAuth(`images?entity_type=article&entity_id=${id}`).catch(() => []),
+      ])
       if (data?.error) { setError(data.error); return }
       setArticle(data)
+      setArticleImages(Array.isArray(imgs) ? imgs : [])
       setFields({
         title: data.title || '',
         subtitle: data.subtitle || '',
@@ -75,6 +80,7 @@ export default function AdminArticleEditor() {
     ...article,
     ...fields,
     tags: fields.tags,
+    images: articleImages,
   } : null
 
   const updateField = (key, value) => {
