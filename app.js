@@ -1,4 +1,5 @@
 import express from 'express'
+import compression from 'compression'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import articlesRouter from './server/routes/articles.js'
@@ -26,6 +27,7 @@ app.use((req, res, next) => {
   next()
 })
 
+app.use(compression())
 app.use(express.json())
 
 // API routes
@@ -37,28 +39,26 @@ app.use('/api/staging-images', stagingImagesRouter)
 app.use('/api/staging', stagingRouter)
 app.get('/api/health', async (_req, res) => {
   const { stat, readdir } = await import('fs/promises')
-  const stagingDir = (process.env.API_STAGING_UPLOAD_DIR || '').replace(/\/$/, '') + '/'
-  const uploadDir2 = (process.env.API_UPLOAD_DIR || '').replace(/\/$/, '') + '/'
 
-  let stagingExists = false
-  let stagingEntries = []
-  let uploadExists = false
+  async function probe(p) {
+    try { const s = await stat(p); return s.isDirectory() ? await readdir(p).then(e => e.slice(0,8)) : 'file' } catch { return null }
+  }
 
-  try { await stat(stagingDir); stagingExists = true; stagingEntries = await readdir(stagingDir) } catch {}
-  try { await stat(uploadDir2); uploadExists = true } catch {}
+  const base = '/home/u142852704'
+  const domain = `${base}/domains/darkslategray-squirrel-171439.hostingersite.com`
 
   res.json({
     status: 'ok',
     time: new Date().toISOString(),
     app_dir: __dirname,
-    cwd: process.cwd(),
-    env: {
-      staging_dir: stagingDir,
-      staging_dir_exists: stagingExists,
-      staging_entries: stagingEntries.slice(0, 10),
-      upload_dir: uploadDir2,
-      upload_dir_exists: uploadExists,
-      db_host: process.env.API_DB_HOST || '(not set)',
+    paths: {
+      home: await probe(base),
+      'home/public_html': await probe(`${base}/public_html`),
+      'home/public_html/uploads': await probe(`${base}/public_html/uploads`),
+      'home/public_html/uploads/data/staging': await probe(`${base}/public_html/uploads/data/staging`),
+      'domain/public_html': await probe(`${domain}/public_html`),
+      'domain/public_html/uploads': await probe(`${domain}/public_html/uploads`),
+      'domain/public_html/uploads/data/staging': await probe(`${domain}/public_html/uploads/data/staging`),
     }
   })
 })
@@ -67,8 +67,9 @@ app.get('/api/health', async (_req, res) => {
 const uploadDir = (process.env.API_UPLOAD_DIR || join(__dirname, 'uploads')).replace(/\/$/, '')
 app.use('/uploads', express.static(uploadDir))
 
-// Serve frontend
-app.use(express.static(join(__dirname, 'dist')))
+// Serve frontend — hashed assets get 1-year cache, index.html stays uncached
+app.use('/assets', express.static(join(__dirname, 'dist', 'assets'), { maxAge: '1y', immutable: true }))
+app.use(express.static(join(__dirname, 'dist'), { maxAge: 0 }))
 app.get('*', (_req, res) => {
   res.sendFile(join(__dirname, 'dist', 'index.html'))
 })
