@@ -35,7 +35,22 @@ app.use('/api/events', eventsRouter)
 app.use('/api/images', imagesRouter)
 app.use('/api/staging-images', stagingImagesRouter)
 app.use('/api/staging', stagingRouter)
-app.get('/api/health', (_req, res) => res.json({ status: 'ok', time: new Date().toISOString() }))
+app.get('/api/health', async (_req, res) => {
+  const { stat } = await import('fs/promises')
+  const stagingDir = (process.env.API_STAGING_UPLOAD_DIR || '').replace(/\/$/, '') + '/'
+  let stagingExists = false
+  try { await stat(stagingDir); stagingExists = true } catch {}
+  res.json({
+    status: 'ok',
+    time: new Date().toISOString(),
+    env: {
+      staging_dir: stagingDir || '(not set)',
+      staging_dir_exists: stagingExists,
+      db_host: process.env.API_DB_HOST || '(not set)',
+      upload_dir: process.env.API_UPLOAD_DIR || '(not set)',
+    }
+  })
+})
 
 // Serve uploaded files from the uploads directory
 const uploadDir = (process.env.API_UPLOAD_DIR || join(__dirname, 'uploads')).replace(/\/$/, '')
