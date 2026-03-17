@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Edit, Eye, Archive, Trash2, Search, Filter, LogOut, User, Upload, Loader2, RefreshCw } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { apiGetAuth } from '../lib/api'
+import { apiGetAuth, apiPatch, apiDelete } from '../lib/api'
 
 function toTimestamp(value) {
   const ms = new Date(value || 0).getTime()
@@ -80,6 +80,25 @@ export default function AdminDashboard() {
       navigate('/')
     } catch (err) {
       console.error('Error signing out:', err)
+    }
+  }
+
+  const handleArchive = async (article) => {
+    try {
+      await apiPatch(`articles/${article.recordId}`, { status: 'archived' })
+      await loadDashboardData()
+    } catch (err) {
+      setError(err.message || 'Failed to archive article')
+    }
+  }
+
+  const handleDelete = async (article) => {
+    if (!window.confirm(`Delete "${article.title}"? This cannot be undone.`)) return
+    try {
+      await apiDelete(`articles/${article.recordId}`)
+      await loadDashboardData()
+    } catch (err) {
+      setError(err.message || 'Failed to delete article')
     }
   }
 
@@ -330,13 +349,15 @@ export default function AdminDashboard() {
                           <Edit size={18} className="text-stone-600" />
                         </button>
                         <button
+                          onClick={() => handleArchive(article)}
                           className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
                           title="Archive"
-                          disabled={article.source === 'staging'}
+                          disabled={article.source === 'staging' || article.status === 'archived'}
                         >
-                          <Archive size={18} className={article.source === 'staging' ? 'text-stone-300' : 'text-stone-600'} />
+                          <Archive size={18} className={article.source === 'staging' || article.status === 'archived' ? 'text-stone-300' : 'text-stone-600'} />
                         </button>
                         <button
+                          onClick={() => handleDelete(article)}
                           className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                           title="Delete"
                           disabled={article.source === 'staging'}
