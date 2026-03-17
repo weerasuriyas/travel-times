@@ -313,4 +313,28 @@ router.post('/', requireAuth, async (req, res) => {
   res.status(201).json({ folder, slug, review_status: 'pending' })
 })
 
+// PATCH /:folder — update staging article fields (pending only)
+router.patch('/:folder', requireAuth, async (req, res) => {
+  const { folder } = req.params
+  const stagingDir = getStagingDir()
+  const staged = await readStagingJson(stagingDir, folder)
+
+  if (!staged) return res.status(404).json({ error: 'Not found' })
+  if (staged.review_status !== 'pending') {
+    return res.status(409).json({ error: 'Only pending staging records can be edited' })
+  }
+
+  const allowed = ['title', 'subtitle', 'body', 'category', 'tags', 'author_name', 'destination_slug', 'event_slug', 'read_time']
+  const updates = req.body || {}
+
+  for (const key of allowed) {
+    if (key in updates) {
+      staged[key] = updates[key]
+    }
+  }
+
+  await writeStagingJson(stagingDir, folder, staged)
+  res.json({ updated: true })
+})
+
 export default router

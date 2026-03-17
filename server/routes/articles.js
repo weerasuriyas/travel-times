@@ -91,6 +91,51 @@ router.put('/:id', requireAuth, async (req, res) => {
   }
 })
 
+router.patch('/:id', requireAuth, async (req, res) => {
+  const db = getDb()
+  const { id } = req.params
+  const data = req.body
+
+  try {
+    // Fetch current article to preserve published_at on first-publish logic
+    const [rows] = await db.query('SELECT published_at, status FROM articles WHERE id = ?', [id])
+    if (!rows.length) return res.status(404).json({ error: 'Not found' })
+    const current = rows[0]
+
+    const newStatus = data.status ?? current.status
+    const now = new Date().toISOString().slice(0, 19).replace('T', ' ')
+    // Only set published_at if transitioning to published for the first time
+    const publishedAt = newStatus === 'published' && !current.published_at ? now : current.published_at
+
+    const tags = data.tags != null
+      ? JSON.stringify(Array.isArray(data.tags) ? data.tags : String(data.tags).split(',').map(t => t.trim()).filter(Boolean))
+      : undefined
+
+    // Build dynamic SET clause with only provided fields
+    const setClauses = []
+    const params = []
+
+    if (data.title != null)       { setClauses.push('title = ?');       params.push(data.title) }
+    if (data.subtitle != null)    { setClauses.push('subtitle = ?');    params.push(data.subtitle) }
+    if (data.body != null)        { setClauses.push('body = ?');        params.push(data.body) }
+    if (data.category != null)    { setClauses.push('category = ?');    params.push(data.category) }
+    if (tags != null)             { setClauses.push('tags = ?');        params.push(tags) }
+    if (data.author_name != null) { setClauses.push('author_name = ?'); params.push(data.author_name) }
+    if (data.status != null)      { setClauses.push('status = ?');      params.push(newStatus) }
+    // Always sync published_at with status logic
+    setClauses.push('published_at = ?')
+    params.push(publishedAt)
+
+    params.push(id)
+    await db.query(`UPDATE articles SET ${setClauses.join(', ')} WHERE id = ?`, params)
+
+    const [updated] = await db.query('SELECT * FROM articles WHERE id = ?', [id])
+    res.json(updated[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
 router.delete('/:id', requireAuth, async (req, res) => {
   const db = getDb()
   try {
