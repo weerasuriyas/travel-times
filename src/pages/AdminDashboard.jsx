@@ -106,13 +106,11 @@ export default function AdminDashboard() {
       navigate('/admin/staging')
       return
     }
-
-    if (article.status === 'published' && article.slug) {
-      navigate('/event/' + article.slug)
+    if (article.source === 'article' && article.recordId) {
+      navigate(`/admin/articles/${article.recordId}`)
       return
     }
-
-    navigate('/admin/editor')
+    navigate('/admin/articles')
   }
 
   return (
@@ -243,7 +241,7 @@ export default function AdminDashboard() {
                 Review Queue
               </button>
               <button
-                onClick={() => navigate('/admin/editor')}
+                onClick={() => navigate('/admin/articles')}
                 className="flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-all shadow-sm whitespace-nowrap"
                 style={{ backgroundColor: '#00E676', color: '#1a1a1a' }}
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#00C853'}
@@ -324,7 +322,11 @@ export default function AdminDashboard() {
                           <Eye size={18} className="text-stone-600" />
                         </button>
                         <button
-                          onClick={() => navigate(article.source === 'staging' ? '/admin/staging' : '/admin/editor')}
+                          onClick={() => navigate(
+                            article.source === 'staging'
+                              ? '/admin/staging'
+                              : `/admin/articles/${article.recordId}`
+                          )}
                           className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
                           title={article.source === 'staging' ? 'Review' : 'Edit'}
                         >

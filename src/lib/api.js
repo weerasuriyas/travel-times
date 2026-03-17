@@ -49,6 +49,18 @@ export async function apiPut(path, data) {
   return json
 }
 
+export async function apiPatch(path, data) {
+  const headers = await getAuthHeaders()
+  const res = await fetch(`${API_URL}/${path}`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify(data),
+  })
+  const json = await res.json()
+  if (!res.ok) throw new Error(json.error || `API error: ${res.status}`)
+  return json
+}
+
 export async function apiDelete(path) {
   const headers = await getAuthHeaders()
   const res = await fetch(`${API_URL}/${path}`, {

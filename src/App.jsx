@@ -15,6 +15,7 @@ const ContactPage = lazy(() => import('./pages/ContactPage'))
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
 const TermsPage = lazy(() => import('./pages/TermsPage'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
+const AdminArticlesList = lazy(() => import('./pages/AdminArticlesList'))
 const AdminArticleEditor = lazy(() => import('./pages/AdminArticleEditor'))
 const AdminLogin = lazy(() => import('./pages/AdminLogin'))
 const AdminIngestion = lazy(() => import('./pages/AdminIngestion'))
@@ -54,7 +55,12 @@ const AppContent = () => (
             <AdminDashboard />
           </ProtectedRoute>
         } />
-        <Route path="/admin/editor" element={
+        <Route path="/admin/articles" element={
+          <ProtectedRoute>
+            <AdminArticlesList />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/articles/:id" element={
           <ProtectedRoute>
             <AdminArticleEditor />
           </ProtectedRoute>
