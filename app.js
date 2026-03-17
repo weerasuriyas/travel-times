@@ -36,18 +36,29 @@ app.use('/api/images', imagesRouter)
 app.use('/api/staging-images', stagingImagesRouter)
 app.use('/api/staging', stagingRouter)
 app.get('/api/health', async (_req, res) => {
-  const { stat } = await import('fs/promises')
+  const { stat, readdir } = await import('fs/promises')
   const stagingDir = (process.env.API_STAGING_UPLOAD_DIR || '').replace(/\/$/, '') + '/'
+  const uploadDir2 = (process.env.API_UPLOAD_DIR || '').replace(/\/$/, '') + '/'
+
   let stagingExists = false
-  try { await stat(stagingDir); stagingExists = true } catch {}
+  let stagingEntries = []
+  let uploadExists = false
+
+  try { await stat(stagingDir); stagingExists = true; stagingEntries = await readdir(stagingDir) } catch {}
+  try { await stat(uploadDir2); uploadExists = true } catch {}
+
   res.json({
     status: 'ok',
     time: new Date().toISOString(),
+    app_dir: __dirname,
+    cwd: process.cwd(),
     env: {
-      staging_dir: stagingDir || '(not set)',
+      staging_dir: stagingDir,
       staging_dir_exists: stagingExists,
+      staging_entries: stagingEntries.slice(0, 10),
+      upload_dir: uploadDir2,
+      upload_dir_exists: uploadExists,
       db_host: process.env.API_DB_HOST || '(not set)',
-      upload_dir: process.env.API_UPLOAD_DIR || '(not set)',
     }
   })
 })
