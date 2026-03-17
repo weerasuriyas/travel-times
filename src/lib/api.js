@@ -67,6 +67,11 @@ export async function apiDelete(path) {
     method: 'DELETE',
     headers,
   })
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}))
+    throw new Error(json.error || `API error: ${res.status}`)
+  }
+  if (res.status === 204) return null
   return res.json()
 }
 

@@ -71,6 +71,7 @@ export default function AdminStagingQueue() {
   const [readOnly, setReadOnly] = useState(false)
   const [reviewedMidSession, setReviewedMidSession] = useState(false)
   const debounceRef = useRef(null)
+  const inflightRef = useRef(0)
 
   const selectedStaging = selected?.staging || null
   const selectedImages = selected?.images || []
@@ -100,14 +101,12 @@ export default function AdminStagingQueue() {
       const data = await apiGetAuth(query)
       const rows = Array.isArray(data) ? data : []
       setQueue(rows)
-      if (rows.length === 0) { setSelectedId(null); setSelected(null); return }
-      if (!rows.some(row => row.folder === selectedId)) setSelectedId(rows[0].folder)
     } catch (err) {
       setError(err.message || 'Failed to load staging queue')
     } finally {
       setLoadingList(false)
     }
-  }, [reviewFilter, selectedId])
+  }, [reviewFilter])
 
   const loadDetail = useCallback(async (id) => {
     if (!id) return
@@ -139,6 +138,14 @@ export default function AdminStagingQueue() {
   }, [])
 
   useEffect(() => { loadQueue() }, [loadQueue])
+
+  // Reset or advance selection when the queue contents change
+  useEffect(() => {
+    if (queue.length === 0) { setSelectedId(null); setSelected(null) }
+    else if (!queue.some(r => r.folder === selectedId)) setSelectedId(queue[0].folder)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queue])
+
   useEffect(() => { if (selectedId) loadDetail(selectedId) }, [selectedId, loadDetail])
 
   const updateField = (key, value) => {
@@ -147,26 +154,27 @@ export default function AdminStagingQueue() {
     setSaveStatus('saving')
     clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(async () => {
+      inflightRef.current++
       try {
         await apiPatch(`staging/${selectedId}`, { [key]: value })
-        setSaveStatus('saved')
+        if (--inflightRef.current === 0) setSaveStatus('saved')
         // Sync title in queue list for immediate feedback
         if (key === 'title') {
           setQueue(prev => prev.map(r => r.folder === selectedId ? { ...r, title: value } : r))
         }
       } catch (err) {
+        inflightRef.current--
         if (err.message?.includes('409')) {
           setReadOnly(true)
           setReviewedMidSession(true)
-          setSaveStatus('error')
-        } else {
-          setSaveStatus('error')
         }
+        setSaveStatus('error')
       }
     }, SAVE_DEBOUNCE_MS)
   }
 
   const deleteImage = async (img) => {
+    const previousImages = selected?.images || []
     // Optimistic: remove immediately
     setSelected(prev => ({
       ...prev,
@@ -175,8 +183,8 @@ export default function AdminStagingQueue() {
     try {
       await apiDelete(`staging-images/${selectedId}/${img.stored_filename}`)
     } catch {
-      // Restore on failure
-      setSelected(prev => ({ ...prev, images: [...(prev?.images || []), img] }))
+      // Restore original image list (preserves order)
+      setSelected(prev => ({ ...prev, images: previousImages }))
       setError('Failed to delete image')
     }
   }
