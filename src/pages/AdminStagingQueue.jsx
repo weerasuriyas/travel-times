@@ -69,6 +69,7 @@ export default function AdminStagingQueue() {
   const [editFields, setEditFields] = useState({})
   const [saveStatus, setSaveStatus] = useState('saved') // 'saved' | 'saving' | 'error'
   const [readOnly, setReadOnly] = useState(false)
+  const [reviewedMidSession, setReviewedMidSession] = useState(false)
   const debounceRef = useRef(null)
 
   const selectedStaging = selected?.staging || null
@@ -119,6 +120,7 @@ export default function AdminStagingQueue() {
       setPublishStatus(s.desired_status || 'draft')
       setReviewNotes(s.review_notes || '')
       setReadOnly(s.review_status !== 'pending')
+      setReviewedMidSession(false)
       setEditFields({
         title: s.title || '',
         subtitle: s.subtitle || '',
@@ -155,8 +157,8 @@ export default function AdminStagingQueue() {
       } catch (err) {
         if (err.message?.includes('409')) {
           setReadOnly(true)
-          setSaveStatus('saved')
-          setError('This item has been reviewed and can no longer be edited.')
+          setReviewedMidSession(true)
+          setSaveStatus('error')
         } else {
           setSaveStatus('error')
         }
@@ -214,7 +216,7 @@ export default function AdminStagingQueue() {
   const saveIndicator = saveStatus === 'saving'
     ? <span className="text-xs text-stone-400 animate-pulse">Saving…</span>
     : saveStatus === 'error'
-    ? <span className="text-xs text-red-500">Save failed — check connection</span>
+    ? <span className="text-xs text-red-500">Error</span>
     : <span className="text-xs text-green-600">Saved</span>
 
   return (
@@ -302,11 +304,11 @@ export default function AdminStagingQueue() {
                   <p className="text-xs text-stone-400 font-mono">{selectedStaging.folder}</p>
                 </div>
 
-                {readOnly && selectedStaging.review_status !== 'pending' && (
+                {(readOnly && selectedStaging.review_status !== 'pending') || reviewedMidSession ? (
                   <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
-                    This item has been {selectedStaging.review_status} and can no longer be edited.
+                    This item has been reviewed and can no longer be edited.
                   </div>
-                )}
+                ) : null}
 
                 {/* Editable fields */}
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
