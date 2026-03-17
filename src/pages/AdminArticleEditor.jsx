@@ -98,7 +98,7 @@ export default function AdminArticleEditor() {
   const saveIndicator = saveStatus === 'saving'
     ? <span className="text-xs text-stone-400 animate-pulse">Saving…</span>
     : saveStatus === 'error'
-    ? <span className="text-xs text-red-400">Save failed</span>
+    ? <span className="text-xs text-red-400">Error</span>
     : <span className="text-xs text-green-500">Saved</span>
 
   return (
@@ -130,9 +130,9 @@ export default function AdminArticleEditor() {
           <p className="text-red-600">{error}</p>
         </div>
       ) : (
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           {/* Editor pane */}
-          <div className="w-1/2 flex flex-col overflow-y-auto border-r border-stone-200 bg-white p-6 gap-4">
+          <div className="w-full md:w-1/2 flex flex-col overflow-y-auto border-r border-stone-200 bg-white p-6 gap-4">
             {error && (
               <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
             )}
@@ -180,7 +180,7 @@ export default function AdminArticleEditor() {
           </div>
 
           {/* Preview pane */}
-          <div className="w-1/2 overflow-hidden">
+          <div className="w-full md:w-1/2 overflow-hidden">
             <ArticlePreview article={previewArticle} />
           </div>
         </div>
