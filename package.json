@@ -7,6 +7,7 @@
     "dev": "vite",
     "start": "node app.js",
     "build": "vite build",
+    "postinstall": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "backup": "node scripts/backupCurrentContent.js",
