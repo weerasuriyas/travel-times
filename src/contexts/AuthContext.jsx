@@ -3,18 +3,22 @@ import { supabase } from '../lib/supabase'
 
 const ADMIN_CACHE_KEY = 'tt_is_admin'
 
+const ADMIN_CACHE_TTL = 60 * 60 * 1000 // 60 minutes
+
 function getCachedAdmin(userId) {
   try {
     const raw = localStorage.getItem(ADMIN_CACHE_KEY)
     if (!raw) return null
-    const { id, value } = JSON.parse(raw)
-    return id === userId ? value : null
+    const { id, value, ts } = JSON.parse(raw)
+    if (id !== userId) return null
+    if (Date.now() - ts > ADMIN_CACHE_TTL) return null
+    return value
   } catch { return null }
 }
 
 function setCachedAdmin(userId, value) {
   try {
-    localStorage.setItem(ADMIN_CACHE_KEY, JSON.stringify({ id: userId, value }))
+    localStorage.setItem(ADMIN_CACHE_KEY, JSON.stringify({ id: userId, value, ts: Date.now() }))
   } catch { /* ignore */ }
 }
 
