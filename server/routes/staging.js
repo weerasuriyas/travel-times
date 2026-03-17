@@ -329,7 +329,12 @@ router.patch('/:folder', requireAuth, async (req, res) => {
 
   for (const key of allowed) {
     if (key in updates) {
-      staged[key] = updates[key]
+      if (key === 'tags') {
+        const raw = updates[key]
+        staged[key] = Array.isArray(raw) ? raw : String(raw).split(',').map(t => t.trim()).filter(Boolean)
+      } else {
+        staged[key] = updates[key]
+      }
     }
   }
 

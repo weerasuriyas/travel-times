@@ -128,12 +128,16 @@ router.delete('/:folder/:filename', requireAuth, async (req, res) => {
     return res.status(400).json({ error: 'folder and filename are required' })
   }
 
+  if (filename.includes('..') || filename.startsWith('/')) {
+    return res.status(400).json({ error: 'Invalid filename' })
+  }
+
   const baseDir = getStagingDir()
   const staged = await readStagingJson(baseDir, stagingFolder)
-  if (staged) {
-    staged.images = (staged.images || []).filter(img => img.stored_filename !== filename)
-    await writeStagingJson(baseDir, stagingFolder, staged)
-  }
+  if (!staged) return res.status(404).json({ error: 'Staging folder not found' })
+
+  staged.images = (staged.images || []).filter(img => img.stored_filename !== filename)
+  await writeStagingJson(baseDir, stagingFolder, staged)
 
   await unlink(join(baseDir, stagingFolder, filename)).catch(() => {})
   res.json({ deleted: true })
