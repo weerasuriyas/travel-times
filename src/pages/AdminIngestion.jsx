@@ -393,17 +393,21 @@ export default function AdminIngestion() {
   const handleBatchSubmit = async () => {
     const errors = []
 
-    // Refresh session before starting long upload to prevent mid-upload expiry
-    try {
-      const { supabase } = await import('../lib/supabase')
-      await supabase.auth.refreshSession()
-    } catch { /* non-fatal, continue anyway */ }
+    const { supabase: sb } = await import('../lib/supabase')
+
+    // Refresh session before starting long upload
+    try { await sb.auth.refreshSession() } catch { /* non-fatal */ }
 
     setBatchProgress({ current: 0, total: batch.length, currentName: '', done: false, errors: [] })
 
     for (let i = 0; i < batch.length; i++) {
       const article = batch[i]
       setBatchProgress(p => ({ ...p, current: i, currentName: article.folderName }))
+
+      // Refresh token every 10 articles to prevent expiry on large batches
+      if (i > 0 && i % 10 === 0) {
+        try { await sb.auth.refreshSession() } catch { /* non-fatal */ }
+      }
 
       try {
         const tags = article.meta.tags.split(',').map(t => t.trim()).filter(Boolean)
