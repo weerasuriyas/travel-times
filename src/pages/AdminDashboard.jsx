@@ -242,6 +242,13 @@ export default function AdminDashboard() {
               </button>
               <button
                 onClick={() => navigate('/admin/articles')}
+                className="flex items-center gap-2 px-6 py-2 bg-stone-600 text-white rounded-lg font-medium transition-all shadow-sm whitespace-nowrap hover:bg-stone-500"
+              >
+                <Edit size={20} />
+                Articles
+              </button>
+              <button
+                onClick={() => navigate('/admin/articles')}
                 className="flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-all shadow-sm whitespace-nowrap"
                 style={{ backgroundColor: '#00E676', color: '#1a1a1a' }}
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#00C853'}
