@@ -45,20 +45,23 @@ app.get('/api/health', async (_req, res) => {
   }
 
   const base = '/home/u142852704'
-  const domain = `${base}/domains/darkslategray-squirrel-171439.hostingersite.com`
+  const uploadDir = process.env.API_UPLOAD_DIR || null
+  const stagingDir = process.env.API_STAGING_UPLOAD_DIR || null
 
   res.json({
     status: 'ok',
     time: new Date().toISOString(),
     app_dir: __dirname,
+    env: {
+      API_UPLOAD_DIR: uploadDir,
+      API_STAGING_UPLOAD_DIR: stagingDir,
+    },
     paths: {
       home: await probe(base),
-      'home/public_html': await probe(`${base}/public_html`),
-      'home/public_html/uploads': await probe(`${base}/public_html/uploads`),
-      'home/public_html/uploads/data/staging': await probe(`${base}/public_html/uploads/data/staging`),
-      'domain/public_html': await probe(`${domain}/public_html`),
-      'domain/public_html/uploads': await probe(`${domain}/public_html/uploads`),
-      'domain/public_html/uploads/data/staging': await probe(`${domain}/public_html/uploads/data/staging`),
+      'home/uploads': await probe(`${base}/uploads`),
+      'home/uploads/data/staging': await probe(`${base}/uploads/data/staging`),
+      ...(uploadDir ? { 'upload_dir': await probe(uploadDir) } : {}),
+      ...(stagingDir ? { 'staging_dir': await probe(stagingDir) } : {}),
     }
   })
 })
