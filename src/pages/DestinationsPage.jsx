@@ -5,29 +5,32 @@ import { SharedHeader } from '../components/UI';
 import { useScrolled } from '../hooks/useScrolled';
 import { apiGet } from '../lib/api';
 
-const REGION_COLORS = {
-  'Western':       'from-sky-900 to-slate-950',
-  'Central':       'from-emerald-900 to-stone-950',
-  'Southern':      'from-blue-900 to-stone-950',
-  'Uva':           'from-amber-900 to-stone-950',
-  'North Central': 'from-orange-900 to-stone-950',
-  'Eastern':       'from-teal-900 to-stone-950',
-  'Northern':      'from-violet-900 to-stone-950',
-}
-
-function regionGradient(region) {
-  return REGION_COLORS[region] ?? 'from-stone-900 to-stone-950'
-}
-
 const DestinationsPage = () => {
   const navigate = useNavigate();
   const isScrolled = useScrolled(50);
   const [destinations, setDestinations] = useState([]);
+  const [unsplashPhotos, setUnsplashPhotos] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     apiGet('destinations')
-      .then(d => setDestinations(Array.isArray(d) ? d : []))
+      .then(async d => {
+        const list = Array.isArray(d) ? d : [];
+        setDestinations(list);
+
+        const needsPhoto = list.filter(dest => !dest.hero_image);
+        if (!needsPhoto.length) return;
+
+        const results = await Promise.all(
+          needsPhoto.map(dest =>
+            fetch(`/api/unsplash/photo?q=${encodeURIComponent(dest.name + ' Sri Lanka')}`)
+              .then(r => r.ok ? r.json() : null)
+              .catch(() => null)
+              .then(photo => [dest.slug, photo])
+          )
+        );
+        setUnsplashPhotos(Object.fromEntries(results));
+      })
       .catch(() => setDestinations([]))
       .finally(() => setLoading(false));
   }, []);
@@ -72,16 +75,35 @@ const DestinationsPage = () => {
               >
                 <div className="bg-white rounded-[32px] overflow-hidden shadow-xl border border-stone-100 hover:shadow-2xl transition-all duration-500">
                   <div className="relative aspect-[4/3] overflow-hidden">
-                    {destination.hero_image
-                      ? <img src={destination.hero_image} alt={destination.name} loading="lazy" className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" />
-                      : (
-                        <div className={`w-full h-full bg-gradient-to-br ${regionGradient(destination.region)} flex items-end p-6`}>
+                    {(() => {
+                      const photo = !destination.hero_image ? unsplashPhotos[destination.slug] : null;
+                      const imgSrc = destination.hero_image || photo?.url;
+                      if (imgSrc) {
+                        return (
+                          <>
+                            <img src={imgSrc} alt={destination.name} loading="lazy" className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" />
+                            {photo && (
+                              <a
+                                href={photo.photographer_url + '?utm_source=travel_times&utm_medium=referral'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={e => e.stopPropagation()}
+                                className="absolute bottom-1 right-2 text-[9px] text-white/40 hover:text-white/70 transition-colors z-10"
+                              >
+                                📷 {photo.photographer_name} / Unsplash
+                              </a>
+                            )}
+                          </>
+                        );
+                      }
+                      return (
+                        <div className="w-full h-full bg-gradient-to-br from-stone-900 to-stone-950 flex items-end p-6">
                           <span className="text-5xl font-black uppercase italic text-white/20 leading-none select-none">
                             {destination.name}
                           </span>
                         </div>
-                      )
-                    }
+                      );
+                    })()}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-5">
                       {destination.region && (

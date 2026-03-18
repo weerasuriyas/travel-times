@@ -6,6 +6,29 @@ import { join } from 'path'
 
 const router = Router()
 
+// Public endpoint — no auth required — returns a single photo for a query
+router.get('/photo', async (req, res) => {
+  const key = process.env.UNSPLASH_ACCESS_KEY
+  if (!key) return res.status(503).json({ error: 'not configured' })
+  const q = req.query.q || 'Sri Lanka'
+  try {
+    const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(q)}&per_page=1&orientation=landscape&client_id=${key}`
+    const r = await fetch(url)
+    if (!r.ok) throw new Error(`Unsplash API error: ${r.status}`)
+    const data = await r.json()
+    const p = data.results?.[0]
+    if (!p) return res.json(null)
+    res.json({
+      url: p.urls.regular,
+      thumb_url: p.urls.small,
+      photographer_name: p.user.name,
+      photographer_url: p.user.links.html,
+    })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
 router.get('/search', requireAuth, async (req, res) => {
   const key = process.env.UNSPLASH_ACCESS_KEY
   if (!key) return res.status(503).json({ error: 'UNSPLASH_ACCESS_KEY not configured' })
