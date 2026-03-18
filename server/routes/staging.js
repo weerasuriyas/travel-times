@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { join } from 'path'
-import { mkdir, readdir, readFile, writeFile, rename, copyFile, unlink, stat } from 'fs/promises'
+import { mkdir, readdir, readFile, writeFile, rename, copyFile, unlink, stat, rm } from 'fs/promises'
 import { randomBytes } from 'crypto'
 import { getDb } from '../db.js'
 import { requireAuth } from '../auth.js'
@@ -342,6 +342,27 @@ router.patch('/:folder', requireAuth, async (req, res) => {
 
   await writeStagingJson(stagingDir, folder, staged)
   res.json({ updated: true })
+})
+
+// DELETE /:folder — permanently remove staging folder from disk
+router.delete('/:folder', requireAuth, async (req, res) => {
+  const { folder } = req.params
+  // Basic safety: no path traversal
+  if (!folder || folder.includes('/') || folder.includes('..')) {
+    return res.status(400).json({ error: 'Invalid folder name' })
+  }
+
+  const stagingDir = getStagingDir()
+  const folderPath = join(stagingDir, folder)
+
+  try {
+    await stat(folderPath)
+  } catch {
+    return res.status(404).json({ error: 'Staging record not found' })
+  }
+
+  await rm(folderPath, { recursive: true, force: true })
+  res.json({ deleted: true, folder })
 })
 
 export default router

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Check, Loader2, LogOut, RefreshCw, X } from 'lucide-react'
+import { ArrowLeft, Check, Loader2, LogOut, RefreshCw, Trash2, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { apiGetAuth, apiPatch, apiPost, apiDelete } from '../lib/api'
 
@@ -219,6 +219,21 @@ export default function AdminStagingQueue() {
     }
   }
 
+  const deleteSelected = async () => {
+    if (!selectedStaging) return
+    if (!window.confirm(`Permanently delete "${selectedStaging.folder}" and all its files? This cannot be undone.`)) return
+    setActionLoading('delete')
+    setError('')
+    try {
+      await apiDelete(`staging/${selectedStaging.folder}`)
+      await loadQueue()
+    } catch (err) {
+      setError(err.message || 'Delete failed')
+    } finally {
+      setActionLoading('')
+    }
+  }
+
   const queueCountLabel = useMemo(() => `${queue.length} item${queue.length === 1 ? '' : 's'}`, [queue.length])
 
   const saveIndicator = saveStatus === 'saving'
@@ -309,7 +324,18 @@ export default function AdminStagingQueue() {
                     {!readOnly && saveIndicator}
                     {readOnly && <span className="text-xs text-stone-400 italic">Read-only</span>}
                   </div>
-                  <p className="text-xs text-stone-400 font-mono">{selectedStaging.folder}</p>
+                  <div className="flex items-center gap-3">
+                    <p className="text-xs text-stone-400 font-mono">{selectedStaging.folder}</p>
+                    <button
+                      onClick={deleteSelected}
+                      disabled={actionLoading !== ''}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-60"
+                      title="Permanently delete from disk"
+                    >
+                      {actionLoading === 'delete' ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
+                      Delete
+                    </button>
+                  </div>
                 </div>
 
                 {(readOnly && selectedStaging.review_status !== 'pending') || reviewedMidSession ? (
