@@ -30,6 +30,9 @@ export default function AdminArticleEditor() {
   const debounceRef = useRef(null)
   // Always holds the latest fields so the debounced save doesn't use stale closure values
   const fieldsRef = useRef(fields)
+  const bodyRef = useRef(null)
+  // Captures cursor position on textarea blur, before the insert button click fires
+  const cursorPosRef = useRef(null)
 
   // beforeunload guard — also fires during active save to catch mid-save navigation
   useEffect(() => {
@@ -57,7 +60,7 @@ export default function AdminArticleEditor() {
       if (data?.error) { setError(data.error); return }
       setArticle(data)
       setArticleImages(Array.isArray(imgs) ? imgs : [])
-      setFields({
+      const loaded = {
         title: data.title || '',
         subtitle: data.subtitle || '',
         body: data.body || '',
@@ -65,7 +68,9 @@ export default function AdminArticleEditor() {
         tags: parseTags(data.tags).join(', '),
         author_name: data.author_name || '',
         status: data.status || 'draft',
-      })
+      }
+      setFields(loaded)
+      fieldsRef.current = loaded
     } catch (err) {
       setError(err.message || 'Failed to load article')
     } finally {
@@ -100,6 +105,25 @@ export default function AdminArticleEditor() {
         setError(err.message || 'Save failed')
       }
     }, SAVE_DEBOUNCE_MS)
+  }
+
+  const insertImageAtCursor = (imageId) => {
+    const marker = `[[image:${imageId}]]`
+    const pos = cursorPosRef.current
+    const body = fieldsRef.current.body
+    const start = pos?.start ?? body.length
+    const end = pos?.end ?? body.length
+    const newBody = body.slice(0, start) + marker + body.slice(end)
+    updateField('body', newBody)
+    // Restore focus and cursor position after marker
+    cursorPosRef.current = { start: start + marker.length, end: start + marker.length }
+    requestAnimationFrame(() => {
+      if (bodyRef.current) {
+        bodyRef.current.focus()
+        bodyRef.current.selectionStart = start + marker.length
+        bodyRef.current.selectionEnd = start + marker.length
+      }
+    })
   }
 
   const handleSignOut = async () => {
@@ -185,9 +209,44 @@ export default function AdminArticleEditor() {
             </div>
             <div className="flex-1 flex flex-col min-h-0">
               <label className="block text-xs font-semibold uppercase text-stone-500 mb-1">Body</label>
-              <textarea value={fields.body} onChange={e => updateField('body', e.target.value)}
-                className="flex-1 min-h-[400px] w-full border border-stone-300 rounded-lg px-3 py-2 text-sm font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" />
+              <textarea
+                ref={bodyRef}
+                value={fields.body}
+                onChange={e => updateField('body', e.target.value)}
+                onBlur={e => { cursorPosRef.current = { start: e.target.selectionStart, end: e.target.selectionEnd } }}
+                className="flex-1 min-h-[400px] w-full border border-stone-300 rounded-lg px-3 py-2 text-sm font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+              />
             </div>
+
+            {/* Photo insert strip */}
+            {articleImages.length > 0 && (
+              <div>
+                <label className="block text-xs font-semibold uppercase text-stone-500 mb-2">
+                  Photos — click to insert at cursor
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {articleImages.map(img => {
+                    const placed = fields.body.includes(`[[image:${img.id}]]`)
+                    return (
+                      <button
+                        key={img.id}
+                        type="button"
+                        onClick={() => insertImageAtCursor(img.id)}
+                        className={`relative rounded-lg overflow-hidden aspect-[4/3] group border-2 transition-colors ${placed ? 'border-green-400' : 'border-stone-200 hover:border-stone-400'}`}
+                      >
+                        <img src={img.url} alt={img.alt_text || ''} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">Insert</span>
+                        </div>
+                        {placed && (
+                          <div className="absolute top-1 right-1 bg-green-500 rounded-full w-4 h-4 flex items-center justify-center text-white text-[9px] font-bold">✓</div>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Preview pane */}

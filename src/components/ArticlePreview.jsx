@@ -13,8 +13,36 @@ function parseTags(tags) {
   return String(tags).split(',').map(t => t.trim()).filter(Boolean)
 }
 
+// Split body text into alternating text/image segments based on [[image:ID]] markers
+function parseBodySegments(body, images) {
+  if (!body) return []
+  if (!images?.length) return [{ type: 'text', content: body }]
+  const imageMap = Object.fromEntries(images.map(img => [String(img.id), img]))
+  const segments = []
+  const regex = /\[\[image:(\d+)\]\]/g
+  let lastIndex = 0
+  let match
+  while ((match = regex.exec(body)) !== null) {
+    if (match.index > lastIndex) segments.push({ type: 'text', content: body.slice(lastIndex, match.index) })
+    const img = imageMap[match[1]]
+    segments.push(img ? { type: 'image', image: img } : { type: 'text', content: match[0] })
+    lastIndex = regex.lastIndex
+  }
+  if (lastIndex < body.length) segments.push({ type: 'text', content: body.slice(lastIndex) })
+  return segments
+}
+
 export default function ArticlePreview({ article }) {
   const tags = useMemo(() => parseTags(article?.tags), [article?.tags])
+  const bodySegments = useMemo(() => parseBodySegments(article?.body, article?.images), [article?.body, article?.images])
+  const galleryImages = useMemo(() => {
+    if (!article?.images?.length) return []
+    const placedIds = new Set()
+    const regex = /\[\[image:(\d+)\]\]/g
+    let m
+    while ((m = regex.exec(article.body || ''))) placedIds.add(m[1])
+    return article.images.filter(img => !placedIds.has(String(img.id)))
+  }, [article?.images, article?.body])
 
   if (!article) {
     return (
@@ -76,17 +104,24 @@ export default function ArticlePreview({ article }) {
           </span>
         </div>
 
-        {/* Body */}
-        <div className="text-base leading-relaxed text-stone-800 whitespace-pre-wrap font-serif">
-          {article.body || <span className="text-stone-300 italic">Article body will appear here…</span>}
+        {/* Body with inline images */}
+        <div className="text-base leading-relaxed text-stone-800 font-serif">
+          {bodySegments.length === 0
+            ? <span className="text-stone-300 italic whitespace-pre-wrap">Article body will appear here…</span>
+            : bodySegments.map((seg, i) =>
+                seg.type === 'text'
+                  ? <span key={i} className="whitespace-pre-wrap">{seg.content}</span>
+                  : <img key={i} src={seg.image.url} alt={seg.image.alt_text || ''} className="w-full rounded-lg my-6 block" />
+              )
+          }
         </div>
 
-        {/* Gallery images */}
-        {article.images?.length > 0 && (
+        {/* Gallery — only images not placed inline */}
+        {galleryImages.length > 0 && (
           <div className="mt-10">
             <p className="text-xs font-black uppercase tracking-widest text-stone-400 mb-4">Photos</p>
             <div className="grid grid-cols-2 gap-3">
-              {article.images.map((img, i) => (
+              {galleryImages.map((img, i) => (
                 <div key={img.id ?? i} className="rounded-lg overflow-hidden bg-stone-100 aspect-[4/3]">
                   <img src={img.url} alt={img.alt_text || ''} className="w-full h-full object-cover" />
                 </div>
