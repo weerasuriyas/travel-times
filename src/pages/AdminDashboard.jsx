@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Edit, Eye, Archive, Trash2, Search, LogOut, User, Upload, Loader2, RefreshCw } from 'lucide-react'
+import { Edit, Eye, Archive, Trash2, Search, LogOut, User, Upload, Loader2, RefreshCw, RotateCcw, Globe, EyeOff } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { apiGetAuth, apiPatch, apiDelete } from '../lib/api'
 
@@ -83,13 +83,13 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleArchive = async (article) => {
+  const handleSetStatus = async (article, newStatus) => {
     try {
-      await apiPatch(`articles/${article.recordId}`, { status: 'archived' })
+      await apiPatch(`articles/${article.recordId}`, { status: newStatus })
       await loadDashboardData()
-      setActiveTab('archived')
+      setActiveTab(newStatus === 'archived' ? 'archived' : newStatus === 'published' ? 'published' : 'draft')
     } catch (err) {
-      setError(err.message || 'Failed to archive article')
+      setError(err.message || 'Failed to update status')
     }
   }
 
@@ -335,14 +335,64 @@ export default function AdminDashboard() {
                         >
                           <Edit size={18} className="text-stone-600" />
                         </button>
-                        <button
-                          onClick={() => handleArchive(article)}
-                          className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
-                          title="Archive"
-                          disabled={article.source === 'staging' || article.status === 'archived'}
-                        >
-                          <Archive size={18} className={article.source === 'staging' || article.status === 'archived' ? 'text-stone-300' : 'text-stone-600'} />
-                        </button>
+                        {/* Status action button — context-aware */}
+                        {article.source !== 'staging' && (() => {
+                          if (article.status === 'archived') return (
+                            <>
+                              <button
+                                onClick={() => handleSetStatus(article, 'draft')}
+                                className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                                title="Restore as draft"
+                              >
+                                <RotateCcw size={18} className="text-blue-500" />
+                              </button>
+                              <button
+                                onClick={() => handleSetStatus(article, 'published')}
+                                className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+                                title="Republish"
+                              >
+                                <Globe size={18} className="text-green-500" />
+                              </button>
+                            </>
+                          )
+                          if (article.status === 'published') return (
+                            <>
+                              <button
+                                onClick={() => handleSetStatus(article, 'draft')}
+                                className="p-2 hover:bg-yellow-50 rounded-lg transition-colors"
+                                title="Unpublish to draft"
+                              >
+                                <EyeOff size={18} className="text-yellow-500" />
+                              </button>
+                              <button
+                                onClick={() => handleSetStatus(article, 'archived')}
+                                className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
+                                title="Archive"
+                              >
+                                <Archive size={18} className="text-stone-600" />
+                              </button>
+                            </>
+                          )
+                          // draft
+                          return (
+                            <>
+                              <button
+                                onClick={() => handleSetStatus(article, 'published')}
+                                className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+                                title="Publish"
+                              >
+                                <Globe size={18} className="text-green-500" />
+                              </button>
+                              <button
+                                onClick={() => handleSetStatus(article, 'archived')}
+                                className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
+                                title="Archive"
+                              >
+                                <Archive size={18} className="text-stone-600" />
+                              </button>
+                            </>
+                          )
+                        })()}
                         <button
                           onClick={() => handleDelete(article)}
                           className="p-2 hover:bg-red-50 rounded-lg transition-colors"
