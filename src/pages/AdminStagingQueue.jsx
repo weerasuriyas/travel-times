@@ -72,6 +72,7 @@ export default function AdminStagingQueue() {
   const [reviewedMidSession, setReviewedMidSession] = useState(false)
   const debounceRef = useRef(null)
   const inflightRef = useRef(0)
+  const captionStagingDebounce = useRef({})
 
   const selectedStaging = selected?.staging || null
   const selectedImages = selected?.images || []
@@ -189,6 +190,24 @@ export default function AdminStagingQueue() {
       setError('Failed to delete image')
     }
   }
+
+  const handleStagingCaption = useCallback((storedFilename, caption) => {
+    if (!selected) return
+    setSelected(prev => ({
+      ...prev,
+      images: (prev?.images || []).map(img =>
+        img.stored_filename === storedFilename ? { ...img, caption } : img
+      ),
+    }))
+    clearTimeout(captionStagingDebounce.current[storedFilename])
+    captionStagingDebounce.current[storedFilename] = setTimeout(() => {
+      apiPatch('staging-images', {
+        staging_folder: selected.folder,
+        filename: storedFilename,
+        caption,
+      }).catch(() => {})
+    }, 600)
+  }, [selected])
 
   const approveSelected = async () => {
     if (!selectedStaging || !isPending) return
@@ -391,19 +410,28 @@ export default function AdminStagingQueue() {
                   ) : (
                     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                       {selectedImages.map(img => (
-                        <div key={img.stored_filename} className="group relative rounded-lg border border-stone-200 bg-stone-50 p-2">
-                          <img src={img.url} alt={img.original_filename} className="aspect-square w-full rounded object-cover" />
-                          {isPending && (
-                            <button
-                              onClick={() => deleteImage(img)}
-                              className="absolute top-1 right-1 hidden group-hover:flex items-center justify-center w-6 h-6 bg-red-600 text-white rounded-full shadow"
-                              title="Delete image"
-                            >
-                              <X size={12} />
-                            </button>
-                          )}
-                          <p className="mt-1 truncate text-[11px] text-stone-600">{img.original_filename}</p>
-                          <p className="text-[10px] uppercase text-stone-500">{img.role}</p>
+                        <div key={img.stored_filename} className="flex flex-col gap-1.5">
+                          <div className="group relative rounded-lg border border-stone-200 bg-stone-50 p-2">
+                            <img src={img.url} alt={img.original_filename} className="aspect-square w-full rounded object-cover" />
+                            {isPending && (
+                              <button
+                                onClick={() => deleteImage(img)}
+                                className="absolute top-1 right-1 hidden group-hover:flex items-center justify-center w-6 h-6 bg-red-600 text-white rounded-full shadow"
+                                title="Delete image"
+                              >
+                                <X size={12} />
+                              </button>
+                            )}
+                            <p className="mt-1 truncate text-[11px] text-stone-600">{img.original_filename}</p>
+                            <p className="text-[10px] uppercase text-stone-500">{img.role}</p>
+                          </div>
+                          <input
+                            type="text"
+                            value={img.caption || ''}
+                            onChange={e => handleStagingCaption(img.stored_filename, e.target.value)}
+                            placeholder="Add a caption…"
+                            className="w-full text-[11px] bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-stone-600 placeholder-stone-300 focus:outline-none focus:ring-1 focus:ring-[#00E676]/50 focus:border-[#00E676]"
+                          />
                         </div>
                       ))}
                     </div>
