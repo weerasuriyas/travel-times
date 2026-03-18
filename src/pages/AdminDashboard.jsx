@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Edit, Eye, Archive, Trash2, Search, LogOut, User, Upload, Loader2, RefreshCw, RotateCcw, Globe, EyeOff, MapPin, Settings, Info, Users } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
+import { Edit, Eye, Archive, Trash2, Search, Loader2, RefreshCw, RotateCcw, Globe, EyeOff, PenLine } from 'lucide-react'
 import { apiGetAuth, apiPatch, apiDelete } from '../lib/api'
+import AdminPageHeader from '../components/AdminPageHeader'
 
 function toTimestamp(value) {
   const ms = new Date(value || 0).getTime()
@@ -11,7 +11,6 @@ function toTimestamp(value) {
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
-  const { user, signOut, isSuperAdmin } = useAuth()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState('all')
@@ -73,15 +72,6 @@ export default function AdminDashboard() {
   useEffect(() => {
     loadDashboardData()
   }, [loadDashboardData])
-
-  const handleSignOut = async () => {
-    try {
-      await signOut()
-      navigate('/')
-    } catch (err) {
-      console.error('Error signing out:', err)
-    }
-  }
 
   const handleSetStatus = async (article, newStatus) => {
     const prevRows = rows
@@ -146,55 +136,19 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <div className="bg-stone-950 text-stone-50 shadow-lg">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Admin Panel</h1>
-              <p className="text-stone-400 text-sm mt-1">Travel Times Sri Lanka</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3 px-4 py-2 bg-stone-800 rounded-lg">
-                <div className="w-8 h-8 rounded-full bg-[#00E676] flex items-center justify-center">
-                  {user?.user_metadata?.avatar_url ? (
-                    <img
-                      src={user.user_metadata.avatar_url}
-                      alt="User avatar"
-                      className="w-full h-full rounded-full"
-                    />
-                  ) : (
-                    <User size={18} className="text-stone-950" />
-                  )}
-                </div>
-                <div>
-                  <p className="text-sm font-medium">
-                    {user?.user_metadata?.full_name || user?.email || 'Admin User'}
-                  </p>
-                  <p className="text-xs text-stone-400">Administrator</p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => navigate('/')}
-                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 rounded-lg transition-colors text-sm"
-              >
-                ← Back to Site
-              </button>
-
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-sm"
-                title="Sign out"
-              >
-                <LogOut size={18} />
-                <span>Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div>
+      <AdminPageHeader
+        title="Articles"
+        action={
+          <button
+            onClick={() => navigate('/admin/write')}
+            className="flex items-center gap-2 px-4 py-2 bg-stone-950 text-white rounded-lg text-sm font-medium hover:bg-stone-800 transition-colors"
+          >
+            <PenLine size={16} />
+            Write Article
+          </button>
+        }
+      />
       <div className="max-w-7xl mx-auto px-6 py-8">
         {error && (
           <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -221,50 +175,6 @@ export default function AdminDashboard() {
             >
               {loading ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
               Refresh
-            </button>
-            <button
-              onClick={() => navigate('/admin/destinations')}
-              className="flex items-center gap-2 px-4 py-2 bg-stone-800 hover:bg-stone-700 text-white rounded-lg font-medium transition-all text-sm"
-            >
-              <MapPin size={16} />
-              Destinations
-            </button>
-            <button
-              onClick={() => navigate('/admin/about')}
-              className="flex items-center gap-2 px-4 py-2 bg-stone-800 hover:bg-stone-700 text-white rounded-lg font-medium transition-all text-sm"
-            >
-              <Info size={16} />
-              About
-            </button>
-            <button
-              onClick={() => navigate('/admin/settings')}
-              className="flex items-center gap-2 px-4 py-2 bg-stone-800 hover:bg-stone-700 text-white rounded-lg font-medium transition-all text-sm"
-            >
-              <Settings size={16} />
-              Settings
-            </button>
-            {isSuperAdmin && (
-              <button
-                onClick={() => navigate('/admin/users')}
-                className="flex items-center gap-2 px-4 py-2 bg-stone-800 hover:bg-stone-700 text-white rounded-lg font-medium transition-all text-sm"
-              >
-                <Users size={16} />
-                Users
-              </button>
-            )}
-            <button
-              onClick={() => navigate('/admin/ingest')}
-              className="flex items-center gap-2 px-4 py-2 bg-stone-950 text-white rounded-lg font-medium transition-all shadow-sm whitespace-nowrap hover:bg-stone-800 text-sm"
-            >
-              <Upload size={16} />
-              Ingest
-            </button>
-            <button
-              onClick={() => navigate('/admin/staging')}
-              className="flex items-center gap-2 px-4 py-2 bg-stone-700 text-white rounded-lg font-medium transition-all shadow-sm whitespace-nowrap hover:bg-stone-600 text-sm"
-            >
-              <Eye size={16} />
-              Review Queue
             </button>
           </div>
         </div>
