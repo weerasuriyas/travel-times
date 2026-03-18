@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Loader2, LogOut } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { apiGetAuth, apiPatch } from '../lib/api'
+import { apiGet, apiGetAuth, apiPatch } from '../lib/api'
 import ArticlePreview from '../components/ArticlePreview'
 
 const SAVE_DEBOUNCE_MS = 800
@@ -21,8 +21,9 @@ export default function AdminArticleEditor() {
 
   const [article, setArticle] = useState(null)
   const [articleImages, setArticleImages] = useState([])
+  const [destinations, setDestinations] = useState([])
   const [fields, setFields] = useState({
-    title: '', subtitle: '', body: '', category: '', tags: '', author_name: '', status: 'draft',
+    title: '', subtitle: '', body: '', category: '', tags: '', author_name: '', status: 'draft', destination_id: '',
   })
   const [saveStatus, setSaveStatus] = useState('saved')
   const [loading, setLoading] = useState(true)
@@ -68,6 +69,7 @@ export default function AdminArticleEditor() {
         tags: parseTags(data.tags).join(', '),
         author_name: data.author_name || '',
         status: data.status || 'draft',
+        destination_id: data.destination_id ?? '',
       }
       setFields(loaded)
       fieldsRef.current = loaded
@@ -79,6 +81,10 @@ export default function AdminArticleEditor() {
   }, [id])
 
   useEffect(() => { loadArticle() }, [loadArticle])
+
+  useEffect(() => {
+    apiGet('destinations').then(data => setDestinations(Array.isArray(data) ? data : [])).catch(() => {})
+  }, [])
 
   // Derived preview article — merges fields back for live preview
   const previewArticle = article ? {
@@ -199,13 +205,25 @@ export default function AdminArticleEditor() {
               <input value={fields.tags} onChange={e => updateField('tags', e.target.value)}
                 className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
             </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase text-stone-500 mb-1">Status</label>
-              <select value={fields.status} onChange={e => updateField('status', e.target.value)}
-                className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500">
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase text-stone-500 mb-1">Status</label>
+                <select value={fields.status} onChange={e => updateField('status', e.target.value)}
+                  className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase text-stone-500 mb-1">Destination</label>
+                <select value={fields.destination_id} onChange={e => updateField('destination_id', e.target.value || null)}
+                  className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                  <option value="">— None —</option>
+                  {destinations.map(d => (
+                    <option key={d.id} value={d.id}>{d.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div className="flex-1 flex flex-col min-h-0">
               <label className="block text-xs font-semibold uppercase text-stone-500 mb-1">Body</label>

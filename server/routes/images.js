@@ -65,7 +65,7 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
   }
 })
 
-router.get('/', requireAuth, async (req, res) => {
+router.get('/', async (req, res) => {
   const db = getDb()
   const { entity_type, entity_id } = req.query
   let sql = 'SELECT * FROM images WHERE 1=1'

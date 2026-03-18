@@ -9,6 +9,8 @@ import Layout from './components/Layout'
 import { AuthProvider } from './contexts/AuthContext'
 
 const DestinationsPage = lazy(() => import('./pages/DestinationsPage'))
+const PublicArticlesPage = lazy(() => import('./pages/PublicArticlesPage'))
+const PublicArticleDetailPage = lazy(() => import('./pages/PublicArticleDetailPage'))
 const DestinationDetailPage = lazy(() => import('./pages/DestinationDetailPage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
@@ -41,6 +43,8 @@ const AppContent = () => (
           <Route path="/destinations" element={<DestinationsPage />} />
           <Route path="/destination/:slug" element={<DestinationDetailPage />} />
           <Route path="/event/:slug" element={<EventDetailPage />} />
+          <Route path="/articles" element={<PublicArticlesPage />} />
+          <Route path="/article/:slug" element={<PublicArticleDetailPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />

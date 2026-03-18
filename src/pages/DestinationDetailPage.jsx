@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { apiGet } from '../lib/api';
 import { MapPin, Calendar, Clock, ArrowRight, ArrowLeft, Star, DollarSign, Compass, Navigation2, Maximize2, Minimize2 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
@@ -69,6 +70,16 @@ const DestinationDetailPage = () => {
 
   const sortedEvents = getEventsForDestination(slug);
   const timelyCount = sortedEvents.filter(e => isHappeningNow(e) || isHappeningSoon(e) || isInSeason(e)).length;
+  const [destinationArticles, setDestinationArticles] = useState([]);
+
+  useEffect(() => {
+    apiGet(`destinations/${slug}`)
+      .then(dbDest => {
+        if (dbDest?.id) return apiGet(`articles?status=published&destination_id=${dbDest.id}`)
+      })
+      .then(articles => { if (articles) setDestinationArticles(Array.isArray(articles) ? articles : []) })
+      .catch(() => {})
+  }, [slug]);
   const coords = [destination.coordinates[0], destination.coordinates[1]];
 
   return (
@@ -297,6 +308,38 @@ const DestinationDetailPage = () => {
                   </div>
                 );
               })}
+            </div>
+          </section>
+        )}
+
+        {/* CMS Stories for this destination */}
+        {destinationArticles.length > 0 && (
+          <section className="max-w-7xl mx-auto px-6 mb-32">
+            <div className="mb-12">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-1 bg-[#FFD600] rounded-full"></div>
+                <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-stone-500">Field Notes</h2>
+              </div>
+              <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tight italic">Stories</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {destinationArticles.map(article => (
+                <div
+                  key={article.id}
+                  onClick={() => navigate(`/article/${article.slug}`)}
+                  className="group cursor-pointer"
+                >
+                  <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-stone-100 mb-4">
+                    {article.cover_image
+                      ? <img src={article.cover_image} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                      : <div className="w-full h-full bg-stone-200" />
+                    }
+                  </div>
+                  {article.category && <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#00E676] mb-2">{article.category}</p>}
+                  <h4 className="text-xl font-black uppercase tracking-tight italic leading-tight mb-2 group-hover:text-stone-500 transition-colors">{article.title}</h4>
+                  {article.subtitle && <p className="text-sm text-stone-500 font-serif italic line-clamp-2">{article.subtitle}</p>}
+                </div>
+              ))}
             </div>
           </section>
         )}

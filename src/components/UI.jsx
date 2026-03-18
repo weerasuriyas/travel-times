@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Globe, Clock, Quote, Flame, Calendar, Compass, Zap, Search, X, TrendingUp, MapPin, Utensils } from 'lucide-react';
+import { Globe, Clock, Quote, Flame, Calendar, Compass, Zap, Search, X, TrendingUp, MapPin, Utensils, BookOpen } from 'lucide-react';
 import { UserProfile } from './UserProfile';
 
 export const SectionHeader = ({ title, subtitle, color = "#00E676" }) => (
@@ -355,6 +355,15 @@ export const SharedHeader = ({ activeTab, setActiveTab, isScrolled, showTabs = t
                             <span className="md:hidden">Places</span>
                             <span className="hidden md:inline">Destinations</span>
                         </span>
+                    </button>
+
+                    {/* Stories Link - Always visible */}
+                    <button
+                        onClick={() => navigate('/articles')}
+                        className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-1.5 py-1 md:px-4 md:py-2 rounded-xl md:rounded-full bg-stone-50 text-stone-600 hover:bg-black hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                    >
+                        <BookOpen size={14} />
+                        <span className="text-[7px] md:text-[11px] font-black uppercase tracking-tight md:tracking-[0.15em]">Stories</span>
                     </button>
 
                     {showTabs && (
