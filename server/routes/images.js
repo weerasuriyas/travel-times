@@ -99,4 +99,20 @@ router.delete('/:id', requireAuth, async (req, res) => {
   }
 })
 
+router.patch('/:id', requireAuth, async (req, res) => {
+  const db = getDb()
+  const { caption, alt_text } = req.body || {}
+  const updates = {}
+  if (caption !== undefined) updates.caption = caption
+  if (alt_text !== undefined) updates.alt_text = alt_text
+  if (!Object.keys(updates).length) return res.status(400).json({ error: 'Nothing to update' })
+  try {
+    const sets = Object.keys(updates).map(k => `${k} = ?`).join(', ')
+    await db.query(`UPDATE images SET ${sets} WHERE id = ?`, [...Object.values(updates), req.params.id])
+    res.json({ updated: true })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
 export default router

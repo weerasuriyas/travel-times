@@ -87,7 +87,7 @@ app.get('/api/health', async (_req, res) => {
 
 // Serve uploaded files from the uploads directory
 const uploadDir = (process.env.API_UPLOAD_DIR || join(__dirname, 'uploads')).replace(/\/$/, '')
-app.use('/uploads', express.static(uploadDir))
+app.use('/uploads', express.static(uploadDir, { maxAge: '7d', immutable: false }))
 
 // Serve frontend — hashed assets get 1-year cache, index.html stays uncached
 app.use('/assets', express.static(join(__dirname, 'dist', 'assets'), { maxAge: '1y', immutable: true }))
@@ -236,6 +236,7 @@ async function runMigrations() {
     )`,
     `ALTER TABLE articles ADD COLUMN article_type VARCHAR(20) NOT NULL DEFAULT 'story'`,
     `ALTER TABLE articles ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`,
+    `ALTER TABLE images ADD COLUMN caption TEXT`,
   ]
   for (const sql of migrations) {
     try {
