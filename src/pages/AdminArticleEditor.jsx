@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { apiDelete, apiGet, apiGetAuth, apiPatch, apiPost, apiUploadImage } from '../lib/api'
 import ArticlePreview from '../components/ArticlePreview'
 import { subtitleClasses } from '../lib/articleStyles'
+import RichTextEditor from '../components/RichTextEditor'
 
 const SAVE_DEBOUNCE_MS = 800
 
@@ -85,9 +86,9 @@ export default function AdminArticleEditor() {
   const debounceRef = useRef(null)
   const captionDebounceRef = useRef({})
   const fieldsRef = useRef(fields)
-  const bodyRef = useRef(null)
-  const cursorPosRef = useRef(null)
+  const editorRef = useRef(null)
   const fileInputRef = useRef(null)
+  const photosRef = useRef(null)
 
   useEffect(() => {
     const handler = (e) => {
@@ -154,7 +155,7 @@ export default function AdminArticleEditor() {
   const updateField = (key, value) => {
     const next = { ...fieldsRef.current, [key]: value }
     if (key === 'body') {
-      const words = value.trim().split(/\s+/).filter(Boolean).length
+      const words = value.replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length
       next.read_time = Math.max(1, Math.ceil(words / 200))
     }
     setFields(next)
@@ -172,20 +173,11 @@ export default function AdminArticleEditor() {
     }, SAVE_DEBOUNCE_MS)
   }
 
-  const insertImageAtCursor = (imageId) => {
-    const marker = `[[image:${imageId}]]`
-    const pos = cursorPosRef.current
-    const body = fieldsRef.current.body
-    const start = pos?.start ?? body.length
-    const end = pos?.end ?? body.length
-    updateField('body', body.slice(0, start) + marker + body.slice(end))
-    cursorPosRef.current = { start: start + marker.length, end: start + marker.length }
-    requestAnimationFrame(() => {
-      if (bodyRef.current) {
-        bodyRef.current.focus()
-        bodyRef.current.selectionStart = start + marker.length
-        bodyRef.current.selectionEnd = start + marker.length
-      }
+  const handleInsertImage = (img) => {
+    editorRef.current?.commands.setImage({
+      src: img.url,
+      alt: img.alt_text || '',
+      'data-image-id': String(img.id),
     })
   }
 
@@ -293,7 +285,7 @@ export default function AdminArticleEditor() {
       <header className="flex-shrink-0 h-13 px-5 flex items-center justify-between border-b border-white/[0.07] bg-[#111111]">
         <div className="flex items-center gap-3 min-w-0">
           <button
-            onClick={() => navigate('/admin/articles')}
+            onClick={() => navigate('/admin')}
             className="flex items-center gap-1.5 text-xs text-stone-600 hover:text-stone-300 transition-colors flex-shrink-0"
           >
             <ArrowLeft size={14} />
@@ -479,29 +471,22 @@ export default function AdminArticleEditor() {
 
               {/* ── Body ─────────────────────────────────────────────── */}
               <section className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-                <div className="px-5 py-3 border-b border-stone-50 flex items-center justify-between flex-shrink-0">
+                <div className="px-5 py-3 border-b border-stone-50 flex-shrink-0">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300">Story Body</p>
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] text-stone-400">~{fields.read_time} min read</span>
-                    <p className="text-[10px] text-stone-400">
-                      Start a line with <code className="bg-stone-100 px-1 rounded">"quote"</code> for pull quotes
-                    </p>
-                  </div>
                 </div>
                 <div className="p-5">
-                  <textarea
-                    ref={bodyRef}
-                    value={fields.body}
-                    onChange={e => updateField('body', e.target.value)}
-                    onBlur={e => { cursorPosRef.current = { start: e.target.selectionStart, end: e.target.selectionEnd } }}
-                    placeholder="Write your story here…&#10;&#10;Double-line break creates a new paragraph."
-                    className="min-h-[400px] w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 text-sm font-mono leading-[1.8] text-stone-900 placeholder-stone-300 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] resize-y transition-colors"
+                  <RichTextEditor
+                    ref={editorRef}
+                    content={fields.body}
+                    onChange={html => updateField('body', html)}
+                    onInsertImageRequest={() => photosRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                    readTime={fields.read_time}
                   />
                 </div>
               </section>
 
               {/* ── Photos ───────────────────────────────────────────── */}
-              <section className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+              <section ref={photosRef} className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-stone-50 flex items-center justify-between">
                   <div className="flex items-center gap-1 bg-stone-100 rounded-lg p-0.5">
                     {['uploaded', 'unsplash'].map(tab => (
@@ -588,7 +573,7 @@ export default function AdminArticleEditor() {
                       </p>
                       <div className="grid grid-cols-2 gap-2.5">
                         {articleImages.map(img => {
-                          const placed = fields.body.includes(`[[image:${img.id}]]`)
+                          const placed = fields.body.includes(`data-image-id="${img.id}"`)
                           const isCover = fields.cover_image === img.url
                           return (
                             <div key={img.id} className="flex flex-col gap-1.5">
@@ -631,7 +616,7 @@ export default function AdminArticleEditor() {
                                   </button>
                                   <button
                                     type="button"
-                                    onClick={() => insertImageAtCursor(img.id)}
+                                    onClick={() => handleInsertImage(img)}
                                     className="w-full py-1.5 rounded-lg text-[10px] font-bold bg-white/10 text-white hover:bg-white hover:text-stone-900 border border-white/20 transition-colors"
                                   >
                                     + Insert in body
