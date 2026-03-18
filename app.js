@@ -206,4 +206,31 @@ The aged old tradition were never changed for the past 1500 years since 305 AD d
   }
 }
 
-app.listen(PORT, () => { seedDestinations(); seedKandyPerahera() })
+async function runMigrations() {
+  const db = getDb()
+  const migrations = [
+    `ALTER TABLE articles ADD COLUMN is_featured TINYINT(1) NOT NULL DEFAULT 0`,
+    `ALTER TABLE destinations ADD COLUMN description TEXT`,
+    `CREATE TABLE IF NOT EXISTS settings (
+      \`key\` VARCHAR(100) NOT NULL PRIMARY KEY,
+      \`value\` TEXT,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )`,
+  ]
+  for (const sql of migrations) {
+    try {
+      await db.query(sql)
+    } catch (err) {
+      // Ignore "Duplicate column name" — migration already applied
+      if (err.code !== 'ER_DUP_FIELDNAME') console.error('Migration error:', err.message)
+    }
+  }
+  console.log('DB migrations done')
+}
+
+app.listen(PORT, () => {
+  runMigrations()
+    .then(() => seedDestinations())
+    .then(() => seedKandyPerahera())
+    .catch(err => console.error('Startup error:', err.message))
+})

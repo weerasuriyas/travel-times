@@ -22,7 +22,11 @@ router.get('/:id?', async (req, res) => {
     const params = []
     if (status) { sql += ' AND status = ?'; params.push(status) }
     if (destination_id) { sql += ' AND destination_id = ?'; params.push(destination_id) }
-    sql += ' ORDER BY created_at DESC'
+    if (status === 'published') {
+      sql += ' ORDER BY is_featured DESC, created_at DESC'
+    } else {
+      sql += ' ORDER BY created_at DESC'
+    }
     const [rows] = await db.query(sql, params)
     res.json(rows)
   } catch (err) {
@@ -124,6 +128,7 @@ router.patch('/:id', requireAuth, async (req, res) => {
     if (data.status != null)         { setClauses.push('status = ?');         params.push(newStatus) }
     if ('cover_image' in data)       { setClauses.push('cover_image = ?');    params.push(data.cover_image || null) }
     if ('destination_id' in data)    { setClauses.push('destination_id = ?'); params.push(data.destination_id || null) }
+    if (data.read_time != null) { setClauses.push('read_time = ?'); params.push(Number(data.read_time)) }
     // Always sync published_at with status logic
     setClauses.push('published_at = ?')
     params.push(publishedAt)
@@ -133,6 +138,31 @@ router.patch('/:id', requireAuth, async (req, res) => {
 
     const [updated] = await db.query('SELECT * FROM articles WHERE id = ?', [id])
     res.json(updated[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+router.post('/:id/feature', requireAuth, async (req, res) => {
+  const db = getDb()
+  const { id } = req.params
+  const featured = !!req.body.featured
+  try {
+    const conn = await db.getConnection()
+    try {
+      await conn.beginTransaction()
+      await conn.query('UPDATE articles SET is_featured = 0')
+      if (featured) {
+        await conn.query('UPDATE articles SET is_featured = 1 WHERE id = ?', [id])
+      }
+      await conn.commit()
+    } catch (err) {
+      await conn.rollback()
+      throw err
+    } finally {
+      conn.release()
+    }
+    res.json({ ok: true })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
