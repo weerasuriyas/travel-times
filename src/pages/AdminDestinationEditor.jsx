@@ -100,6 +100,7 @@ export default function AdminDestinationEditor() {
   }, [id, isNew])
 
   useEffect(() => { loadDest() }, [loadDest])
+  useEffect(() => { return () => clearTimeout(debounceRef.current) }, [])
 
   // Autosave (edit mode only)
   const updateField = (key, value) => {
@@ -128,7 +129,7 @@ export default function AdminDestinationEditor() {
       await apiPut(`destinations/${id}`, { ...fieldsRef.current, slug })
       setSaveStatus('saved')
     } catch (err) {
-      if (err.message.includes('Slug already in use')) {
+      if (err.message?.includes('Slug already in use')) {
         setSlugError('This slug is already taken — please choose a different one.')
       } else {
         setError(err.message || 'Save failed')
@@ -221,7 +222,7 @@ export default function AdminDestinationEditor() {
       })
       navigate(`/admin/destinations/${result.id}`)
     } catch (err) {
-      if (err.message.includes('Slug already in use')) {
+      if (err.message?.includes('Slug already in use')) {
         setSlugError('This slug is already taken — please choose a different one.')
       } else {
         setError(err.message || 'Create failed')
