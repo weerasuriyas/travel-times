@@ -84,21 +84,27 @@ export default function AdminDashboard() {
   }
 
   const handleSetStatus = async (article, newStatus) => {
+    const prevRows = rows
+    setRows(prev => prev.map(r =>
+      r.id === article.id ? { ...r, status: newStatus } : r
+    ))
+    setActiveTab(newStatus === 'archived' ? 'archived' : newStatus === 'published' ? 'published' : 'draft')
     try {
       await apiPatch(`articles/${article.recordId}`, { status: newStatus })
-      await loadDashboardData()
-      setActiveTab(newStatus === 'archived' ? 'archived' : newStatus === 'published' ? 'published' : 'draft')
     } catch (err) {
+      setRows(prevRows)
       setError(err.message || 'Failed to update status')
     }
   }
 
   const handleDelete = async (article) => {
     if (!window.confirm(`Delete "${article.title}"? This cannot be undone.`)) return
+    const prevRows = rows
+    setRows(prev => prev.filter(r => r.id !== article.id))
     try {
       await apiDelete(`articles/${article.recordId}`)
-      await loadDashboardData()
     } catch (err) {
+      setRows(prevRows)
       setError(err.message || 'Failed to delete article')
     }
   }
