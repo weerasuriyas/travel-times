@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, CheckCircle2, CloudUpload, Loader2, LogOut, Star, Trash2, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { apiDelete, apiGet, apiGetAuth, apiPatch, apiUploadImage } from '../lib/api'
+import { apiDelete, apiGet, apiGetAuth, apiPatch, apiPost, apiUploadImage } from '../lib/api'
 import ArticlePreview from '../components/ArticlePreview'
 
 const SAVE_DEBOUNCE_MS = 800
@@ -39,7 +39,9 @@ export default function AdminArticleEditor() {
   const [fields, setFields] = useState({
     title: '', subtitle: '', body: '', category: '', tags: '',
     author_name: '', status: 'draft', destination_id: '', cover_image: '',
+    read_time: 1,
   })
+  const [isFeatured, setIsFeatured] = useState(false)
   const [saveStatus, setSaveStatus] = useState('saved')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -87,9 +89,11 @@ export default function AdminArticleEditor() {
         status: data.status || 'draft',
         destination_id: data.destination_id ?? '',
         cover_image: data.cover_image ?? '',
+        read_time: Number(data.read_time) || 1,
       }
       setFields(loaded)
       fieldsRef.current = loaded
+      setIsFeatured(!!data.is_featured)
     } catch (err) {
       setError(err.message || 'Failed to load article')
     } finally {
@@ -107,6 +111,10 @@ export default function AdminArticleEditor() {
 
   const updateField = (key, value) => {
     const next = { ...fieldsRef.current, [key]: value }
+    if (key === 'body') {
+      const words = value.trim().split(/\s+/).filter(Boolean).length
+      next.read_time = Math.max(1, Math.ceil(words / 200))
+    }
     setFields(next)
     fieldsRef.current = next
     setSaveStatus('saving')
@@ -175,6 +183,17 @@ export default function AdminArticleEditor() {
     try { await signOut(); navigate('/') } catch (err) { console.error(err) }
   }
 
+  const handleFeatureToggle = async () => {
+    const newVal = !isFeatured
+    setIsFeatured(newVal)  // optimistic
+    try {
+      await apiPost(`articles/${id}/feature`, { featured: newVal })
+    } catch (err) {
+      setIsFeatured(!newVal)  // revert on failure
+      setError(err.message || 'Failed to update featured status')
+    }
+  }
+
   const statusBadgeCls = {
     published: 'bg-[#00E676]/10 text-[#00C853] border-[#00E676]/30',
     archived:  'bg-stone-800 text-stone-500 border-stone-700',
@@ -241,8 +260,10 @@ export default function AdminArticleEditor() {
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
 
           {/* ── Editor pane ─────────────────────────────────────────── */}
-          <div className="w-full md:w-1/2 overflow-y-auto bg-[#F5F5F3]">
-            <div className="p-5 flex flex-col gap-4 max-w-2xl mx-auto pb-16">
+          <div className="w-full md:w-1/2 flex overflow-hidden bg-[#F5F5F3]">
+
+            {/* Left column — fields + body */}
+            <div className="flex-[3] overflow-y-auto p-5 flex flex-col gap-4 min-w-0">
 
               {error && (
                 <div className="flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">
@@ -327,16 +348,36 @@ export default function AdminArticleEditor() {
                       </select>
                     </Field>
                   </div>
+
+                  {/* is_featured toggle */}
+                  <button
+                    type="button"
+                    onClick={handleFeatureToggle}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-sm font-bold transition-all ${
+                      isFeatured
+                        ? 'border-[#FFD600] bg-[#FFD600]/10 text-stone-900'
+                        : 'border-stone-200 bg-stone-50 text-stone-500 hover:border-stone-300'
+                    }`}
+                  >
+                    <span className="text-lg">{isFeatured ? '📌' : '📍'}</span>
+                    <div className="text-left">
+                      <p>{isFeatured ? 'Pinned to homepage hero' : 'Pin to homepage hero'}</p>
+                      {isFeatured && <p className="text-xs font-normal text-stone-500 mt-0.5">This article appears first on the homepage</p>}
+                    </div>
+                  </button>
                 </div>
               </section>
 
               {/* ── Body ─────────────────────────────────────────────── */}
               <section className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-                <div className="px-5 py-3 border-b border-stone-50 flex items-center justify-between">
+                <div className="px-5 py-3 border-b border-stone-50 flex items-center justify-between flex-shrink-0">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300">Story Body</p>
-                  <p className="text-[10px] text-stone-400">
-                    Start a line with <code className="bg-stone-100 px-1 rounded">"quote"</code> for pull quotes
-                  </p>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] text-stone-400">~{fields.read_time} min read</span>
+                    <p className="text-[10px] text-stone-400">
+                      Start a line with <code className="bg-stone-100 px-1 rounded">"quote"</code> for pull quotes
+                    </p>
+                  </div>
                 </div>
                 <div className="p-5">
                   <textarea
@@ -345,10 +386,15 @@ export default function AdminArticleEditor() {
                     onChange={e => updateField('body', e.target.value)}
                     onBlur={e => { cursorPosRef.current = { start: e.target.selectionStart, end: e.target.selectionEnd } }}
                     placeholder="Write your story here…&#10;&#10;Double-line break creates a new paragraph."
-                    className="min-h-[380px] w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 text-sm font-mono leading-[1.8] text-stone-900 placeholder-stone-300 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] resize-none transition-colors"
+                    className="min-h-[400px] w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 text-sm font-mono leading-[1.8] text-stone-900 placeholder-stone-300 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] resize-none transition-colors"
                   />
                 </div>
               </section>
+
+            </div>
+
+            {/* Right column — photos */}
+            <div className="flex-[2] overflow-y-auto border-l border-stone-200 p-5 flex flex-col gap-4 min-w-0">
 
               {/* ── Photos ───────────────────────────────────────────── */}
               <section className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
@@ -360,7 +406,7 @@ export default function AdminArticleEditor() {
                     </span>
                   )}
                 </div>
-                <div className="p-5 flex flex-col gap-4">
+                <div className="p-4 flex flex-col gap-4">
 
                   {/* Drop zone */}
                   <div
@@ -411,7 +457,7 @@ export default function AdminArticleEditor() {
                       <p className="text-[10px] text-stone-400 mb-3">
                         Hover a photo to set as cover, insert into body, or delete
                       </p>
-                      <div className="grid grid-cols-3 gap-2.5">
+                      <div className="grid grid-cols-2 gap-2.5">
                         {articleImages.map(img => {
                           const placed = fields.body.includes(`[[image:${img.id}]]`)
                           const isCover = fields.cover_image === img.url
@@ -480,6 +526,7 @@ export default function AdminArticleEditor() {
               </section>
 
             </div>
+
           </div>
 
           {/* ── Preview pane ─────────────────────────────────────────── */}
