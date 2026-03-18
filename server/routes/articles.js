@@ -140,6 +140,7 @@ router.patch('/:id', requireAuth, async (req, res) => {
     if ('destination_id' in data)    { setClauses.push('destination_id = ?'); params.push(data.destination_id || null) }
     if (data.read_time != null)    { setClauses.push('read_time = ?');    params.push(Number(data.read_time)) }
     if (data.article_type != null) { setClauses.push('article_type = ?'); params.push(data.article_type === 'event' ? 'event' : 'story') }
+    if (data.subtitle_style != null) { setClauses.push('subtitle_style = ?'); params.push(data.subtitle_style) }
     // Always sync published_at with status logic
     setClauses.push('published_at = ?')
     params.push(publishedAt)

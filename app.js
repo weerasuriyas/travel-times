@@ -239,6 +239,7 @@ async function runMigrations() {
     `ALTER TABLE articles ADD COLUMN article_type VARCHAR(20) NOT NULL DEFAULT 'story'`,
     `ALTER TABLE articles ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`,
     `ALTER TABLE images ADD COLUMN caption TEXT`,
+    `ALTER TABLE articles ADD COLUMN subtitle_style VARCHAR(30) NOT NULL DEFAULT 'serif-italic'`,
   ]
   for (const sql of migrations) {
     try {
