@@ -109,12 +109,22 @@ Add `@tiptap/extension-placeholder` to the packages list.
 
 **Full component structure:**
 ```jsx
-export default function RichTextEditor({ content, onChange, onInsertImageRequest, readTime, className }) {
+import { forwardRef, useEffect, useImperativeHandle } from 'react'
+
+const RichTextEditor = forwardRef(function RichTextEditor(
+  { content, onChange, onInsertImageRequest, readTime, className },
+  ref
+) {
   const editor = useEditor({
     extensions: [StarterKit, Underline, Link.configure({ openOnClick: false, autolink: true }), ArticleImage, Placeholder.configure({ placeholder: 'Write your story here…' })],
     content: content || '',
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
   })
+
+  // Expose editor.commands to parent via ref
+  useImperativeHandle(ref, () => ({
+    commands: editor?.commands ?? null,
+  }), [editor])
 
   // Update content when prop changes (e.g., on article load)
   useEffect(() => {
@@ -131,7 +141,9 @@ export default function RichTextEditor({ content, onChange, onInsertImageRequest
       <EditorContent editor={editor} className="prose-editor" />
     </div>
   )
-}
+})
+
+export default RichTextEditor
 ```
 
 ---
@@ -151,8 +163,7 @@ Full rewrite. Article creation page living inside the sidebar shell.
 - `articleImages`
 - `destinations`
 - `isDragOver`, `uploading`, `photoTab`, `unsplashQuery`, `unsplashResults`, `unsplashLoading`, `unsplashDownloading`
-- `showImagePanel` — boolean, opens/closes the photo panel
-- `editorRef` — ref to access the Tiptap editor's `insertImage` method
+- `editorRef` — ref passed to `<RichTextEditor ref={editorRef}>` to access `editorRef.current.commands`
 
 **Mount flow:**
 ```js
@@ -186,8 +197,8 @@ const handleInsertImage = (img) => {
     {!articleId && !error && <LoadingSpinner />}
     {articleId && <>
       <ArticleInfoSection />   {/* same fields as AdminArticleEditor Article Info card */}
-      <BodySection />          {/* RichTextEditor + Insert Image triggers showImagePanel */}
-      <PhotosSection />        {/* shown when showImagePanel=true, same upload/Unsplash UI */}
+      <BodySection />          {/* RichTextEditor; onInsertImageRequest scrolls to PhotosSection */}
+      <PhotosSection />        {/* always visible; clicking a photo inserts it into editor */}
     </>}
   </div>
 </div>
@@ -201,7 +212,7 @@ saveStatus === 'saved'    && <span className="flex items-center gap-1.5 text-xs 
 saveStatus === 'error'    && <span className="flex items-center gap-1.5 text-xs text-red-400"><X size={11} /> Error</span>
 ```
 
-**`PhotosSection`:** Shown always (not toggled by showImagePanel). The `onInsertImageRequest` prop of RichTextEditor scrolls to the photos section. When an image is clicked in the photo grid, it's inserted into the editor via `handleInsertImage`.
+**`PhotosSection`:** Always visible below the body editor. The `onInsertImageRequest` prop of `RichTextEditor` is a callback that scrolls the page to the photos section (e.g. via a `photosRef` and `photosRef.current?.scrollIntoView()`). When the user clicks a photo in the grid, `handleInsertImage(img)` is called, which calls `editorRef.current?.commands.setImage(...)` to insert it into the Tiptap editor at the current cursor position. `AdminArticleWriter` passes `ref={editorRef}` to `<RichTextEditor>`.
 
 **SubtitleStylePicker:** Same component and presets as AdminArticleEditor (copy or extract to a shared location if needed — for now, duplicate is acceptable).
 
