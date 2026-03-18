@@ -24,6 +24,7 @@ const AdminStagingQueue = lazy(() => import('./pages/AdminStagingQueue'))
 const AdminDestinationsList = lazy(() => import('./pages/AdminDestinationsList'))
 const AdminDestinationEditor = lazy(() => import('./pages/AdminDestinationEditor'))
 const AdminSettingsPage = lazy(() => import('./pages/AdminSettingsPage'))
+const AdminAboutEditor = lazy(() => import('./pages/AdminAboutEditor'))
 
 const LoadingFallback = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -98,6 +99,11 @@ const AppContent = () => (
         <Route path="/admin/settings" element={
           <ProtectedRoute>
             <AdminSettingsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/about" element={
+          <ProtectedRoute>
+            <AdminAboutEditor />
           </ProtectedRoute>
         } />
       </Routes>

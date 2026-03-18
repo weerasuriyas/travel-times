@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Edit, Eye, Archive, Trash2, Search, LogOut, User, Upload, Loader2, RefreshCw, RotateCcw, Globe, EyeOff, MapPin, Settings } from 'lucide-react'
+import { Edit, Eye, Archive, Trash2, Search, LogOut, User, Upload, Loader2, RefreshCw, RotateCcw, Globe, EyeOff, MapPin, Settings, Info } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { apiGetAuth, apiPatch, apiDelete } from '../lib/api'
 
@@ -222,6 +222,13 @@ export default function AdminDashboard() {
             >
               <MapPin size={16} />
               Destinations
+            </button>
+            <button
+              onClick={() => navigate('/admin/about')}
+              className="flex items-center gap-2 px-4 py-2 bg-stone-800 hover:bg-stone-700 text-white rounded-lg font-medium transition-all text-sm"
+            >
+              <Info size={16} />
+              About
             </button>
             <button
               onClick={() => navigate('/admin/settings')}
