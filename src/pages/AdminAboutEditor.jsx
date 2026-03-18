@@ -1,16 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Loader2, LogOut, Upload, X } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
+import { Loader2, Upload, X } from 'lucide-react'
 import { apiDelete, apiGetAuth, apiPut, apiUploadImage } from '../lib/api'
+import AdminPageHeader from '../components/AdminPageHeader'
 
 const SAVE_DEBOUNCE_MS = 800
 const ABOUT_ENTITY_ID = '1'
 
 export default function AdminAboutEditor() {
-  const navigate = useNavigate()
-  const { signOut } = useAuth()
-
   const [fields, setFields] = useState({ about_name: '', about_role: '', about_bio: '' })
   const [images, setImages] = useState([])
   const [saveStatus, setSaveStatus] = useState('saved')
@@ -89,10 +85,6 @@ export default function AdminAboutEditor() {
     }
   }
 
-  const handleSignOut = async () => {
-    try { await signOut(); navigate('/') } catch { /* ignore */ }
-  }
-
   const saveIndicator = saveStatus === 'saving'
     ? <span className="text-xs text-stone-400 animate-pulse">Saving…</span>
     : saveStatus === 'error'
@@ -100,26 +92,10 @@ export default function AdminAboutEditor() {
     : <span className="text-xs text-green-600">Saved</span>
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <div className="bg-stone-950 text-stone-50 shadow-lg">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">About Page</h1>
-            <p className="text-stone-400 text-sm mt-0.5">Changes auto-save as you type</p>
-          </div>
-          <div className="flex items-center gap-3">
-            {saveIndicator}
-            <button onClick={() => navigate('/admin')} className="flex items-center gap-2 px-4 py-2 bg-stone-800 hover:bg-stone-700 rounded-lg transition-colors text-sm">
-              <ArrowLeft size={16} /> Dashboard
-            </button>
-            <button onClick={handleSignOut} className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-sm">
-              <LogOut size={16} />
-            </button>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-full">
+      <AdminPageHeader title="About Page" action={saveIndicator} />
 
-      <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
+      <div className="max-w-3xl mx-auto px-8 py-8 space-y-6">
         {error && (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex justify-between items-center">
             {error}
