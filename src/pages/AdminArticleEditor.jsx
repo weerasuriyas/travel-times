@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle2, CloudUpload, Loader2, LogOut, Search, Star, Tr
 import { useAuth } from '../contexts/AuthContext'
 import { apiDelete, apiGet, apiGetAuth, apiPatch, apiPost, apiUploadImage } from '../lib/api'
 import ArticlePreview from '../components/ArticlePreview'
+import { subtitleClasses } from '../lib/articleStyles'
 
 const SAVE_DEBOUNCE_MS = 800
 
@@ -26,6 +27,34 @@ function Field({ label, hint, children }) {
   )
 }
 
+const SUBTITLE_PRESETS = [
+  { value: 'serif-italic', label: 'Serif Italic' },
+  { value: 'bold-serif',   label: 'Bold Serif'   },
+  { value: 'sans-light',   label: 'Sans Light'   },
+  { value: 'condensed',    label: 'Condensed'    },
+]
+
+function SubtitleStylePicker({ value, onChange }) {
+  return (
+    <div className="flex gap-2 flex-wrap">
+      {SUBTITLE_PRESETS.map(p => (
+        <button
+          key={p.value}
+          type="button"
+          onClick={() => onChange(p.value)}
+          className={`px-3 py-1.5 rounded-lg border text-xs transition-all ${
+            value === p.value
+              ? 'border-[#00E676] bg-[#00E676]/10 text-stone-900 ring-1 ring-[#00E676]'
+              : 'border-stone-200 bg-stone-50 text-stone-500 hover:border-stone-300'
+          } ${subtitleClasses(p.value, 'picker')}`}
+        >
+          {p.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 const inputCls = "w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-900 placeholder-stone-300 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] transition-colors"
 
 export default function AdminArticleEditor() {
@@ -39,7 +68,7 @@ export default function AdminArticleEditor() {
   const [fields, setFields] = useState({
     title: '', subtitle: '', body: '', category: '', tags: '',
     author_name: '', status: 'draft', destination_id: '', cover_image: '',
-    read_time: 1, article_type: 'story',
+    read_time: 1, article_type: 'story', subtitle_style: 'serif-italic',
   })
   const [isFeatured, setIsFeatured] = useState(false)
   const [saveStatus, setSaveStatus] = useState('saved')
@@ -102,6 +131,7 @@ export default function AdminArticleEditor() {
         cover_image: data.cover_image ?? '',
         read_time: Number(data.read_time) || 1,
         article_type: data.article_type || 'story',
+        subtitle_style: data.subtitle_style || 'serif-italic',
       }
       setFields(loaded)
       fieldsRef.current = loaded
@@ -350,6 +380,10 @@ export default function AdminArticleEditor() {
                       className={inputCls}
                     />
                   </Field>
+                  <SubtitleStylePicker
+                    value={fields.subtitle_style}
+                    onChange={v => updateField('subtitle_style', v)}
+                  />
 
                   <div className="grid grid-cols-2 gap-3">
                     <Field label="Category">
