@@ -21,6 +21,7 @@ router.get('/:id?', async (req, res) => {
         ['article', article.id]
       )
       article.images = imgRows
+      res.set('Cache-Control', 'public, max-age=30, s-maxage=60, stale-while-revalidate=30')
       return res.json(article)
     }
     const { status, destination_id } = req.query
@@ -34,6 +35,7 @@ router.get('/:id?', async (req, res) => {
       sql += ' ORDER BY created_at DESC'
     }
     const [rows] = await db.query(sql, params)
+    res.set('Cache-Control', 'public, max-age=30, s-maxage=60, stale-while-revalidate=30')
     res.json(rows)
   } catch (err) {
     res.status(500).json({ error: err.message })

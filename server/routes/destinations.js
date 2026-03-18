@@ -57,6 +57,7 @@ router.get('/:id?', async (req, res) => {
       }
     }))
 
+    res.set('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=60')
     res.json(rows)
   } catch (err) {
     res.status(500).json({ error: err.message })

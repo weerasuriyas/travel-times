@@ -55,7 +55,7 @@ export default function PublicArticlesPage() {
             >
               <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-stone-100">
                 {hero.cover_image
-                  ? <img src={hero.cover_image} alt={hero.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  ? <img src={hero.cover_image} alt={hero.title} loading="eager" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                   : <div className="w-full h-full bg-stone-200 flex items-center justify-center"><span className="text-stone-400 text-xs uppercase tracking-widest">No image</span></div>
                 }
               </div>
@@ -84,7 +84,7 @@ export default function PublicArticlesPage() {
                   >
                     <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-stone-100 mb-4">
                       {article.cover_image
-                        ? <img src={article.cover_image} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        ? <img src={article.cover_image} alt={article.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                         : <div className="w-full h-full bg-stone-200" />
                       }
                     </div>
