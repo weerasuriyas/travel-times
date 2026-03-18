@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import NotFoundPage from './pages/NotFoundPage'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -57,6 +57,7 @@ const AppContent = () => (
         </Route>
 
         {/* Standalone admin routes (no sidebar) */}
+        <Route path="/admin/articles" element={<Navigate to="/admin" replace />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/articles/:id" element={
           <ProtectedRoute><AdminArticleEditor /></ProtectedRoute>
