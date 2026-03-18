@@ -42,6 +42,7 @@ router.post('/', requireAuth, async (req, res) => {
     )
     res.status(201).json({ id: result.insertId, slug })
   } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: 'Slug already in use' })
     res.status(500).json({ error: err.message })
   }
 })
@@ -53,11 +54,11 @@ router.put('/:id', requireAuth, async (req, res) => {
   try {
     await db.query(
       `UPDATE destinations SET
-        name=?, tagline=?, description=?, hero_image=?, lat=?, lng=?,
+        slug=?, name=?, tagline=?, description=?, hero_image=?, lat=?, lng=?,
         region=?, highlights=?, stats=?, status=?
        WHERE id=?`,
       [
-        data.name, data.tagline ?? null, data.description ?? null,
+        data.slug, data.name, data.tagline ?? null, data.description ?? null,
         data.hero_image ?? null, data.lat ?? null, data.lng ?? null,
         data.region ?? null, JSON.stringify(data.highlights ?? []),
         JSON.stringify(data.stats ?? null), data.status ?? 'published',
@@ -65,6 +66,19 @@ router.put('/:id', requireAuth, async (req, res) => {
       ]
     )
     res.json({ updated: true })
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: 'Slug already in use' })
+    res.status(500).json({ error: err.message })
+  }
+})
+
+router.delete('/:id', requireAuth, async (req, res) => {
+  const db = getDb()
+  const { id } = req.params
+  try {
+    await db.query('UPDATE articles SET destination_id = NULL WHERE destination_id = ?', [id])
+    await db.query('DELETE FROM destinations WHERE id = ?', [id])
+    res.json({ deleted: true })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
