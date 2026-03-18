@@ -260,10 +260,9 @@ export default function AdminArticleEditor() {
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
 
           {/* ── Editor pane ─────────────────────────────────────────── */}
-          <div className="w-full md:w-1/2 flex overflow-hidden bg-[#F5F5F3]">
+          <div className="w-full md:w-1/2 overflow-y-auto bg-[#F5F5F3]">
 
-            {/* Left column — fields + body */}
-            <div className="flex-[3] overflow-y-auto p-5 flex flex-col gap-4 min-w-0">
+            <div className="p-5 flex flex-col gap-4 max-w-2xl mx-auto pb-16">
 
               {error && (
                 <div className="flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">
@@ -390,11 +389,6 @@ export default function AdminArticleEditor() {
                   />
                 </div>
               </section>
-
-            </div>
-
-            {/* Right column — photos */}
-            <div className="flex-[2] overflow-y-auto border-l border-stone-200 p-5 flex flex-col gap-4 min-w-0">
 
               {/* ── Photos ───────────────────────────────────────────── */}
               <section className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
