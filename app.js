@@ -2,6 +2,7 @@ import express from 'express'
 import compression from 'compression'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+import { getDb } from './server/db.js'
 import articlesRouter from './server/routes/articles.js'
 import destinationsRouter from './server/routes/destinations.js'
 import eventsRouter from './server/routes/events.js'
@@ -78,4 +79,46 @@ app.get('*', (_req, res) => {
 })
 
 const PORT = process.env.PORT || 3000
-app.listen(PORT)
+
+const SRI_LANKA_DESTINATIONS = [
+  { slug: 'colombo',        name: 'Colombo',        region: 'Western',    tagline: 'The vibrant capital city', lat: 6.9271, lng: 79.8612 },
+  { slug: 'kandy',          name: 'Kandy',          region: 'Central',    tagline: 'City of the Sacred Tooth Relic', lat: 7.2906, lng: 80.6337 },
+  { slug: 'galle',          name: 'Galle',          region: 'Southern',   tagline: 'Colonial fort by the sea', lat: 6.0535, lng: 80.2210 },
+  { slug: 'ella',           name: 'Ella',           region: 'Uva',        tagline: 'Tea hills and misty trails', lat: 6.8667, lng: 81.0466 },
+  { slug: 'sigiriya',       name: 'Sigiriya',       region: 'Central',    tagline: 'Ancient sky fortress', lat: 7.9570, lng: 80.7603 },
+  { slug: 'anuradhapura',   name: 'Anuradhapura',   region: 'North Central', tagline: 'Ancient sacred city', lat: 8.3114, lng: 80.4037 },
+  { slug: 'polonnaruwa',    name: 'Polonnaruwa',    region: 'North Central', tagline: 'Medieval royal capital', lat: 7.9397, lng: 81.0000 },
+  { slug: 'mirissa',        name: 'Mirissa',        region: 'Southern',   tagline: 'Whale watching and surf', lat: 5.9483, lng: 80.4716 },
+  { slug: 'unawatuna',      name: 'Unawatuna',      region: 'Southern',   tagline: 'Golden beach escape', lat: 6.0113, lng: 80.2487 },
+  { slug: 'nuwara-eliya',   name: 'Nuwara Eliya',   region: 'Central',    tagline: 'Little England in the hills', lat: 6.9497, lng: 80.7891 },
+  { slug: 'trincomalee',    name: 'Trincomalee',    region: 'Eastern',    tagline: 'Natural harbour and beaches', lat: 8.5874, lng: 81.2152 },
+  { slug: 'arugam-bay',     name: 'Arugam Bay',     region: 'Eastern',    tagline: 'World-class surf point', lat: 6.8397, lng: 81.8373 },
+  { slug: 'jaffna',         name: 'Jaffna',         region: 'Northern',   tagline: 'Northern heritage and culture', lat: 9.6615, lng: 80.0255 },
+  { slug: 'dambulla',       name: 'Dambulla',       region: 'Central',    tagline: 'Cave temple treasures', lat: 7.8742, lng: 80.6511 },
+  { slug: 'bentota',        name: 'Bentota',        region: 'Western',    tagline: 'River and beach resort', lat: 6.4207, lng: 79.9958 },
+  { slug: 'hikkaduwa',      name: 'Hikkaduwa',      region: 'Southern',   tagline: 'Coral reefs and surf', lat: 6.1395, lng: 80.1063 },
+  { slug: 'negombo',        name: 'Negombo',        region: 'Western',    tagline: 'Gateway city with fishing heritage', lat: 7.2083, lng: 79.8358 },
+  { slug: 'tangalle',       name: 'Tangalle',       region: 'Southern',   tagline: 'Secluded coves and lagoons', lat: 6.0248, lng: 80.7957 },
+  { slug: 'haputale',       name: 'Haputale',       region: 'Uva',        tagline: 'Edge-of-the-world tea country', lat: 6.7686, lng: 80.9572 },
+  { slug: 'yala',           name: 'Yala',           region: 'Southern',   tagline: 'Leopard country safari', lat: 6.3728, lng: 81.5208 },
+]
+
+async function seedDestinations() {
+  try {
+    const db = getDb()
+    const [rows] = await db.query('SELECT COUNT(*) AS cnt FROM destinations')
+    if (rows[0].cnt > 0) return
+    for (const d of SRI_LANKA_DESTINATIONS) {
+      await db.query(
+        `INSERT IGNORE INTO destinations (slug, name, region, tagline, lat, lng, highlights, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'published')`,
+        [d.slug, d.name, d.region, d.tagline, d.lat, d.lng, '[]']
+      )
+    }
+    console.log(`Seeded ${SRI_LANKA_DESTINATIONS.length} Sri Lanka destinations`)
+  } catch (err) {
+    console.error('Destination seed failed:', err.message)
+  }
+}
+
+app.listen(PORT, () => { seedDestinations() })

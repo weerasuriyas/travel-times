@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { SharedHeader } from '../components/UI'
 import { useScrolled } from '../hooks/useScrolled'
-import ArticlePreview from '../components/ArticlePreview'
+import ArticleDetailView from '../components/ArticleDetailView'
 import { apiGet } from '../lib/api'
 
 export default function PublicArticleDetailPage() {
@@ -29,7 +29,7 @@ export default function PublicArticleDetailPage() {
       .finally(() => setLoading(false))
   }, [slug])
 
-  const previewArticle = article ? { ...article, images } : null
+  const articleWithImages = article ? { ...article, images } : null
 
   return (
     <div className="min-h-screen bg-[#FDFDFB]">
@@ -61,8 +61,8 @@ export default function PublicArticleDetailPage() {
           </div>
         )}
 
-        {!loading && previewArticle && (
-          <ArticlePreview article={previewArticle} />
+        {!loading && articleWithImages && (
+          <ArticleDetailView article={articleWithImages} />
         )}
       </main>
     </div>
