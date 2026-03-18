@@ -3,9 +3,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
-import { ArrowLeft, CloudUpload, Loader2, LogOut, X, Search, CheckCircle2 } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
+import { CloudUpload, Loader2, X, Search, CheckCircle2 } from 'lucide-react'
 import { apiGet, apiGetAuth, apiPost, apiPut, apiUploadImage } from '../lib/api'
+import AdminPageHeader from '../components/AdminPageHeader'
 
 const REGIONS = ['Western', 'Central', 'Southern', 'Uva', 'North Central', 'Eastern', 'Northern']
 
@@ -31,7 +31,7 @@ function MapClickHandler({ onMapClick }) {
   return null
 }
 
-const inputCls = "w-full bg-stone-800 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-stone-100 placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] transition-colors"
+const inputCls = "w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] transition-colors"
 
 function Field({ label, hint, error, children }) {
   return (
@@ -49,7 +49,6 @@ function Field({ label, hint, error, children }) {
 export default function AdminDestinationEditor() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { signOut } = useAuth()
   const isNew = !id || id === 'new'
 
   const [fields, setFields] = useState(EMPTY)
@@ -230,68 +229,43 @@ export default function AdminDestinationEditor() {
     }
   }
 
-  const handleSignOut = async () => {
-    try { await signOut(); navigate('/') } catch (err) { console.error(err) }
-  }
-
-  const statusBadgeCls = fields.status === 'published'
-    ? 'bg-[#00E676]/10 text-[#00C853] border-[#00E676]/30'
-    : 'bg-stone-800 text-stone-400 border-stone-700'
-
   const hasPin = fields.lat != null && fields.lng != null
   const mapCenter = hasPin ? [fields.lat, fields.lng] : [7.8731, 80.7718]
 
   if (loading) return (
-    <div className="h-screen bg-[#111111] flex items-center justify-center">
+    <div className="h-screen flex items-center justify-center">
       <Loader2 className="animate-spin text-[#00E676]" size={28} />
     </div>
   )
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#111111]">
-      {/* Header */}
-      <header className="flex-shrink-0 h-13 px-5 flex items-center justify-between border-b border-white/[0.07]">
-        <div className="flex items-center gap-3 min-w-0">
-          <button
-            onClick={() => navigate('/admin/destinations')}
-            className="flex items-center gap-1.5 text-xs text-stone-600 hover:text-stone-300 transition-colors"
-          >
-            <ArrowLeft size={14} />
-            <span>Destinations</span>
-          </button>
-          <span className="text-stone-700 text-xs">/</span>
-          <span className="text-sm text-stone-200 font-medium truncate max-w-[220px]">
-            {isNew ? 'New Destination' : (fields.name || 'Untitled')}
-          </span>
-          {!isNew && (
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusBadgeCls}`}>
-              {fields.status}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-5">
-          {!isNew && saveStatus === 'saving' && <span className="flex items-center gap-1.5 text-xs text-stone-500"><Loader2 size={11} className="animate-spin" /> Saving…</span>}
-          {!isNew && saveStatus === 'saved' && <span className="flex items-center gap-1.5 text-xs text-[#00E676]/70"><CheckCircle2 size={11} /> Saved</span>}
-          {!isNew && saveStatus === 'error' && <span className="flex items-center gap-1.5 text-xs text-red-400"><X size={11} /> Save error</span>}
-          <button onClick={handleSignOut} className="text-stone-600 hover:text-red-400 transition-colors">
-            <LogOut size={15} />
-          </button>
-        </div>
-      </header>
-
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto p-6 flex flex-col gap-5 pb-16">
+    <div className="min-h-full">
+      <AdminPageHeader
+        title={isNew ? 'New Destination' : (fields.name || 'Untitled')}
+        action={
+          !isNew ? (
+            saveStatus === 'saving'
+              ? <span className="flex items-center gap-1.5 text-xs text-stone-500"><Loader2 size={11} className="animate-spin" /> Saving…</span>
+              : saveStatus === 'saved'
+              ? <span className="flex items-center gap-1.5 text-xs text-[#00E676]/70"><CheckCircle2 size={11} /> Saved</span>
+              : saveStatus === 'error'
+              ? <span className="flex items-center gap-1.5 text-xs text-red-500"><X size={11} /> Save error</span>
+              : null
+          ) : null
+        }
+      />
+      <div className="max-w-3xl mx-auto px-8 py-6 flex flex-col gap-5 pb-16">
 
           {error && (
-            <div className="flex items-start gap-2.5 bg-red-900/20 border border-red-800 rounded-xl px-4 py-3 text-sm text-red-400">
+            <div className="flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
               <X size={14} className="flex-shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Basic fields */}
-          <section className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
-            <div className="px-5 py-3 border-b border-white/5">
+          <section className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
+            <div className="px-5 py-3 border-b border-stone-100">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">Destination Info</p>
             </div>
             <div className="p-5 flex flex-col gap-4">
@@ -366,8 +340,8 @@ export default function AdminDestinationEditor() {
           </section>
 
           {/* Map */}
-          <section className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
-            <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between">
+          <section className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
+            <div className="px-5 py-3 border-b border-stone-100 flex items-center justify-between">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">Map Location</p>
               {hasPin && (
                 <button
@@ -408,21 +382,21 @@ export default function AdminDestinationEditor() {
               </MapContainer>
             </div>
             {hasPin ? (
-              <div className="px-5 py-2 flex items-center gap-2 text-xs text-stone-400 border-t border-white/5">
+              <div className="px-5 py-2 flex items-center gap-2 text-xs text-stone-400 border-t border-stone-100">
                 <span className="text-[#00E676]">●</span>
                 Lat {fields.lat?.toFixed(4)}, Lng {fields.lng?.toFixed(4)}
                 <span className="text-stone-600 ml-1">— click map or drag marker to reposition</span>
               </div>
             ) : (
-              <div className="px-5 py-2 text-xs text-stone-500 border-t border-white/5">
+              <div className="px-5 py-2 text-xs text-stone-500 border-t border-stone-100">
                 Click anywhere on the map to drop a pin
               </div>
             )}
           </section>
 
           {/* Hero image */}
-          <section className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
-            <div className="px-5 py-3 border-b border-white/5">
+          <section className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
+            <div className="px-5 py-3 border-b border-stone-100">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">Hero Image</p>
             </div>
             <div className="p-5">
@@ -448,7 +422,7 @@ export default function AdminDestinationEditor() {
                     className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors ${
                       heroTab === tab
                         ? 'bg-[#00E676] text-stone-950'
-                        : 'bg-white/5 text-stone-500 hover:bg-white/10 hover:text-stone-300'
+                        : 'bg-stone-100 text-stone-500 hover:bg-stone-200 hover:text-stone-700'
                     }`}
                   >
                     {tab === 'upload' ? 'Upload' : 'Suggest (Free)'}
@@ -551,7 +525,6 @@ export default function AdminDestinationEditor() {
             </button>
           )}
 
-        </div>
       </div>
     </div>
   )
