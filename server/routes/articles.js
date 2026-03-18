@@ -122,8 +122,8 @@ router.patch('/:id', requireAuth, async (req, res) => {
     if (tags != null)                { setClauses.push('tags = ?');           params.push(tags) }
     if (data.author_name != null)    { setClauses.push('author_name = ?');    params.push(data.author_name) }
     if (data.status != null)         { setClauses.push('status = ?');         params.push(newStatus) }
-    if ('cover_image' in data)       { setClauses.push('cover_image = ?');    params.push(data.cover_image ?? null) }
-    if ('destination_id' in data)    { setClauses.push('destination_id = ?'); params.push(data.destination_id ?? null) }
+    if ('cover_image' in data)       { setClauses.push('cover_image = ?');    params.push(data.cover_image || null) }
+    if ('destination_id' in data)    { setClauses.push('destination_id = ?'); params.push(data.destination_id || null) }
     // Always sync published_at with status logic
     setClauses.push('published_at = ?')
     params.push(publishedAt)
