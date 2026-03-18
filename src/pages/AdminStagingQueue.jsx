@@ -377,6 +377,7 @@ export default function AdminStagingQueue() {
                         <select value={publishStatus} onChange={e => setPublishStatus(e.target.value)} className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                           <option value="draft">Draft</option>
                           <option value="published">Published</option>
+                          <option value="archived">Archived</option>
                         </select>
                       </div>
                       <div>

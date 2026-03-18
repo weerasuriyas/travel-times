@@ -15,7 +15,9 @@ function normalizeReviewStatus(status) {
 }
 function normalizeArticleStatus(status) {
   const s = String(status || '').toLowerCase().trim()
-  return s === 'published' ? 'published' : 'draft'
+  if (s === 'published') return 'published'
+  if (s === 'archived') return 'archived'
+  return 'draft'
 }
 function getStagingDir() {
   return (process.env.API_STAGING_UPLOAD_DIR || '').replace(/\/$/, '') + '/'
