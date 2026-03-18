@@ -386,7 +386,7 @@ export default function AdminArticleEditor() {
                     onChange={e => updateField('body', e.target.value)}
                     onBlur={e => { cursorPosRef.current = { start: e.target.selectionStart, end: e.target.selectionEnd } }}
                     placeholder="Write your story here…&#10;&#10;Double-line break creates a new paragraph."
-                    className="min-h-[400px] w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 text-sm font-mono leading-[1.8] text-stone-900 placeholder-stone-300 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] resize-none transition-colors"
+                    className="min-h-[400px] w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 text-sm font-mono leading-[1.8] text-stone-900 placeholder-stone-300 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] resize-y transition-colors"
                   />
                 </div>
               </section>
@@ -407,49 +407,6 @@ export default function AdminArticleEditor() {
                   )}
                 </div>
                 <div className="p-4 flex flex-col gap-4">
-
-                  {/* Drop zone */}
-                  <div
-                    onDragOver={e => { e.preventDefault(); setIsDragOver(true) }}
-                    onDragEnter={e => { e.preventDefault(); setIsDragOver(true) }}
-                    onDragLeave={() => setIsDragOver(false)}
-                    onDrop={handleDrop}
-                    onClick={() => !uploading && fileInputRef.current?.click()}
-                    className={`relative flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-2xl py-10 transition-all cursor-pointer select-none ${
-                      isDragOver
-                        ? 'border-[#00E676] bg-[#00E676]/5'
-                        : uploading
-                        ? 'border-stone-200 bg-stone-50 cursor-default'
-                        : 'border-stone-200 hover:border-[#00E676]/50 bg-stone-50 hover:bg-[#00E676]/[0.03]'
-                    }`}
-                  >
-                    {uploading ? (
-                      <>
-                        <Loader2 size={26} className="animate-spin text-[#00E676]" />
-                        <p className="text-sm font-semibold text-stone-500">Uploading…</p>
-                      </>
-                    ) : (
-                      <>
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${isDragOver ? 'bg-[#00E676]/20' : 'bg-stone-100'}`}>
-                          <CloudUpload size={22} className={isDragOver ? 'text-[#00E676]' : 'text-stone-400'} />
-                        </div>
-                        <div className="text-center">
-                          <p className={`text-sm font-semibold ${isDragOver ? 'text-[#00E676]' : 'text-stone-600'}`}>
-                            {isDragOver ? 'Release to upload' : 'Drag & drop photos here'}
-                          </p>
-                          <p className="text-xs text-stone-400 mt-1">or click to browse · JPG, PNG, WEBP · up to 10 MB each</p>
-                        </div>
-                      </>
-                    )}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="hidden"
-                      onChange={e => { handleFiles(e.target.files); e.target.value = '' }}
-                    />
-                  </div>
 
                   {/* Photo grid */}
                   {articleImages.length > 0 && (
@@ -522,6 +479,50 @@ export default function AdminArticleEditor() {
                       </div>
                     </div>
                   )}
+
+                  {/* Drop zone */}
+                  <div
+                    onDragOver={e => { e.preventDefault(); setIsDragOver(true) }}
+                    onDragEnter={e => { e.preventDefault(); setIsDragOver(true) }}
+                    onDragLeave={() => setIsDragOver(false)}
+                    onDrop={handleDrop}
+                    onClick={() => !uploading && fileInputRef.current?.click()}
+                    className={`relative flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-2xl py-10 transition-all cursor-pointer select-none ${
+                      isDragOver
+                        ? 'border-[#00E676] bg-[#00E676]/5'
+                        : uploading
+                        ? 'border-stone-200 bg-stone-50 cursor-default'
+                        : 'border-stone-200 hover:border-[#00E676]/50 bg-stone-50 hover:bg-[#00E676]/[0.03]'
+                    }`}
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 size={26} className="animate-spin text-[#00E676]" />
+                        <p className="text-sm font-semibold text-stone-500">Uploading…</p>
+                      </>
+                    ) : (
+                      <>
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${isDragOver ? 'bg-[#00E676]/20' : 'bg-stone-100'}`}>
+                          <CloudUpload size={22} className={isDragOver ? 'text-[#00E676]' : 'text-stone-400'} />
+                        </div>
+                        <div className="text-center">
+                          <p className={`text-sm font-semibold ${isDragOver ? 'text-[#00E676]' : 'text-stone-600'}`}>
+                            {isDragOver ? 'Release to upload' : 'Drag & drop photos here'}
+                          </p>
+                          <p className="text-xs text-stone-400 mt-1">or click to browse · JPG, PNG, WEBP · up to 10 MB each</p>
+                        </div>
+                      </>
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={e => { handleFiles(e.target.files); e.target.value = '' }}
+                    />
+                  </div>
+
                 </div>
               </section>
 
