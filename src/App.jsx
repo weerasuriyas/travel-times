@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
-import EventDetailPage from './pages/EventDetailPage'
 import NotFoundPage from './pages/NotFoundPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import ScrollToTop from './components/ScrollToTop'
@@ -42,7 +41,6 @@ const AppContent = () => (
           <Route path="/" element={<HomePage />} />
           <Route path="/destinations" element={<DestinationsPage />} />
           <Route path="/destination/:slug" element={<DestinationDetailPage />} />
-          <Route path="/event/:slug" element={<EventDetailPage />} />
           <Route path="/articles" element={<PublicArticlesPage />} />
           <Route path="/article/:slug" element={<PublicArticleDetailPage />} />
           <Route path="/about" element={<AboutPage />} />

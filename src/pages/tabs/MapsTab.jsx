@@ -1,13 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, ArrowRight, Calendar } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import { getAllDestinations, isHappeningNow, isHappeningSoon, getEventsForDestination } from '../../data/destinations';
-import EventDateBadge from '../../components/ui/EventDateBadge';
+import { apiGet } from '../../lib/api';
 
-function createMarkerIcon(isTimely, isSelected) {
-  const color = isTimely ? '#00E676' : '#78716c';
+function createMarkerIcon(isSelected) {
+  const color = '#00E676';
   const scale = isSelected ? 1.25 : 1;
   return L.divIcon({
     className: '',
@@ -29,19 +27,20 @@ function createMarkerIcon(isTimely, isSelected) {
 
 const MapsTab = () => {
   const navigate = useNavigate();
+  const [destinations, setDestinations] = useState([]);
   const [selectedDest, setSelectedDest] = useState(null);
-  const destinations = useMemo(() => getAllDestinations(), []);
 
-  const getTimelyEventCount = (dest) => {
-    const events = getEventsForDestination(dest.slug);
-    return events.filter(e => isHappeningNow(e) || isHappeningSoon(e)).length;
-  };
+  useEffect(() => {
+    apiGet('destinations').then(d => setDestinations(Array.isArray(d) ? d : [])).catch(() => {});
+  }, []);
+
+  const mapped = destinations.filter(d => d.lat && d.lng);
 
   return (
     <div>
       <div className="mb-8">
         <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight italic mb-2">Explore Sri Lanka</h2>
-        <p className="text-stone-500 text-sm">Click a marker to discover what's happening at each destination</p>
+        <p className="text-stone-500 text-sm">Click a marker to discover each destination</p>
       </div>
 
       <div className="rounded-[32px] overflow-hidden shadow-2xl border-4 border-white" style={{ height: '600px' }}>
@@ -57,54 +56,40 @@ const MapsTab = () => {
             subdomains="abcd"
             maxZoom={19}
           />
-
-          {destinations.map((dest) => {
-            const timelyCount = getTimelyEventCount(dest);
-            const isTimely = timelyCount > 0;
-            const isSelected = selectedDest === dest.slug;
-            return (
-              <Marker
-                key={dest.slug}
-                position={[dest.coordinates[0], dest.coordinates[1]]}
-                icon={createMarkerIcon(isTimely, isSelected)}
-                eventHandlers={{ click: () => setSelectedDest(isSelected ? null : dest.slug) }}
-              >
-                <Popup>
-                  <div style={{ minWidth: '180px', padding: '4px' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: 900, textTransform: 'uppercase', marginBottom: '4px' }}>
-                      {dest.name}
-                    </h3>
+          {mapped.map(dest => (
+            <Marker
+              key={dest.slug}
+              position={[dest.lat, dest.lng]}
+              icon={createMarkerIcon(selectedDest === dest.slug)}
+              eventHandlers={{ click: () => setSelectedDest(selectedDest === dest.slug ? null : dest.slug) }}
+            >
+              <Popup>
+                <div style={{ minWidth: '180px', padding: '4px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 900, textTransform: 'uppercase', marginBottom: '4px' }}>
+                    {dest.name}
+                  </h3>
+                  {dest.tagline && (
                     <p style={{ fontSize: '11px', color: '#78716c', fontStyle: 'italic', marginBottom: '8px' }}>
                       {dest.tagline}
                     </p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', fontSize: '11px' }}>
-                      <span style={{ color: '#78716c' }}>{dest.region}</span>
-                      {timelyCount > 0 && (
-                        <span style={{ color: '#00C853', fontWeight: 700 }}>{timelyCount} upcoming</span>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => navigate(`/destination/${dest.slug}`)}
-                      style={{
-                        width: '100%', background: '#00E676', color: '#1c1917',
-                        border: 'none', borderRadius: '999px', padding: '8px',
-                        fontSize: '10px', fontWeight: 900, textTransform: 'uppercase',
-                        letterSpacing: '0.1em', cursor: 'pointer',
-                      }}
-                    >
-                      Explore
-                    </button>
-                  </div>
-                </Popup>
-              </Marker>
-            );
-          })}
+                  )}
+                  <p style={{ fontSize: '11px', color: '#78716c', marginBottom: '10px' }}>{dest.region}</p>
+                  <button
+                    onClick={() => navigate(`/destination/${dest.slug}`)}
+                    style={{
+                      width: '100%', background: '#00E676', color: '#1c1917',
+                      border: 'none', borderRadius: '999px', padding: '8px',
+                      fontSize: '10px', fontWeight: 900, textTransform: 'uppercase',
+                      letterSpacing: '0.1em', cursor: 'pointer',
+                    }}
+                  >
+                    Explore
+                  </button>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
         </MapContainer>
-      </div>
-
-      <div className="mt-4 flex justify-center gap-6 text-[10px] font-black uppercase tracking-widest text-stone-400">
-        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#00E676]"></span> Events Soon</div>
-        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-stone-400"></span> Destination</div>
       </div>
     </div>
   );
