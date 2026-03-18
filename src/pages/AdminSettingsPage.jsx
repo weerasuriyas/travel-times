@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, LogOut, Eye, EyeOff, CheckCircle2, Loader2, X } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
+import { Eye, EyeOff, CheckCircle2, Loader2, X } from 'lucide-react'
 import { apiGet, apiPut } from '../lib/api'
+import AdminPageHeader from '../components/AdminPageHeader'
 
 const FIELDS = [
   { key: 'site_name',        label: 'Site Name',        placeholder: 'Travel Times Sri Lanka' },
@@ -16,8 +15,6 @@ const FIELDS = [
 const inputCls = "w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-900 placeholder-stone-300 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] transition-colors"
 
 export default function AdminSettingsPage() {
-  const navigate = useNavigate()
-  const { signOut } = useAuth()
   const [values, setValues] = useState({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -47,28 +44,9 @@ export default function AdminSettingsPage() {
     }
   }
 
-  const handleSignOut = async () => {
-    try { await signOut(); navigate('/') } catch (err) { console.error(err) }
-  }
-
   return (
-    <div className="min-h-screen bg-[#F5F5F3]">
-      <header className="h-13 px-5 flex items-center justify-between border-b border-stone-200 bg-white shadow-sm">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/admin')}
-            className="flex items-center gap-1.5 text-xs text-stone-500 hover:text-stone-800 transition-colors"
-          >
-            <ArrowLeft size={14} />
-            <span>Admin</span>
-          </button>
-          <span className="text-stone-400 text-xs">/</span>
-          <span className="text-sm text-stone-700 font-medium">Site Settings</span>
-        </div>
-        <button onClick={handleSignOut} className="text-stone-400 hover:text-red-400 transition-colors">
-          <LogOut size={15} />
-        </button>
-      </header>
+    <div className="min-h-full">
+      <AdminPageHeader title="Settings" />
 
       {loading ? (
         <div className="flex items-center justify-center py-32">
