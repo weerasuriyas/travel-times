@@ -52,45 +52,59 @@ router.get('/search', requireAuth, async (req, res) => {
 })
 
 router.post('/download', requireAuth, async (req, res) => {
-  const { id, regular_url, photographer_name, photographer_url, destination_id } = req.body
-  if (!id || !regular_url || !destination_id) {
+  const { id, regular_url, photographer_name, photographer_url, destination_id, article_id } = req.body
+  if (!id || !regular_url || (!destination_id && !article_id)) {
     return res.status(400).json({ error: 'Missing required fields' })
   }
 
-  const uploadDir = (process.env.API_UPLOAD_DIR || '').replace(/\/$/, '')
-  const uploadUrl = (process.env.API_UPLOAD_URL || '').replace(/\/$/, '')
-  if (!uploadDir || !uploadUrl) {
-    return res.status(503).json({ error: 'Upload directory not configured' })
+  const db = getDb()
+  const altText = `Photo by ${photographer_name} on Unsplash`
+  const filename = `unsplash-${id}.jpg`
+
+  // ── Article download ──────────────────────────────────────────
+  if (article_id) {
+    const prodDir = (process.env.API_PROD_UPLOAD_DIR || '').replace(/\/$/, '')
+    const prodUrl = (process.env.API_PROD_UPLOAD_URL || '').replace(/\/$/, '')
+    if (!prodDir || !prodUrl) return res.status(503).json({ error: 'Upload directory not configured' })
+
+    const filepath = join(prodDir, filename)
+    const publicUrl = `${prodUrl}/${filename}`
+    try {
+      await mkdir(prodDir, { recursive: true })
+      const imgRes = await fetch(regular_url)
+      if (!imgRes.ok) throw new Error(`Failed to fetch image: ${imgRes.status}`)
+      await writeFile(filepath, Buffer.from(await imgRes.arrayBuffer()))
+      const [result] = await db.query(
+        'INSERT INTO images (filename, url, alt_text, role, entity_type, entity_id) VALUES (?,?,?,?,?,?)',
+        [filename, publicUrl, altText, 'gallery', 'article', article_id]
+      )
+      return res.json({ url: publicUrl, image_id: result.insertId })
+    } catch (err) {
+      unlink(filepath).catch(() => {})
+      return res.status(500).json({ error: err.message })
+    }
   }
 
+  // ── Destination download (existing behaviour) ─────────────────
+  const uploadDir = (process.env.API_UPLOAD_DIR || '').replace(/\/$/, '')
+  const uploadUrl = (process.env.API_UPLOAD_URL || '').replace(/\/$/, '')
+  if (!uploadDir || !uploadUrl) return res.status(503).json({ error: 'Upload directory not configured' })
+
   const destDir = join(uploadDir, 'destination')
-  const filename = `unsplash-${id}.jpg`
   const filepath = join(destDir, filename)
   const publicUrl = `${uploadUrl}/destination/${filename}`
-
   try {
     await mkdir(destDir, { recursive: true })
-
-    // Download image
     const imgRes = await fetch(regular_url)
     if (!imgRes.ok) throw new Error(`Failed to fetch image: ${imgRes.status}`)
-    const buffer = Buffer.from(await imgRes.arrayBuffer())
-    await writeFile(filepath, buffer)
-
-    // Insert image record
-    const db = getDb()
-    const altText = `Photo by ${photographer_name} (${photographer_url}) on Unsplash`
+    await writeFile(filepath, Buffer.from(await imgRes.arrayBuffer()))
     const [result] = await db.query(
       'INSERT INTO images (filename, url, alt_text, role, entity_type, entity_id) VALUES (?,?,?,?,?,?)',
       [filename, publicUrl, altText, 'hero', 'destination', destination_id]
     )
-
-    // Update destination hero_image
     await db.query('UPDATE destinations SET hero_image = ? WHERE id = ?', [publicUrl, destination_id])
-
     res.json({ url: publicUrl, image_id: result.insertId })
   } catch (err) {
-    // Clean up partial file on failure
     unlink(filepath).catch(() => {})
     res.status(500).json({ error: err.message })
   }

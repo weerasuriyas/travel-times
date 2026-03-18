@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, CheckCircle2, CloudUpload, Loader2, LogOut, Star, Trash2, X } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, CloudUpload, Loader2, LogOut, Search, Star, Trash2, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { apiDelete, apiGet, apiGetAuth, apiPatch, apiPost, apiUploadImage } from '../lib/api'
 import ArticlePreview from '../components/ArticlePreview'
@@ -47,6 +47,11 @@ export default function AdminArticleEditor() {
   const [error, setError] = useState('')
   const [isDragOver, setIsDragOver] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [photoTab, setPhotoTab] = useState('uploaded') // 'uploaded' | 'unsplash'
+  const [unsplashQuery, setUnsplashQuery] = useState('')
+  const [unsplashResults, setUnsplashResults] = useState([])
+  const [unsplashLoading, setUnsplashLoading] = useState(false)
+  const [unsplashDownloading, setUnsplashDownloading] = useState(null) // photo id being downloaded
 
   const debounceRef = useRef(null)
   const fieldsRef = useRef(fields)
@@ -178,6 +183,42 @@ export default function AdminArticleEditor() {
     e.preventDefault()
     setIsDragOver(false)
     handleFiles(e.dataTransfer.files)
+  }
+
+  const searchUnsplash = async (q) => {
+    if (!q.trim()) return
+    setUnsplashLoading(true)
+    setUnsplashResults([])
+    try {
+      const { apiGetAuth: get } = await import('../lib/api')
+      const results = await get(`unsplash/search?q=${encodeURIComponent(q)}`)
+      setUnsplashResults(Array.isArray(results) ? results : [])
+    } catch {
+      setUnsplashResults([])
+    } finally {
+      setUnsplashLoading(false)
+    }
+  }
+
+  const downloadUnsplashPhoto = async (photo) => {
+    setUnsplashDownloading(photo.id)
+    try {
+      const { apiPost: post } = await import('../lib/api')
+      await post('unsplash/download', {
+        id: photo.id,
+        regular_url: photo.regular_url,
+        photographer_name: photo.photographer_name,
+        photographer_url: photo.photographer_url,
+        article_id: id,
+      })
+      const imgs = await apiGetAuth(`images?entity_type=article&entity_id=${id}`).catch(() => [])
+      setArticleImages(Array.isArray(imgs) ? imgs : [])
+      setPhotoTab('uploaded')
+    } catch (err) {
+      setError(err.message || 'Download failed')
+    } finally {
+      setUnsplashDownloading(null)
+    }
   }
 
   const handleSignOut = async () => {
@@ -414,17 +455,85 @@ export default function AdminArticleEditor() {
               {/* ── Photos ───────────────────────────────────────────── */}
               <section className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-stone-50 flex items-center justify-between">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300">Photos</p>
-                  {articleImages.length > 0 && (
-                    <span className="text-[10px] text-stone-400">
-                      {articleImages.length} photo{articleImages.length !== 1 ? 's' : ''}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-1 bg-stone-100 rounded-lg p-0.5">
+                    {['uploaded', 'unsplash'].map(tab => (
+                      <button
+                        key={tab}
+                        type="button"
+                        onClick={() => setPhotoTab(tab)}
+                        className={`px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-wide transition-colors ${
+                          photoTab === tab ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-400 hover:text-stone-600'
+                        }`}
+                      >
+                        {tab === 'uploaded' ? `Uploaded${articleImages.length ? ` (${articleImages.length})` : ''}` : 'Unsplash'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div className="p-4 flex flex-col gap-4">
 
-                  {/* Photo grid */}
-                  {articleImages.length > 0 && (
+                  {/* Unsplash tab */}
+                  {photoTab === 'unsplash' && (
+                    <div className="flex flex-col gap-3">
+                      <form onSubmit={e => { e.preventDefault(); searchUnsplash(unsplashQuery) }} className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+                          <input
+                            type="text"
+                            value={unsplashQuery}
+                            onChange={e => setUnsplashQuery(e.target.value)}
+                            placeholder="Search Unsplash… e.g. Kandy temple"
+                            className="w-full pl-8 pr-3 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676]"
+                          />
+                        </div>
+                        <button type="submit" className="px-4 py-2 bg-stone-950 text-white text-xs font-bold rounded-xl hover:bg-stone-700 transition-colors">
+                          Search
+                        </button>
+                      </form>
+
+                      {unsplashLoading && (
+                        <div className="flex justify-center py-8">
+                          <Loader2 size={24} className="animate-spin text-stone-400" />
+                        </div>
+                      )}
+
+                      {!unsplashLoading && unsplashResults.length > 0 && (
+                        <div className="grid grid-cols-3 gap-2">
+                          {unsplashResults.map(photo => (
+                            <div key={photo.id} className="group relative rounded-xl overflow-hidden aspect-[4/3] bg-stone-100 cursor-pointer" onClick={() => downloadUnsplashPhoto(photo)}>
+                              <img src={photo.thumb_url} alt={photo.photographer_name} className="w-full h-full object-cover" loading="lazy" />
+                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                {unsplashDownloading === photo.id
+                                  ? <Loader2 size={20} className="animate-spin text-white" />
+                                  : <span className="text-white text-[10px] font-bold">+ Add to article</span>
+                                }
+                              </div>
+                              <a
+                                href={`${photo.photographer_url}?utm_source=travel_times&utm_medium=referral`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={e => e.stopPropagation()}
+                                className="absolute bottom-1 left-1 text-[9px] text-white/60 hover:text-white/90 truncate max-w-[90%]"
+                              >
+                                {photo.photographer_name}
+                              </a>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {!unsplashLoading && unsplashResults.length === 0 && unsplashQuery && (
+                        <p className="text-xs text-stone-400 text-center py-6">No results. Try a different search.</p>
+                      )}
+
+                      {!unsplashLoading && unsplashResults.length === 0 && !unsplashQuery && (
+                        <p className="text-xs text-stone-400 text-center py-6">Search for photos to add to this article.</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Uploaded photo grid */}
+                  {photoTab === 'uploaded' && articleImages.length > 0 && (
                     <div>
                       <p className="text-[10px] text-stone-400 mb-3">
                         Hover a photo to set as cover, insert into body, or delete
@@ -496,7 +605,7 @@ export default function AdminArticleEditor() {
                   )}
 
                   {/* Drop zone */}
-                  <div
+                  {photoTab === 'uploaded' && <div
                     onDragOver={e => { e.preventDefault(); setIsDragOver(true) }}
                     onDragEnter={e => { e.preventDefault(); setIsDragOver(true) }}
                     onDragLeave={() => setIsDragOver(false)}
@@ -536,7 +645,7 @@ export default function AdminArticleEditor() {
                       className="hidden"
                       onChange={e => { handleFiles(e.target.files); e.target.value = '' }}
                     />
-                  </div>
+                  </div>}
 
                 </div>
               </section>
