@@ -15,7 +15,13 @@ router.get('/:id?', async (req, res) => {
     if (id) {
       const [rows] = await db.query('SELECT * FROM articles WHERE id = ? OR slug = ?', [id, id])
       const article = rows[0]
-      return res.status(article ? 200 : 404).json(article || { error: 'Not found' })
+      if (!article) return res.status(404).json({ error: 'Not found' })
+      const [imgRows] = await db.query(
+        'SELECT * FROM images WHERE entity_type = ? AND entity_id = ? ORDER BY sort_order ASC, uploaded_at DESC',
+        ['article', article.id]
+      )
+      article.images = imgRows
+      return res.json(article)
     }
     const { status, destination_id } = req.query
     let sql = 'SELECT * FROM articles WHERE 1=1'

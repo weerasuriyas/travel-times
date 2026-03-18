@@ -22,9 +22,8 @@ export default function PublicArticleDetailPage() {
       .then(data => {
         if (!data || data.error) { setNotFound(true); return }
         setArticle(data)
-        return apiGet(`images?entity_type=article&entity_id=${data.id}`).catch(() => [])
+        setImages(Array.isArray(data.images) ? data.images : [])
       })
-      .then(imgs => { if (imgs) setImages(Array.isArray(imgs) ? imgs : []) })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false))
   }, [slug])
