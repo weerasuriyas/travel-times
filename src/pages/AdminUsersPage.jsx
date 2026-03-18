@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, UserPlus, Trash2, Shield, ShieldOff, UserCheck, UserX, Loader2 } from 'lucide-react'
+import { UserPlus, Trash2, Shield, ShieldOff, UserCheck, UserX, Loader2 } from 'lucide-react'
 import { apiGetAuth, apiPost, apiPatch, apiDelete } from '../lib/api'
+import AdminPageHeader from '../components/AdminPageHeader'
 
 export default function AdminUsersPage() {
-  const navigate = useNavigate()
   const [admins, setAdmins] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -64,24 +63,10 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <div className="bg-stone-950 text-stone-50 shadow-lg">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-4">
-          <button
-            onClick={() => navigate('/admin')}
-            className="flex items-center gap-2 px-3 py-2 bg-stone-800 hover:bg-stone-700 rounded-lg text-sm transition-colors"
-          >
-            <ArrowLeft size={16} />
-            Dashboard
-          </button>
-          <div>
-            <h1 className="text-xl font-bold">Admin Users</h1>
-            <p className="text-stone-400 text-xs mt-0.5">Manage who has access to the admin panel</p>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-full">
+      <AdminPageHeader title="Admin Users" />
 
-      <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
+      <div className="max-w-4xl mx-auto px-8 py-8 space-y-6">
         {/* Add admin */}
         <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-6">
           <h2 className="text-sm font-semibold text-stone-700 mb-4 flex items-center gap-2">
