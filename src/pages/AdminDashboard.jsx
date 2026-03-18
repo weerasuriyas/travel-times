@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Edit, Eye, Archive, Trash2, Search, Filter, LogOut, User, Upload, Loader2, RefreshCw } from 'lucide-react'
+import { Edit, Eye, Archive, Trash2, Search, LogOut, User, Upload, Loader2, RefreshCw } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { apiGetAuth, apiPatch, apiDelete } from '../lib/api'
 
@@ -14,7 +14,7 @@ export default function AdminDashboard() {
   const { user, signOut } = useAuth()
 
   const [searchQuery, setSearchQuery] = useState('')
-  const [filterStatus, setFilterStatus] = useState('all')
+  const [activeTab, setActiveTab] = useState('all')
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -102,23 +102,29 @@ export default function AdminDashboard() {
     }
   }
 
-  const filteredArticles = useMemo(() => (
-    rows.filter((article) => {
-      const search = searchQuery.toLowerCase()
+  const tabs = useMemo(() => [
+    { key: 'all',       label: 'All',       count: rows.length },
+    { key: 'staging',   label: 'Staging',   count: rows.filter(r => r.source === 'staging').length },
+    { key: 'draft',     label: 'Drafts',    count: rows.filter(r => r.source === 'article' && r.status === 'draft').length },
+    { key: 'published', label: 'Published', count: rows.filter(r => r.source === 'article' && r.status === 'published').length },
+    { key: 'archived',  label: 'Archived',  count: rows.filter(r => r.source === 'article' && r.status === 'archived').length },
+  ], [rows])
+
+  const filteredArticles = useMemo(() => {
+    const search = searchQuery.toLowerCase()
+    return rows.filter((article) => {
       const matchesSearch =
         article.title.toLowerCase().includes(search) ||
         article.slug.toLowerCase().includes(search)
-      const matchesFilter = filterStatus === 'all' || article.status === filterStatus
-      return matchesSearch && matchesFilter
+      const matchesTab =
+        activeTab === 'all' ||
+        (activeTab === 'staging'   && article.source === 'staging') ||
+        (activeTab === 'draft'     && article.source === 'article' && article.status === 'draft') ||
+        (activeTab === 'published' && article.source === 'article' && article.status === 'published') ||
+        (activeTab === 'archived'  && article.source === 'article' && article.status === 'archived')
+      return matchesSearch && matchesTab
     })
-  ), [rows, searchQuery, filterStatus])
-
-  const stats = useMemo(() => ({
-    total: rows.length,
-    published: rows.filter((a) => a.status === 'published').length,
-    draft: rows.filter((a) => a.status === 'draft').length,
-    archived: rows.filter((a) => a.status === 'archived').length,
-  }), [rows])
+  }, [rows, searchQuery, activeTab])
 
   const openRecord = (article) => {
     if (article.source === 'staging') {
@@ -189,88 +195,68 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
-            <div className="text-stone-500 text-sm font-medium mb-2">Total Articles</div>
-            <div className="text-3xl font-bold text-stone-950">{stats.total}</div>
+        {/* Toolbar */}
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-6">
+          <div className="relative flex-1 md:max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
+            <input
+              type="text"
+              placeholder="Search articles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+            />
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
-            <div className="text-stone-500 text-sm font-medium mb-2">Published</div>
-            <div className="text-3xl font-bold" style={{ color: '#00E676' }}>{stats.published}</div>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
-            <div className="text-stone-500 text-sm font-medium mb-2">Drafts</div>
-            <div className="text-3xl font-bold" style={{ color: '#FFD600' }}>{stats.draft}</div>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
-            <div className="text-stone-500 text-sm font-medium mb-2">Archived</div>
-            <div className="text-3xl font-bold text-stone-400">{stats.archived}</div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6 mb-6">
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-            <div className="flex flex-col md:flex-row gap-4 flex-1 w-full md:w-auto">
-              <div className="relative flex-1 md:max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={20} />
-                <input
-                  type="text"
-                  placeholder="Search articles..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="relative">
-                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={20} />
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="pl-10 pr-8 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white cursor-pointer"
-                >
-                  <option value="all">All Status</option>
-                  <option value="published">Published</option>
-                  <option value="draft">Draft</option>
-                  <option value="archived">Archived</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={loadDashboardData}
-                className="flex items-center gap-2 px-4 py-2 bg-stone-200 hover:bg-stone-300 rounded-lg font-medium transition-colors text-sm"
-              >
-                {loading ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
-                Refresh
-              </button>
-              <button
-                onClick={() => navigate('/admin/ingest')}
-                className="flex items-center gap-2 px-6 py-2 bg-stone-950 text-white rounded-lg font-medium transition-all shadow-sm whitespace-nowrap hover:bg-stone-800"
-              >
-                <Upload size={20} />
-                Ingest Folder
-              </button>
-              <button
-                onClick={() => navigate('/admin/staging')}
-                className="flex items-center gap-2 px-6 py-2 bg-stone-700 text-white rounded-lg font-medium transition-all shadow-sm whitespace-nowrap hover:bg-stone-600"
-              >
-                <Eye size={20} />
-                Review Queue
-              </button>
-              <button
-                onClick={() => navigate('/admin/articles')}
-                className="flex items-center gap-2 px-6 py-2 bg-stone-600 text-white rounded-lg font-medium transition-all shadow-sm whitespace-nowrap hover:bg-stone-500"
-              >
-                <Edit size={20} />
-                Articles
-              </button>
-            </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={loadDashboardData}
+              className="flex items-center gap-2 px-4 py-2 bg-stone-200 hover:bg-stone-300 rounded-lg font-medium transition-colors text-sm"
+            >
+              {loading ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+              Refresh
+            </button>
+            <button
+              onClick={() => navigate('/admin/ingest')}
+              className="flex items-center gap-2 px-4 py-2 bg-stone-950 text-white rounded-lg font-medium transition-all shadow-sm whitespace-nowrap hover:bg-stone-800 text-sm"
+            >
+              <Upload size={16} />
+              Ingest
+            </button>
+            <button
+              onClick={() => navigate('/admin/staging')}
+              className="flex items-center gap-2 px-4 py-2 bg-stone-700 text-white rounded-lg font-medium transition-all shadow-sm whitespace-nowrap hover:bg-stone-600 text-sm"
+            >
+              <Eye size={16} />
+              Review Queue
+            </button>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+        {/* Tabs */}
+        <div className="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden mb-0">
+          <div className="flex border-b border-stone-200 overflow-x-auto">
+            {tabs.map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                  activeTab === tab.key
+                    ? 'border-stone-950 text-stone-950'
+                    : 'border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300'
+                }`}
+              >
+                {tab.label}
+                <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+                  activeTab === tab.key
+                    ? 'bg-stone-950 text-white'
+                    : 'bg-stone-100 text-stone-500'
+                }`}>
+                  {tab.count}
+                </span>
+              </button>
+            ))}
+          </div>
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-stone-100 border-b border-stone-200">
@@ -371,13 +357,12 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+          {!loading && filteredArticles.length === 0 && (
+            <div className="text-center py-12 text-stone-500 text-sm">
+              No articles found.
+            </div>
+          )}
         </div>
-
-        {!loading && filteredArticles.length === 0 && (
-          <div className="text-center py-12 text-stone-500">
-            No articles found matching your search.
-          </div>
-        )}
       </div>
     </div>
   )
