@@ -54,6 +54,7 @@ export default function AdminArticleEditor() {
   const [unsplashDownloading, setUnsplashDownloading] = useState(null) // photo id being downloaded
 
   const debounceRef = useRef(null)
+  const captionDebounceRef = useRef({})
   const fieldsRef = useRef(fields)
   const bodyRef = useRef(null)
   const cursorPosRef = useRef(null)
@@ -70,7 +71,12 @@ export default function AdminArticleEditor() {
     return () => window.removeEventListener('beforeunload', handler)
   }, [saveStatus])
 
-  useEffect(() => { return () => clearTimeout(debounceRef.current) }, [])
+  useEffect(() => {
+    return () => {
+      clearTimeout(debounceRef.current)
+      Object.values(captionDebounceRef.current).forEach(clearTimeout)
+    }
+  }, [])
 
   const loadArticle = useCallback(async () => {
     if (!id) return
@@ -178,6 +184,14 @@ export default function AdminArticleEditor() {
       setError(err.message || 'Delete failed')
     }
   }
+
+  const handleCaptionChange = useCallback((imgId, caption) => {
+    setArticleImages(prev => prev.map(i => i.id === imgId ? { ...i, caption } : i))
+    clearTimeout(captionDebounceRef.current[imgId])
+    captionDebounceRef.current[imgId] = setTimeout(() => {
+      apiPatch(`images/${imgId}`, { caption }).catch(() => {})
+    }, 600)
+  }, [])
 
   const handleDrop = (e) => {
     e.preventDefault()
@@ -543,60 +557,68 @@ export default function AdminArticleEditor() {
                           const placed = fields.body.includes(`[[image:${img.id}]]`)
                           const isCover = fields.cover_image === img.url
                           return (
-                            <div
-                              key={img.id}
-                              className={`group relative rounded-xl overflow-hidden aspect-[4/3] border-2 transition-all ${
-                                isCover
-                                  ? 'border-[#FFD600] shadow-lg shadow-[#FFD600]/20'
-                                  : placed
-                                  ? 'border-[#00E676] shadow-md shadow-[#00E676]/15'
-                                  : 'border-stone-100 hover:border-stone-300'
-                              }`}
-                            >
-                              <img src={img.url} alt={img.alt_text || ''} className="w-full h-full object-cover" loading="lazy" />
+                            <div key={img.id} className="flex flex-col gap-1.5">
+                              <div
+                                className={`group relative rounded-xl overflow-hidden aspect-[4/3] border-2 transition-all ${
+                                  isCover
+                                    ? 'border-[#FFD600] shadow-lg shadow-[#FFD600]/20'
+                                    : placed
+                                    ? 'border-[#00E676] shadow-md shadow-[#00E676]/15'
+                                    : 'border-stone-100 hover:border-stone-300'
+                                }`}
+                              >
+                                <img src={img.url} alt={img.alt_text || ''} className="w-full h-full object-cover" loading="lazy" />
 
-                              {/* Badges */}
-                              {isCover && (
-                                <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-[#FFD600] rounded-full px-2 py-0.5">
-                                  <Star size={8} className="text-stone-900 fill-stone-900" />
-                                  <span className="text-[8px] font-black text-stone-900 tracking-wide">COVER</span>
-                                </div>
-                              )}
-                              {placed && !isCover && (
-                                <div className="absolute top-1.5 left-1.5 bg-[#00E676] rounded-full px-2 py-0.5">
-                                  <span className="text-[8px] font-black text-stone-900 tracking-wide">IN BODY</span>
-                                </div>
-                              )}
+                                {/* Badges */}
+                                {isCover && (
+                                  <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-[#FFD600] rounded-full px-2 py-0.5">
+                                    <Star size={8} className="text-stone-900 fill-stone-900" />
+                                    <span className="text-[8px] font-black text-stone-900 tracking-wide">COVER</span>
+                                  </div>
+                                )}
+                                {placed && !isCover && (
+                                  <div className="absolute top-1.5 left-1.5 bg-[#00E676] rounded-full px-2 py-0.5">
+                                    <span className="text-[8px] font-black text-stone-900 tracking-wide">IN BODY</span>
+                                  </div>
+                                )}
 
-                              {/* Hover overlay */}
-                              <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 p-2.5">
-                                <button
-                                  type="button"
-                                  onClick={() => updateField('cover_image', isCover ? '' : img.url)}
-                                  className={`w-full py-1.5 rounded-lg text-[10px] font-bold transition-colors ${
-                                    isCover
-                                      ? 'bg-[#FFD600] text-stone-900'
-                                      : 'bg-white/10 text-white hover:bg-[#FFD600] hover:text-stone-900 border border-white/20'
-                                  }`}
-                                >
-                                  {isCover ? '★ Cover set' : '★ Set as cover'}
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => insertImageAtCursor(img.id)}
-                                  className="w-full py-1.5 rounded-lg text-[10px] font-bold bg-white/10 text-white hover:bg-white hover:text-stone-900 border border-white/20 transition-colors"
-                                >
-                                  + Insert in body
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteImage(img)}
-                                  className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/60 hover:bg-red-500 flex items-center justify-center transition-colors border border-white/20"
-                                  title="Delete photo"
-                                >
-                                  <Trash2 size={10} className="text-white" />
-                                </button>
+                                {/* Hover overlay */}
+                                <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 p-2.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => updateField('cover_image', isCover ? '' : img.url)}
+                                    className={`w-full py-1.5 rounded-lg text-[10px] font-bold transition-colors ${
+                                      isCover
+                                        ? 'bg-[#FFD600] text-stone-900'
+                                        : 'bg-white/10 text-white hover:bg-[#FFD600] hover:text-stone-900 border border-white/20'
+                                    }`}
+                                  >
+                                    {isCover ? '★ Cover set' : '★ Set as cover'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => insertImageAtCursor(img.id)}
+                                    className="w-full py-1.5 rounded-lg text-[10px] font-bold bg-white/10 text-white hover:bg-white hover:text-stone-900 border border-white/20 transition-colors"
+                                  >
+                                    + Insert in body
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteImage(img)}
+                                    className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/60 hover:bg-red-500 flex items-center justify-center transition-colors border border-white/20"
+                                    title="Delete photo"
+                                  >
+                                    <Trash2 size={10} className="text-white" />
+                                  </button>
+                                </div>
                               </div>
+                              <input
+                                type="text"
+                                value={img.caption || ''}
+                                onChange={e => handleCaptionChange(img.id, e.target.value)}
+                                placeholder="Add a caption…"
+                                className="w-full text-[11px] bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-stone-600 placeholder-stone-300 focus:outline-none focus:ring-1 focus:ring-[#00E676]/50 focus:border-[#00E676]"
+                              />
                             </div>
                           )
                         })}
