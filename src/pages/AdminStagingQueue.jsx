@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Check, Loader2, LogOut, RefreshCw, Trash2, X } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
+import { Check, Loader2, RefreshCw, Trash2, X } from 'lucide-react'
 import { apiGetAuth, apiPatch, apiPost, apiDelete } from '../lib/api'
+import AdminPageHeader from '../components/AdminPageHeader'
 
 const REVIEW_FILTERS = ['pending', 'approved', 'rejected', 'all']
 const SAVE_DEBOUNCE_MS = 800
@@ -51,8 +50,6 @@ function EditField({ label, value, onChange, type = 'text', rows, readOnly }) {
 }
 
 export default function AdminStagingQueue() {
-  const navigate = useNavigate()
-  const { signOut } = useAuth()
 
   const [reviewFilter, setReviewFilter] = useState('pending')
   const [queue, setQueue] = useState([])
@@ -89,10 +86,6 @@ export default function AdminStagingQueue() {
     window.addEventListener('beforeunload', handler)
     return () => window.removeEventListener('beforeunload', handler)
   }, [saveStatus])
-
-  const handleSignOut = async () => {
-    try { await signOut(); navigate('/') } catch (err) { console.error(err) }
-  }
 
   const loadQueue = useCallback(async () => {
     setLoadingList(true)
@@ -263,27 +256,10 @@ export default function AdminStagingQueue() {
     : <span className="text-xs text-green-600">Saved</span>
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <div className="bg-stone-950 text-stone-50 shadow-lg">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Staging Review Queue</h1>
-              <p className="text-stone-400 text-sm mt-1">Review and edit staged article folders</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button onClick={() => navigate('/admin')} className="flex items-center gap-2 px-4 py-2 bg-stone-800 hover:bg-stone-700 rounded-lg transition-colors text-sm">
-                <ArrowLeft size={16} /> Dashboard
-              </button>
-              <button onClick={handleSignOut} className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-sm">
-                <LogOut size={16} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-full">
+      <AdminPageHeader title="Staging Queue" />
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="px-6 py-8">
         {error && (
           <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex justify-between items-center">
             {error}
