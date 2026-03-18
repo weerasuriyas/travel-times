@@ -441,7 +441,7 @@ export default function AdminDestinationEditor() {
                     onDrop={e => { e.preventDefault(); setIsDragOver(false); handleFiles(e.dataTransfer.files) }}
                     onClick={() => !uploading && fileInputRef.current?.click()}
                     className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-2xl py-8 transition-all cursor-pointer ${
-                      isDragOver ? 'border-[#00E676] bg-[#00E676]/5' : 'border-white/10 hover:border-[#00E676]/40 bg-white/[0.02]'
+                      isDragOver ? 'border-[#00E676] bg-[#00E676]/5' : 'border-stone-200 hover:border-[#00E676]/40 bg-stone-50'
                     }`}
                   >
                     {uploading

@@ -132,7 +132,7 @@ export default function AdminDashboard() {
       navigate(`/admin/articles/${article.recordId}`)
       return
     }
-    navigate('/admin/articles')
+    navigate('/admin')
   }
 
   return (
