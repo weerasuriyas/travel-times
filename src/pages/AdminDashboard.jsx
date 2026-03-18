@@ -87,6 +87,7 @@ export default function AdminDashboard() {
     try {
       await apiPatch(`articles/${article.recordId}`, { status: 'archived' })
       await loadDashboardData()
+      setActiveTab('archived')
     } catch (err) {
       setError(err.message || 'Failed to archive article')
     }
