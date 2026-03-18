@@ -5,6 +5,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import ScrollToTop from './components/ScrollToTop'
 import Layout from './components/Layout'
+import AdminLayout from './components/AdminLayout'
 import { AuthProvider } from './contexts/AuthContext'
 
 const DestinationsPage = lazy(() => import('./pages/DestinationsPage'))
@@ -16,7 +17,7 @@ const ContactPage = lazy(() => import('./pages/ContactPage'))
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
 const TermsPage = lazy(() => import('./pages/TermsPage'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
-const AdminArticlesList = lazy(() => import('./pages/AdminArticlesList'))
+const AdminArticleWriter = lazy(() => import('./pages/AdminArticleWriter'))
 const AdminArticleEditor = lazy(() => import('./pages/AdminArticleEditor'))
 const AdminLogin = lazy(() => import('./pages/AdminLogin'))
 const AdminIngestion = lazy(() => import('./pages/AdminIngestion'))
@@ -55,63 +56,25 @@ const AppContent = () => (
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
-        {/* Admin routes - no footer */}
+        {/* Standalone admin routes (no sidebar) */}
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={
-          <ProtectedRoute>
-            <AdminDashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/articles" element={
-          <ProtectedRoute>
-            <AdminArticlesList />
-          </ProtectedRoute>
-        } />
         <Route path="/admin/articles/:id" element={
-          <ProtectedRoute>
-            <AdminArticleEditor />
-          </ProtectedRoute>
+          <ProtectedRoute><AdminArticleEditor /></ProtectedRoute>
         } />
-        <Route path="/admin/ingest" element={
-          <ProtectedRoute>
-            <AdminIngestion />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/staging" element={
-          <ProtectedRoute>
-            <AdminStagingQueue />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/destinations" element={
-          <ProtectedRoute>
-            <AdminDestinationsList />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/destinations/new" element={
-          <ProtectedRoute>
-            <AdminDestinationEditor />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/destinations/:id" element={
-          <ProtectedRoute>
-            <AdminDestinationEditor />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/settings" element={
-          <ProtectedRoute>
-            <AdminSettingsPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/about" element={
-          <ProtectedRoute>
-            <AdminAboutEditor />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/users" element={
-          <ProtectedRoute>
-            <AdminUsersPage />
-          </ProtectedRoute>
-        } />
+
+        {/* Sidebar admin routes */}
+        <Route element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/write" element={<AdminArticleWriter />} />
+          <Route path="/admin/staging" element={<AdminStagingQueue />} />
+          <Route path="/admin/ingest" element={<AdminIngestion />} />
+          <Route path="/admin/destinations" element={<AdminDestinationsList />} />
+          <Route path="/admin/destinations/new" element={<AdminDestinationEditor />} />
+          <Route path="/admin/destinations/:id" element={<AdminDestinationEditor />} />
+          <Route path="/admin/settings" element={<AdminSettingsPage />} />
+          <Route path="/admin/about" element={<AdminAboutEditor />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
+        </Route>
       </Routes>
     </Suspense>
   </div>
