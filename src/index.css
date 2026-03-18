@@ -373,3 +373,136 @@ img::selection {
 img {
   -webkit-touch-callout: none;
 }
+
+/* ── Rich text editor (Tiptap) ──────────────────────────── */
+.prose-editor .ProseMirror {
+  min-height: 400px;
+  outline: none;
+  padding: 1.25rem;
+}
+.prose-editor .ProseMirror p {
+  font-family: Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+  color: #292524;
+}
+.prose-editor .ProseMirror h2 {
+  font-size: 1.375rem;
+  font-weight: 800;
+  margin: 1.5rem 0 0.5rem;
+  color: #0c0a09;
+}
+.prose-editor .ProseMirror h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.5rem;
+  color: #0c0a09;
+}
+.prose-editor .ProseMirror ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+.prose-editor .ProseMirror ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+.prose-editor .ProseMirror li {
+  font-family: Georgia, serif;
+  line-height: 1.7;
+  margin-bottom: 0.25rem;
+}
+.prose-editor .ProseMirror blockquote {
+  border-left: 3px solid #00E676;
+  padding-left: 1rem;
+  margin: 1.25rem 0;
+  font-style: italic;
+  color: #57534e;
+}
+.prose-editor .ProseMirror hr {
+  border: none;
+  border-top: 2px solid #e7e5e4;
+  margin: 1.5rem 0;
+}
+.prose-editor .ProseMirror a {
+  color: #00C853;
+  text-decoration: underline;
+}
+.prose-editor .ProseMirror img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin: 1rem 0;
+}
+.prose-editor .ProseMirror p.is-editor-empty:first-child::before {
+  color: #a8a29e;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* ── Article HTML body (public render) ──────────────────── */
+.article-prose p {
+  font-family: Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.9;
+  margin-bottom: 2rem;
+  color: #292524;
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+.article-prose h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 2.5rem auto 1rem;
+  max-width: 48rem;
+  color: #0c0a09;
+}
+.article-prose h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 2rem auto 0.75rem;
+  max-width: 48rem;
+  color: #0c0a09;
+}
+.article-prose ul,
+.article-prose ol {
+  max-width: 48rem;
+  margin: 0 auto 2rem;
+  padding-left: 2rem;
+  font-family: Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.8;
+}
+.article-prose li {
+  margin-bottom: 0.4rem;
+}
+.article-prose blockquote {
+  max-width: 48rem;
+  margin: 2.5rem auto;
+  padding-left: 1.5rem;
+  border-left: 4px solid #00E676;
+  font-style: italic;
+  font-family: Georgia, serif;
+  font-size: 1.25rem;
+  color: #57534e;
+}
+.article-prose a {
+  color: #00C853;
+  text-decoration: underline;
+}
+.article-prose strong {
+  font-weight: 700;
+}
+.article-prose em {
+  font-style: italic;
+}
+.article-prose hr {
+  max-width: 48rem;
+  margin: 2.5rem auto;
+  border: none;
+  border-top: 2px solid #e7e5e4;
+}
