@@ -48,12 +48,18 @@ function ImagePlate({ image, index }) {
       <img
         src={image.url}
         alt={image.alt_text || ''}
+        loading="lazy"
         className="w-full aspect-[16/10] object-cover rounded-2xl"
       />
+      {image.caption && (
+        <p className={`px-4 pt-3 pb-1 text-sm font-serif italic leading-snug ${theme.labelClass}`}>
+          {image.caption}
+        </p>
+      )}
       <div className={`px-4 py-3 flex items-center gap-2 ${theme.labelClass}`}>
         <Icon size={14} className={theme.iconClass} />
         <span className="text-[9px] font-black uppercase tracking-[0.25em]">{PLATE_LABELS[index % PLATE_LABELS.length]}</span>
-        {image.alt_text && (
+        {image.alt_text && !image.caption && (
           <span className={`text-[9px] ml-auto ${theme.altClass}`}>{image.alt_text}</span>
         )}
       </div>
@@ -104,7 +110,7 @@ export default function ArticleDetailView({ article }) {
       {/* ── Hero ──────────────────────────────────────────────── */}
       <div className="relative w-full aspect-[4/3] md:aspect-[21/9] overflow-hidden md:mx-6 md:w-[calc(100%-3rem)] md:rounded-[48px]">
         {article.cover_image
-          ? <img src={article.cover_image} alt={article.title} className="w-full h-full object-cover" />
+          ? <img src={article.cover_image} alt={article.title} className="w-full h-full object-cover" fetchPriority="high" />
           : <div className="w-full h-full bg-gradient-to-br from-stone-900 to-stone-950" />
         }
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/10" />
