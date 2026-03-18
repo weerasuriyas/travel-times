@@ -9,6 +9,8 @@ import eventsRouter from './server/routes/events.js'
 import imagesRouter from './server/routes/images.js'
 import stagingImagesRouter from './server/routes/staging-images.js'
 import stagingRouter from './server/routes/staging.js'
+import settingsRouter from './server/routes/settings.js'
+import unsplashRouter from './server/routes/unsplash.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const app = express()
@@ -38,6 +40,8 @@ app.use('/api/events', eventsRouter)
 app.use('/api/images', imagesRouter)
 app.use('/api/staging-images', stagingImagesRouter)
 app.use('/api/staging', stagingRouter)
+app.use('/api/settings', settingsRouter)
+app.use('/api/unsplash', unsplashRouter)
 app.get('/api/health', async (_req, res) => {
   const { stat, readdir } = await import('fs/promises')
 
