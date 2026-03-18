@@ -115,13 +115,15 @@ router.patch('/:id', requireAuth, async (req, res) => {
     const setClauses = []
     const params = []
 
-    if (data.title != null)       { setClauses.push('title = ?');       params.push(data.title) }
-    if (data.subtitle != null)    { setClauses.push('subtitle = ?');    params.push(data.subtitle) }
-    if (data.body != null)        { setClauses.push('body = ?');        params.push(data.body) }
-    if (data.category != null)    { setClauses.push('category = ?');    params.push(data.category) }
-    if (tags != null)             { setClauses.push('tags = ?');        params.push(tags) }
-    if (data.author_name != null) { setClauses.push('author_name = ?'); params.push(data.author_name) }
-    if (data.status != null)      { setClauses.push('status = ?');      params.push(newStatus) }
+    if (data.title != null)          { setClauses.push('title = ?');          params.push(data.title) }
+    if (data.subtitle != null)       { setClauses.push('subtitle = ?');       params.push(data.subtitle) }
+    if (data.body != null)           { setClauses.push('body = ?');           params.push(data.body) }
+    if (data.category != null)       { setClauses.push('category = ?');       params.push(data.category) }
+    if (tags != null)                { setClauses.push('tags = ?');           params.push(tags) }
+    if (data.author_name != null)    { setClauses.push('author_name = ?');    params.push(data.author_name) }
+    if (data.status != null)         { setClauses.push('status = ?');         params.push(newStatus) }
+    if ('cover_image' in data)       { setClauses.push('cover_image = ?');    params.push(data.cover_image ?? null) }
+    if ('destination_id' in data)    { setClauses.push('destination_id = ?'); params.push(data.destination_id ?? null) }
     // Always sync published_at with status logic
     setClauses.push('published_at = ?')
     params.push(publishedAt)

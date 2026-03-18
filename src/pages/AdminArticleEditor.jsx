@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Loader2, LogOut } from 'lucide-react'
+import { ArrowLeft, Loader2, LogOut, Star } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { apiGet, apiGetAuth, apiPatch } from '../lib/api'
 import ArticlePreview from '../components/ArticlePreview'
@@ -23,7 +23,7 @@ export default function AdminArticleEditor() {
   const [articleImages, setArticleImages] = useState([])
   const [destinations, setDestinations] = useState([])
   const [fields, setFields] = useState({
-    title: '', subtitle: '', body: '', category: '', tags: '', author_name: '', status: 'draft', destination_id: '',
+    title: '', subtitle: '', body: '', category: '', tags: '', author_name: '', status: 'draft', destination_id: '', cover_image: '',
   })
   const [saveStatus, setSaveStatus] = useState('saved')
   const [loading, setLoading] = useState(true)
@@ -70,6 +70,7 @@ export default function AdminArticleEditor() {
         author_name: data.author_name || '',
         status: data.status || 'draft',
         destination_id: data.destination_id ?? '',
+        cover_image: data.cover_image ?? '',
       }
       setFields(loaded)
       fieldsRef.current = loaded
@@ -236,30 +237,48 @@ export default function AdminArticleEditor() {
               />
             </div>
 
-            {/* Photo insert strip */}
+            {/* Photo strip */}
             {articleImages.length > 0 && (
               <div>
                 <label className="block text-xs font-semibold uppercase text-stone-500 mb-2">
-                  Photos — click to insert at cursor
+                  Photos — ★ set cover · click to insert at cursor
                 </label>
                 <div className="grid grid-cols-4 gap-2">
                   {articleImages.map(img => {
                     const placed = fields.body.includes(`[[image:${img.id}]]`)
+                    const isCover = fields.cover_image === img.url
                     return (
-                      <button
-                        key={img.id}
-                        type="button"
-                        onClick={() => insertImageAtCursor(img.id)}
-                        className={`relative rounded-lg overflow-hidden aspect-[4/3] group border-2 transition-colors ${placed ? 'border-green-400' : 'border-stone-200 hover:border-stone-400'}`}
-                      >
+                      <div key={img.id} className={`relative rounded-lg overflow-hidden aspect-[4/3] border-2 transition-colors ${isCover ? 'border-yellow-400' : placed ? 'border-green-400' : 'border-stone-200'}`}>
                         <img src={img.url} alt={img.alt_text || ''} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">Insert</span>
-                        </div>
-                        {placed && (
+                        {/* Cover badge */}
+                        {isCover && (
+                          <div className="absolute top-1 left-1 bg-yellow-400 rounded-full w-5 h-5 flex items-center justify-center">
+                            <Star size={10} className="text-stone-900 fill-stone-900" />
+                          </div>
+                        )}
+                        {/* Inline placed badge */}
+                        {placed && !isCover && (
                           <div className="absolute top-1 right-1 bg-green-500 rounded-full w-4 h-4 flex items-center justify-center text-white text-[9px] font-bold">✓</div>
                         )}
-                      </button>
+                        {/* Hover actions */}
+                        <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => updateField('cover_image', isCover ? '' : img.url)}
+                            className={`px-2 py-1 rounded text-[10px] font-bold ${isCover ? 'bg-yellow-400 text-stone-900' : 'bg-white/20 text-white hover:bg-yellow-400 hover:text-stone-900'}`}
+                            title="Set as cover"
+                          >
+                            ★ Cover
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => insertImageAtCursor(img.id)}
+                            className="px-2 py-1 rounded text-[10px] font-bold bg-white/20 text-white hover:bg-white hover:text-stone-900"
+                          >
+                            Insert
+                          </button>
+                        </div>
+                      </div>
                     )
                   })}
                 </div>
