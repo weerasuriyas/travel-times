@@ -6,6 +6,37 @@ function slugify(text) {
   return text.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 }
 
+// In-memory Unsplash cache keyed by query string, TTL 24h
+const unsplashCache = new Map()
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000
+
+async function fetchUnsplashFallback(query) {
+  const cached = unsplashCache.get(query)
+  if (cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS) return cached.data
+
+  const key = process.env.UNSPLASH_ACCESS_KEY
+  if (!key) return null
+
+  try {
+    const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape&client_id=${key}`
+    const r = await fetch(url)
+    if (!r.ok) return null
+    const json = await r.json()
+    const p = json.results?.[0]
+    if (!p) return null
+    const data = {
+      url: p.urls.regular,
+      thumb_url: p.urls.small,
+      photographer_name: p.user.name,
+      photographer_url: p.user.links.html,
+    }
+    unsplashCache.set(query, { data, fetchedAt: Date.now() })
+    return data
+  } catch {
+    return null
+  }
+}
+
 const router = Router()
 
 router.get('/:id?', async (req, res) => {
@@ -18,6 +49,14 @@ router.get('/:id?', async (req, res) => {
       return res.status(row ? 200 : 404).json(row || { error: 'Not found' })
     }
     const [rows] = await db.query('SELECT * FROM destinations ORDER BY name ASC')
+
+    // Enrich destinations without a hero_image with a cached Unsplash fallback
+    await Promise.all(rows.map(async dest => {
+      if (!dest.hero_image) {
+        dest.unsplash_fallback = await fetchUnsplashFallback(`${dest.name} Sri Lanka`)
+      }
+    }))
+
     res.json(rows)
   } catch (err) {
     res.status(500).json({ error: err.message })

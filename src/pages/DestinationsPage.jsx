@@ -9,28 +9,11 @@ const DestinationsPage = () => {
   const navigate = useNavigate();
   const isScrolled = useScrolled(50);
   const [destinations, setDestinations] = useState([]);
-  const [unsplashPhotos, setUnsplashPhotos] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     apiGet('destinations')
-      .then(async d => {
-        const list = Array.isArray(d) ? d : [];
-        setDestinations(list);
-
-        const needsPhoto = list.filter(dest => !dest.hero_image);
-        if (!needsPhoto.length) return;
-
-        const results = await Promise.all(
-          needsPhoto.map(dest =>
-            fetch(`/api/unsplash/photo?q=${encodeURIComponent(dest.name + ' Sri Lanka')}`)
-              .then(r => r.ok ? r.json() : null)
-              .catch(() => null)
-              .then(photo => [dest.slug, photo])
-          )
-        );
-        setUnsplashPhotos(Object.fromEntries(results));
-      })
+      .then(d => setDestinations(Array.isArray(d) ? d : []))
       .catch(() => setDestinations([]))
       .finally(() => setLoading(false));
   }, []);
@@ -76,7 +59,7 @@ const DestinationsPage = () => {
                 <div className="bg-white rounded-[32px] overflow-hidden shadow-xl border border-stone-100 hover:shadow-2xl transition-all duration-500">
                   <div className="relative aspect-[4/3] overflow-hidden">
                     {(() => {
-                      const photo = !destination.hero_image ? unsplashPhotos[destination.slug] : null;
+                      const photo = destination.unsplash_fallback ?? null;
                       const imgSrc = destination.hero_image || photo?.url;
                       if (imgSrc) {
                         return (
