@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import { supabase } from '../lib/supabase'
 
-const ADMIN_CACHE_KEY = 'tt_is_admin'
+const ADMIN_CACHE_KEY = 'tt_admin_v2'
 
 const ADMIN_CACHE_TTL = 60 * 60 * 1000 // 60 minutes
 
@@ -25,14 +25,17 @@ function setCachedAdmin(userId, value) {
 async function checkIsAdmin(userId) {
   try {
     const { data, error } = await Promise.race([
-      supabase.from('admin_users').select('id').eq('user_id', userId).eq('is_active', true).single(),
+      supabase.from('admin_users').select('is_super_admin').eq('user_id', userId).eq('is_active', true).single(),
       new Promise(resolve => setTimeout(() => resolve({ data: null, error: { message: 'timeout' } }), 5000))
     ])
-    const result = !error && !!data
+    const result = {
+      isAdmin: !error && !!data,
+      isSuperAdmin: !error && !!data?.is_super_admin,
+    }
     setCachedAdmin(userId, result)
     return result
   } catch {
-    return false
+    return { isAdmin: false, isSuperAdmin: false }
   }
 }
 
@@ -47,6 +50,7 @@ export const useAuth = () => {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -61,11 +65,12 @@ export function AuthProvider({ children }) {
         if (event === 'SIGNED_IN' && session?.user) {
           setUser(session.user)
           const cached = getCachedAdmin(session.user.id)
-          if (cached !== null) setIsAdmin(cached)
-          checkIsAdmin(session.user.id).then(status => { if (mounted) setIsAdmin(status) })
+          if (cached !== null) { setIsAdmin(cached.isAdmin); setIsSuperAdmin(cached.isSuperAdmin) }
+          checkIsAdmin(session.user.id).then(r => { if (mounted) { setIsAdmin(r.isAdmin); setIsSuperAdmin(r.isSuperAdmin) } })
         } else if (event === 'SIGNED_OUT') {
           setUser(null)
           setIsAdmin(false)
+          setIsSuperAdmin(false)
         } else if ((event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') && session?.user) {
           setUser(session.user)
         }
@@ -89,8 +94,8 @@ export function AuthProvider({ children }) {
         if (session?.user) {
           setUser(session.user)
           const cached = getCachedAdmin(session.user.id)
-          if (cached !== null) setIsAdmin(cached)
-          checkIsAdmin(session.user.id).then(setIsAdmin)
+          if (cached !== null) { setIsAdmin(cached.isAdmin); setIsSuperAdmin(cached.isSuperAdmin) }
+          checkIsAdmin(session.user.id).then(r => { setIsAdmin(r.isAdmin); setIsSuperAdmin(r.isSuperAdmin) })
         }
       } catch (err) {
         if (err.name !== 'AbortError') console.error('Session check error:', err)
@@ -112,6 +117,7 @@ export function AuthProvider({ children }) {
   async function signOut() {
     setUser(null)
     setIsAdmin(false)
+    setIsSuperAdmin(false)
     localStorage.clear()
     try {
       await Promise.race([
@@ -123,8 +129,8 @@ export function AuthProvider({ children }) {
   }
 
   const value = useMemo(() => ({
-    user, isAdmin, loading, signInWithGoogle, signOut
-  }), [user, isAdmin, loading])
+    user, isAdmin, isSuperAdmin, loading, signInWithGoogle, signOut
+  }), [user, isAdmin, isSuperAdmin, loading])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

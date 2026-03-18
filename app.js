@@ -13,6 +13,7 @@ import stagingImagesRouter from './server/routes/staging-images.js'
 import stagingRouter from './server/routes/staging.js'
 import settingsRouter from './server/routes/settings.js'
 import unsplashRouter from './server/routes/unsplash.js'
+import adminUsersRouter from './server/routes/admin-users.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const app = express()
@@ -56,6 +57,7 @@ app.use('/api/staging-images', uploadLimiter, stagingImagesRouter)
 app.use('/api/staging', stagingRouter)
 app.use('/api/settings', settingsRouter)
 app.use('/api/unsplash', unsplashLimiter, unsplashRouter)
+app.use('/api/admin-users', adminUsersRouter)
 app.get('/api/health', async (_req, res) => {
   const { stat, readdir } = await import('fs/promises')
 

@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { createPublicKey } from 'crypto'
+import { getSupabaseAdmin } from './supabaseAdmin.js'
 
 const SUPABASE_URL = (process.env.API_SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/$/, '')
 const JWT_SECRET = process.env.API_SUPABASE_JWT_SECRET || ''
@@ -40,5 +41,23 @@ export async function requireAuth(req, res, next) {
   } catch (err) {
     if (err.name === 'TokenExpiredError') return res.status(401).json({ error: 'Token expired' })
     return res.status(401).json({ error: 'Invalid token' })
+  }
+}
+
+export async function requireSuperAdmin(req, res, next) {
+  if (!req.user?.sub) return res.status(401).json({ error: 'Unauthorized' })
+  try {
+    const supa = getSupabaseAdmin()
+    const { data, error } = await supa
+      .from('admin_users')
+      .select('is_super_admin')
+      .eq('user_id', req.user.sub)
+      .eq('is_active', true)
+      .eq('is_super_admin', true)
+      .single()
+    if (error || !data) return res.status(403).json({ error: 'Super admin access required' })
+    next()
+  } catch {
+    res.status(500).json({ error: 'Auth check failed' })
   }
 }

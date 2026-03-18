@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Edit, Eye, Archive, Trash2, Search, LogOut, User, Upload, Loader2, RefreshCw, RotateCcw, Globe, EyeOff, MapPin, Settings, Info } from 'lucide-react'
+import { Edit, Eye, Archive, Trash2, Search, LogOut, User, Upload, Loader2, RefreshCw, RotateCcw, Globe, EyeOff, MapPin, Settings, Info, Users } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { apiGetAuth, apiPatch, apiDelete } from '../lib/api'
 
@@ -11,7 +11,7 @@ function toTimestamp(value) {
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
-  const { user, signOut } = useAuth()
+  const { user, signOut, isSuperAdmin } = useAuth()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState('all')
@@ -237,6 +237,15 @@ export default function AdminDashboard() {
               <Settings size={16} />
               Settings
             </button>
+            {isSuperAdmin && (
+              <button
+                onClick={() => navigate('/admin/users')}
+                className="flex items-center gap-2 px-4 py-2 bg-stone-800 hover:bg-stone-700 text-white rounded-lg font-medium transition-all text-sm"
+              >
+                <Users size={16} />
+                Users
+              </button>
+            )}
             <button
               onClick={() => navigate('/admin/ingest')}
               className="flex items-center gap-2 px-4 py-2 bg-stone-950 text-white rounded-lg font-medium transition-all shadow-sm whitespace-nowrap hover:bg-stone-800 text-sm"
