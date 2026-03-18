@@ -54,7 +54,7 @@ router.post('/', async (req, res) => {
 
     const { data, error } = await supa
       .from('admin_users')
-      .upsert({ user_id: user.id, is_active: true, is_super_admin: false }, { onConflict: 'user_id' })
+      .upsert({ user_id: user.id, email: user.email, is_active: true, is_super_admin: false }, { onConflict: 'user_id' })
       .select()
       .single()
     if (error) throw new Error(error.message)
