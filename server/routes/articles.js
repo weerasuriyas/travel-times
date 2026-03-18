@@ -45,8 +45,8 @@ router.get('/:id?', async (req, res) => {
 router.post('/', requireAuth, async (req, res) => {
   const db = getDb()
   const data = req.body
-  if (!data?.title) return res.status(400).json({ error: 'Title is required' })
-  const slug = data.slug || slugify(data.title)
+  const title = data?.title || 'Untitled'
+  const slug = data.slug || slugify(title) + (title === 'Untitled' ? '-' + Date.now() : '')
   const now = new Date().toISOString().slice(0, 19).replace('T', ' ')
   try {
     const [result] = await db.query(
@@ -56,7 +56,7 @@ router.post('/', requireAuth, async (req, res) => {
          event_id, destination_id, article_type)
        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       [
-        slug, data.title, data.subtitle ?? null, data.category ?? null,
+        slug, title, data.subtitle ?? null, data.category ?? null,
         JSON.stringify(data.tags ?? []), data.issue ?? null,
         data.author_name ?? 'Editorial Team', data.author_role ?? null,
         data.author_bio ?? null, data.author_avatar ?? null,
