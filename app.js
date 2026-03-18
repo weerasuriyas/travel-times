@@ -1,5 +1,7 @@
 import express from 'express'
 import compression from 'compression'
+import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { getDb } from './server/db.js'
@@ -14,6 +16,17 @@ import unsplashRouter from './server/routes/unsplash.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const app = express()
+
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: false, // CSP would need tuning for React app; disable for now
+  crossOriginEmbedderPolicy: false,
+}))
+
+// Rate limiting
+const apiLimiter = rateLimit({ windowMs: 60_000, max: 120, standardHeaders: true, legacyHeaders: false })
+const uploadLimiter = rateLimit({ windowMs: 60_000, max: 20, standardHeaders: true, legacyHeaders: false })
+const unsplashLimiter = rateLimit({ windowMs: 60_000, max: 30, standardHeaders: true, legacyHeaders: false })
 
 // CORS
 const ALLOWED_ORIGINS = (process.env.API_ALLOWED_ORIGINS || 'http://localhost:5173')
@@ -34,14 +47,15 @@ app.use(compression())
 app.use(express.json())
 
 // API routes
+app.use('/api', apiLimiter)
 app.use('/api/articles', articlesRouter)
 app.use('/api/destinations', destinationsRouter)
 app.use('/api/events', eventsRouter)
 app.use('/api/images', imagesRouter)
-app.use('/api/staging-images', stagingImagesRouter)
+app.use('/api/staging-images', uploadLimiter, stagingImagesRouter)
 app.use('/api/staging', stagingRouter)
 app.use('/api/settings', settingsRouter)
-app.use('/api/unsplash', unsplashRouter)
+app.use('/api/unsplash', unsplashLimiter, unsplashRouter)
 app.get('/api/health', async (_req, res) => {
   const { stat, readdir } = await import('fs/promises')
 

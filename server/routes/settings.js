@@ -4,11 +4,18 @@ import { requireAuth } from '../auth.js'
 
 const router = Router()
 
+// Public keys readable without auth — add prefixes here as needed
+const PUBLIC_KEY_PREFIXES = ['about_']
+
 router.get('/', async (_req, res) => {
   const db = getDb()
   try {
     const [rows] = await db.query('SELECT `key`, value FROM settings')
-    const obj = Object.fromEntries(rows.map(r => [r.key, r.value]))
+    const obj = Object.fromEntries(
+      rows
+        .filter(r => PUBLIC_KEY_PREFIXES.some(p => r.key.startsWith(p)))
+        .map(r => [r.key, r.value])
+    )
     res.json(obj)
   } catch (err) {
     res.status(500).json({ error: err.message })
