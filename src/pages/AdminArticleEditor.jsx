@@ -39,7 +39,7 @@ export default function AdminArticleEditor() {
   const [fields, setFields] = useState({
     title: '', subtitle: '', body: '', category: '', tags: '',
     author_name: '', status: 'draft', destination_id: '', cover_image: '',
-    read_time: 1,
+    read_time: 1, article_type: 'story',
   })
   const [isFeatured, setIsFeatured] = useState(false)
   const [saveStatus, setSaveStatus] = useState('saved')
@@ -90,6 +90,7 @@ export default function AdminArticleEditor() {
         destination_id: data.destination_id ?? '',
         cover_image: data.cover_image ?? '',
         read_time: Number(data.read_time) || 1,
+        article_type: data.article_type || 'story',
       }
       setFields(loaded)
       fieldsRef.current = loaded
@@ -347,6 +348,26 @@ export default function AdminArticleEditor() {
                       </select>
                     </Field>
                   </div>
+
+                  {/* Story / Event toggle */}
+                  <Field label="Content Type">
+                    <div className="flex rounded-xl overflow-hidden border border-stone-200">
+                      {['story', 'event'].map(type => (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => updateField('article_type', type)}
+                          className={`flex-1 py-2 text-xs font-bold uppercase tracking-wide transition-colors ${
+                            fields.article_type === type
+                              ? 'bg-stone-950 text-white'
+                              : 'bg-stone-50 text-stone-500 hover:bg-stone-100'
+                          }`}
+                        >
+                          {type === 'story' ? '📖 Story' : '🎉 Event'}
+                        </button>
+                      ))}
+                    </div>
+                  </Field>
 
                   {/* is_featured toggle */}
                   <button

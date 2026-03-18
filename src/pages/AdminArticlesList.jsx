@@ -39,13 +39,16 @@ export default function AdminArticlesList() {
     try { await signOut(); navigate('/') } catch (err) { console.error(err) }
   }
 
+  const [typeFilter, setTypeFilter] = useState('all')
+
   const filtered = useMemo(() => articles.filter(a => {
     const matchesSearch = !search ||
       (a.title || '').toLowerCase().includes(search.toLowerCase()) ||
       (a.slug || '').toLowerCase().includes(search.toLowerCase())
     const matchesStatus = statusFilter === 'all' || a.status === statusFilter
-    return matchesSearch && matchesStatus
-  }), [articles, search, statusFilter])
+    const matchesType = typeFilter === 'all' || (a.article_type || 'story') === typeFilter
+    return matchesSearch && matchesStatus && matchesType
+  }), [articles, search, statusFilter, typeFilter])
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -84,6 +87,12 @@ export default function AdminArticlesList() {
             <option value="all">All Status</option>
             <option value="published">Published</option>
             <option value="draft">Draft</option>
+            <option value="archived">Archived</option>
+          </select>
+          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="border border-stone-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500">
+            <option value="all">All Types</option>
+            <option value="story">Stories</option>
+            <option value="event">Events</option>
           </select>
           <button onClick={load} className="flex items-center gap-2 px-3 py-2 bg-stone-200 hover:bg-stone-300 rounded-lg text-sm">
             {loading ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />} Refresh
@@ -100,9 +109,10 @@ export default function AdminArticlesList() {
               <thead className="bg-stone-100 border-b border-stone-200">
                 <tr>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-stone-700">Title</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-stone-700">Category</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-stone-700">Type</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-stone-700">Status</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-stone-700">Author</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-stone-700">Views</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-stone-700">Last Edited</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-stone-700">Published</th>
                   <th className="text-right px-6 py-4 text-sm font-semibold text-stone-700">Edit</th>
                 </tr>
@@ -115,16 +125,25 @@ export default function AdminArticlesList() {
                       <div className="text-xs text-stone-500">/{article.slug}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-stone-100 text-stone-700 rounded-full text-xs font-medium">
-                        {article.category || '—'}
+                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                        article.article_type === 'event'
+                          ? 'bg-purple-100 text-purple-800'
+                          : 'bg-sky-100 text-sky-800'
+                      }`}>
+                        {article.article_type === 'event' ? '🎉 Event' : '📖 Story'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${article.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        article.status === 'published' ? 'bg-green-100 text-green-800' :
+                        article.status === 'archived' ? 'bg-stone-200 text-stone-600' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
                         {article.status || 'draft'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-stone-700">{article.author_name || '—'}</td>
+                    <td className="px-6 py-4 text-sm text-stone-600">{article.views || 0}</td>
+                    <td className="px-6 py-4 text-sm text-stone-600">{formatDate(article.updated_at)}</td>
                     <td className="px-6 py-4 text-sm text-stone-600">{formatDate(article.published_at)}</td>
                     <td className="px-6 py-4 text-right">
                       <button

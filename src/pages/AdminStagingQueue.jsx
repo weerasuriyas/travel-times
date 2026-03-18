@@ -128,6 +128,7 @@ export default function AdminStagingQueue() {
         tags: Array.isArray(s.tags) ? s.tags.join(', ') : (s.tags || ''),
         author_name: s.author_name || '',
         destination_slug: s.destination_slug || '',
+        article_type: s.article_type || 'story',
       })
       setSaveStatus('saved')
     } catch (err) {
@@ -354,6 +355,29 @@ export default function AdminStagingQueue() {
                     <EditField label="Subtitle" value={editFields.subtitle} onChange={v => updateField('subtitle', v)} readOnly={readOnly} />
                   </div>
                   <EditField label="Destination slug" value={editFields.destination_slug} onChange={v => updateField('destination_slug', v)} readOnly={readOnly} />
+                  <div>
+                    <p className="mb-1 text-xs font-semibold uppercase text-stone-500">Content Type</p>
+                    {readOnly ? (
+                      <p className="rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-700 capitalize">{editFields.article_type || 'story'}</p>
+                    ) : (
+                      <div className="flex rounded-lg overflow-hidden border border-stone-300">
+                        {['story', 'event'].map(type => (
+                          <button
+                            key={type}
+                            type="button"
+                            onClick={() => updateField('article_type', type)}
+                            className={`flex-1 py-2 text-xs font-bold uppercase tracking-wide transition-colors ${
+                              editFields.article_type === type
+                                ? 'bg-stone-950 text-white'
+                                : 'bg-white text-stone-500 hover:bg-stone-100'
+                            }`}
+                          >
+                            {type === 'story' ? '📖 Story' : '🎉 Event'}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Body */}

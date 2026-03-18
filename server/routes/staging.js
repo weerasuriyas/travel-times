@@ -126,8 +126,8 @@ router.post('/:folder/approve', requireAuth, async (req, res) => {
     const [insertResult] = await conn.query(
       `INSERT INTO articles
         (event_id, destination_id, slug, title, subtitle, category, tags, issue,
-         author_name, author_role, read_time, body, status, published_at, cover_image)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+         author_name, author_role, read_time, body, status, published_at, cover_image, article_type)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       [
         eventId, destinationId, articleSlug,
         staged.title, staged.subtitle ?? null, staged.category ?? null,
@@ -135,6 +135,7 @@ router.post('/:folder/approve', requireAuth, async (req, res) => {
         staged.author_name ?? 'Editorial Team', staged.author_role ?? null,
         staged.read_time ?? null, staged.body ?? '',
         articleStatus, publishedAt, null,
+        staged.article_type === 'event' ? 'event' : 'story',
       ]
     )
     const articleId = insertResult.insertId
@@ -283,6 +284,8 @@ router.post('/', requireAuth, async (req, res) => {
   const slug = slugify(data.slug || data.title) || slugify('staging-' + Date.now())
   const desiredStatus = normalizeArticleStatus(data.status || data.desired_status || 'draft')
 
+  const articleType = (data.article_type === 'event') ? 'event' : 'story'
+
   const articleJson = {
     folder,
     title: data.title,
@@ -296,11 +299,13 @@ router.post('/', requireAuth, async (req, res) => {
     read_time: data.read_time ?? null,
     destination_slug: data.destination || data.destination_slug || null,
     event_slug: data.event_slug ?? null,
+    article_type: articleType,
     body: data.body ?? '',
     desired_status: desiredStatus,
     submitted_by: req.user?.sub || null,
     review_status: 'pending',
     submitted_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
     reviewed_by: null,
     review_notes: null,
     reviewed_at: null,
@@ -326,7 +331,7 @@ router.patch('/:folder', requireAuth, async (req, res) => {
     return res.status(409).json({ error: 'Only pending staging records can be edited' })
   }
 
-  const allowed = ['title', 'subtitle', 'body', 'category', 'tags', 'author_name', 'destination_slug', 'event_slug', 'read_time']
+  const allowed = ['title', 'subtitle', 'body', 'category', 'tags', 'author_name', 'destination_slug', 'event_slug', 'read_time', 'article_type']
   const updates = req.body || {}
 
   for (const key of allowed) {
@@ -340,6 +345,7 @@ router.patch('/:folder', requireAuth, async (req, res) => {
     }
   }
 
+  staged.updated_at = new Date().toISOString()
   await writeStagingJson(stagingDir, folder, staged)
   res.json({ updated: true })
 })

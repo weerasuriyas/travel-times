@@ -45,8 +45,8 @@ router.post('/', requireAuth, async (req, res) => {
       `INSERT INTO articles
         (slug, title, subtitle, category, tags, issue, author_name, author_role, author_bio,
          author_avatar, read_time, body, excerpt, cover_image, content, status, published_at,
-         event_id, destination_id)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+         event_id, destination_id, article_type)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       [
         slug, data.title, data.subtitle ?? null, data.category ?? null,
         JSON.stringify(data.tags ?? []), data.issue ?? null,
@@ -57,6 +57,7 @@ router.post('/', requireAuth, async (req, res) => {
         data.status ?? 'draft',
         (data.status ?? '') === 'published' ? now : null,
         data.event_id ?? null, data.destination_id ?? null,
+        data.article_type ?? 'story',
       ]
     )
     res.status(201).json({ id: result.insertId, slug })
@@ -75,7 +76,7 @@ router.put('/:id', requireAuth, async (req, res) => {
       `UPDATE articles SET
         title=?, subtitle=?, category=?, tags=?, issue=?, author_name=?, author_role=?,
         read_time=?, body=?, excerpt=?, cover_image=?, content=?, status=?, published_at=?,
-        event_id=?, destination_id=?
+        event_id=?, destination_id=?, article_type=?
        WHERE id=?`,
       [
         data.title, data.subtitle ?? null, data.category ?? null,
@@ -86,6 +87,7 @@ router.put('/:id', requireAuth, async (req, res) => {
         data.status ?? 'draft',
         (data.status ?? '') === 'published' ? now : null,
         data.event_id ?? null, data.destination_id ?? null,
+        data.article_type ?? 'story',
         id,
       ]
     )
@@ -128,7 +130,8 @@ router.patch('/:id', requireAuth, async (req, res) => {
     if (data.status != null)         { setClauses.push('status = ?');         params.push(newStatus) }
     if ('cover_image' in data)       { setClauses.push('cover_image = ?');    params.push(data.cover_image || null) }
     if ('destination_id' in data)    { setClauses.push('destination_id = ?'); params.push(data.destination_id || null) }
-    if (data.read_time != null) { setClauses.push('read_time = ?'); params.push(Number(data.read_time)) }
+    if (data.read_time != null)    { setClauses.push('read_time = ?');    params.push(Number(data.read_time)) }
+    if (data.article_type != null) { setClauses.push('article_type = ?'); params.push(data.article_type === 'event' ? 'event' : 'story') }
     // Always sync published_at with status logic
     setClauses.push('published_at = ?')
     params.push(publishedAt)

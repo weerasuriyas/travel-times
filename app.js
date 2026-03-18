@@ -220,6 +220,8 @@ async function runMigrations() {
       \`value\` TEXT,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )`,
+    `ALTER TABLE articles ADD COLUMN article_type VARCHAR(20) NOT NULL DEFAULT 'story'`,
+    `ALTER TABLE articles ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`,
   ]
   for (const sql of migrations) {
     try {
