@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Upload, FolderOpen, FileText, Image as ImageIcon, Check, AlertCircle, X, LogOut, ArrowLeft, Loader2, Folders } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
+import { Upload, FolderOpen, FileText, Image as ImageIcon, Check, AlertCircle, X, Loader2, Folders } from 'lucide-react'
 import { apiPost, apiUploadStagingImage } from '../lib/api'
+import AdminPageHeader from '../components/AdminPageHeader'
 
 // Read all files from a directory entry (flat)
 function readEntryFiles(entry) {
@@ -117,7 +117,6 @@ async function buildArticle(folderName, files) {
 
 export default function AdminIngestion() {
   const navigate = useNavigate()
-  const { signOut } = useAuth()
 
   const [mode, setMode] = useState(null) // null | 'single' | 'batch'
 
@@ -134,11 +133,6 @@ export default function AdminIngestion() {
   // Batch mode state
   const [batch, setBatch] = useState([]) // array of { folderName, body, meta, images }
   const [batchProgress, setBatchProgress] = useState(null) // { current, total, currentName, done, errors }
-
-  const handleSignOut = async () => {
-    try { await signOut(); navigate('/') }
-    catch (e) { console.error('Error signing out:', e) }
-  }
 
   // ── Drop handler ──────────────────────────────────────────────
   const handleDrop = useCallback(async (e) => {
@@ -396,31 +390,8 @@ export default function AdminIngestion() {
 
   // ── Render ────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-stone-50">
-      <div className="bg-stone-950 text-stone-50 shadow-lg">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Article Ingestion</h1>
-              <p className="text-stone-400 text-sm mt-1">Drop a folder or parent folder to ingest</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button onClick={() => navigate('/admin')}
-                className="flex items-center gap-2 px-4 py-2 bg-stone-800 hover:bg-stone-700 rounded-lg transition-colors text-sm">
-                <ArrowLeft size={16} /> Dashboard
-              </button>
-              <button onClick={() => navigate('/')}
-                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 rounded-lg transition-colors text-sm">
-                ← Back to Site
-              </button>
-              <button onClick={handleSignOut}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-sm">
-                <LogOut size={16} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-full">
+      <AdminPageHeader title="Ingest Content" />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
         {error && (
