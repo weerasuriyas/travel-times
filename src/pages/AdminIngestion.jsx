@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { Upload, FolderOpen, FileText, Image as ImageIcon, Check, AlertCircle, X, LogOut, ArrowLeft, Loader2, Folders } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { apiPost, apiUploadStagingImage } from '../lib/api'
-import matter from 'gray-matter'
-import mammoth from 'mammoth'
 
 // Read all files from a directory entry (flat)
 function readEntryFiles(entry) {
@@ -74,57 +72,6 @@ async function parseArticleJson(file) {
   })
 }
 
-async function parseDocx(file) {
-  return new Promise((resolve) => {
-    const reader = new FileReader()
-    reader.onload = async (e) => {
-      const buffer = e.target.result
-
-      // Try mammoth first (works for .docx and some newer formats)
-      try {
-        const result = await mammoth.convertToHtml({ arrayBuffer: buffer })
-        const html = result.value
-        const titleMatch = html.match(/<h1[^>]*>(.*?)<\/h1>/i)
-        const title = titleMatch
-          ? titleMatch[1].replace(/<[^>]+>/g, '').trim()
-          : file.name.replace(/\.docx?$/i, '').replace(/[-_]/g, ' ')
-        resolve({ body: html, title, fallback: false })
-        return
-      } catch { /* fall through to legacy extraction */ }
-
-      // Fallback: old .doc binary stores text in UTF-16 LE chunks
-      try {
-        const utf16 = new TextDecoder('utf-16le', { fatal: false }).decode(buffer)
-        const chunks = utf16.match(/[\x20-\x7E\u00A0-\uFFFF]{4,}/g) || []
-        const text = chunks
-          .map(c => c.trim())
-          .filter(c => c.length > 3 && /[a-zA-Z]{2,}/.test(c))
-          .join('\n')
-          .replace(/\n{3,}/g, '\n\n')
-
-        const firstLine = text.split('\n').find(l => l.trim().length > 3) || ''
-        const title = file.name.replace(/\.docx?$/i, '').replace(/[-_]/g, ' ')
-        resolve({ body: text, title: firstLine || title, fallback: true })
-      } catch {
-        resolve({ body: '', title: file.name.replace(/\.docx?$/i, ''), fallback: true })
-      }
-    }
-    reader.readAsArrayBuffer(file)
-  })
-}
-
-function parseMd(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      try {
-        const { data: fm, content } = matter(e.target.result)
-        resolve({ body: content, fm })
-      } catch (err) { reject(err) }
-    }
-    reader.readAsText(file)
-  })
-}
 
 function defaultMeta(overrides = {}) {
   return {
@@ -301,8 +248,6 @@ export default function AdminIngestion() {
 
   function handleSingleFiles(allFiles, derivedFolder) {
     const imageFiles = allFiles.filter(f => /\.(jpe?g|png|webp|avif|gif)$/i.test(f.name))
-    const mdFile = allFiles.find(f => /\.(md|txt)$/i.test(f.name))
-    const docxFile = allFiles.find(f => /\.docx?$/i.test(f.name))
     setFolderName(derivedFolder)
 
     setImages(imageFiles.map(f => ({
