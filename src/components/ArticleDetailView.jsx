@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { Layers, Flame, Compass } from 'lucide-react'
+import { subtitleClasses } from '../lib/articleStyles'
 
 function formatDate(iso) {
   if (!iso) return ''
@@ -137,7 +138,7 @@ export default function ArticleDetailView({ article }) {
             {article.title || 'Untitled'}
           </h1>
           {article.subtitle && (
-            <p className="text-base md:text-xl font-serif italic text-white/80 max-w-2xl leading-relaxed">
+            <p className={subtitleClasses(article.subtitle_style, 'hero')}>
               {article.subtitle}
             </p>
           )}

@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { subtitleClasses } from '../lib/articleStyles'
 
 function formatDate(iso) {
   if (!iso) return ''
@@ -85,7 +86,7 @@ export default function ArticlePreview({ article }) {
 
         {/* Subtitle */}
         {article.subtitle && (
-          <p className="text-lg text-stone-600 leading-relaxed mb-6 font-serif italic">
+          <p className={`mb-6 text-stone-600 ${subtitleClasses(article.subtitle_style, 'default')}`}>
             {article.subtitle}
           </p>
         )}
