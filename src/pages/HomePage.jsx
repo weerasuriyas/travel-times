@@ -147,8 +147,8 @@ const HomePage = memo(() => {
                       className="group cursor-pointer hover-lift"
                     >
                       <div className="aspect-[4/5] overflow-hidden rounded-[32px] mb-5 shadow-xl relative">
-                        {dest.hero_image
-                          ? <img src={dest.hero_image} loading="lazy" className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" alt={dest.name} />
+                        {dest.hero_image || dest.unsplash_fallback?.url
+                          ? <img src={dest.hero_image || dest.unsplash_fallback.url} loading="lazy" className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" alt={dest.name} />
                           : <div className={`w-full h-full bg-gradient-to-br ${regionGradient(dest.region)}`} />
                         }
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
