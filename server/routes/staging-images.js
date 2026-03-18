@@ -76,6 +76,7 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
       original_filename: req.file.originalname,
       role,
       alt_text: altText,
+      caption: '',
       sort_order: sortOrder,
       url,
     })
@@ -141,6 +142,27 @@ router.delete('/:folder/:filename', requireAuth, async (req, res) => {
 
   await unlink(join(baseDir, stagingFolder, filename)).catch(() => {})
   res.json({ deleted: true })
+})
+
+// PATCH — update caption (or alt_text) for a specific image in a staging folder
+router.patch('/', requireAuth, async (req, res) => {
+  const stagingFolder = sanitizeFolder(req.body.staging_folder || '')
+  const filename = (req.body.filename || '').replace(/[^a-zA-Z0-9._\-]/g, '')
+  if (!stagingFolder || !filename) {
+    return res.status(400).json({ error: 'staging_folder and filename are required' })
+  }
+  const baseDir = getStagingDir()
+  const staged = await readStagingJson(baseDir, stagingFolder)
+  if (!staged) return res.status(404).json({ error: 'Staging record not found' })
+
+  const img = (staged.images || []).find(i => i.stored_filename === filename)
+  if (!img) return res.status(404).json({ error: 'Image not found in staging record' })
+
+  if (req.body.caption !== undefined) img.caption = req.body.caption
+  if (req.body.alt_text !== undefined) img.alt_text = req.body.alt_text
+
+  await writeStagingJson(baseDir, stagingFolder, staged)
+  res.json({ updated: true })
 })
 
 export default router

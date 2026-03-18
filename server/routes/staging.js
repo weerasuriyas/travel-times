@@ -165,8 +165,8 @@ router.post('/:folder/approve', requireAuth, async (req, res) => {
 
       const newUrl = prodUrl + newFilename
       await conn.query(
-        'INSERT INTO images (filename, url, alt_text, role, entity_type, entity_id, sort_order) VALUES (?,?,?,?,?,?,?)',
-        [newFilename, newUrl, img.alt_text || '', img.role || 'gallery', 'article', articleId, img.sort_order || 0]
+        'INSERT INTO images (filename, url, alt_text, caption, role, entity_type, entity_id, sort_order) VALUES (?,?,?,?,?,?,?,?)',
+        [newFilename, newUrl, img.alt_text || '', img.caption || '', img.role || 'gallery', 'article', articleId, img.sort_order || 0]
       )
 
       if (coverImage === null && ['hero', 'cover'].includes(img.role)) {
