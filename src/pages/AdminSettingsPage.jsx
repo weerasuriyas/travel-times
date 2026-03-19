@@ -12,7 +12,7 @@ const FIELDS = [
   { key: 'social_twitter',   label: 'X / Twitter URL',  placeholder: 'https://x.com/...' },
 ]
 
-const inputCls = "w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-900 placeholder-stone-300 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] transition-colors"
+const inputCls = "w-full bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-xl px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder-stone-300 dark:placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] transition-colors"
 
 export default function AdminSettingsPage() {
   const [values, setValues] = useState({})
@@ -63,9 +63,9 @@ export default function AdminSettingsPage() {
           )}
 
           {/* General settings */}
-          <section className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-            <div className="px-5 py-3 border-b border-stone-50">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300">General</p>
+          <section className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-100 dark:border-stone-700 shadow-sm overflow-hidden">
+            <div className="px-5 py-3 border-b border-stone-50 dark:border-stone-800">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300 dark:text-stone-500">General</p>
             </div>
             <div className="p-5 flex flex-col gap-4">
               {FIELDS.map(f => (
@@ -84,9 +84,9 @@ export default function AdminSettingsPage() {
           </section>
 
           {/* Unsplash */}
-          <section className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-            <div className="px-5 py-3 border-b border-stone-50">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300">Unsplash Integration</p>
+          <section className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-100 dark:border-stone-700 shadow-sm overflow-hidden">
+            <div className="px-5 py-3 border-b border-stone-50 dark:border-stone-800">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300 dark:text-stone-500">Unsplash Integration</p>
             </div>
             <div className="p-5 flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
@@ -108,7 +108,7 @@ export default function AdminSettingsPage() {
                   </button>
                 </div>
               </div>
-              <p className="text-xs text-stone-400 bg-stone-50 rounded-xl px-4 py-3 leading-relaxed">
+              <p className="text-xs text-stone-400 dark:text-stone-500 bg-stone-50 dark:bg-stone-800 rounded-xl px-4 py-3 leading-relaxed">
                 Get a free key at <strong>unsplash.com/developers</strong> → "New Application".
                 Also set <code className="bg-stone-100 px-1 rounded text-[11px]">UNSPLASH_ACCESS_KEY</code> in your
                 Hostinger environment variables for the server to use it.

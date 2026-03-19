@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Globe, Clock, Quote, Flame, Calendar, Compass, Zap, Search, X, TrendingUp, MapPin, Utensils, BookOpen } from 'lucide-react';
 import { UserProfile } from './UserProfile';
+import ThemeToggle from './ThemeToggle';
 
 export const SectionHeader = ({ title, subtitle, color = "#00E676" }) => (
     <div className="mb-8 sm:mb-10 md:mb-12">
@@ -14,15 +15,15 @@ export const SectionHeader = ({ title, subtitle, color = "#00E676" }) => (
 );
 
 export const InfoBanner = ({ currentTime }) => (
-    <div className="flex bg-white border-b border-stone-100 py-1.5 md:py-2.5 px-4 md:px-6 flex-wrap md:flex-nowrap justify-between items-center gap-2 md:gap-4 text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em]">
-        <div className="flex items-center space-x-4 md:space-x-6 text-stone-500 w-full md:w-auto justify-between md:justify-start">
+    <div className="flex bg-white dark:bg-stone-900 border-b border-stone-100 dark:border-stone-800 py-1.5 md:py-2.5 px-4 md:px-6 flex-wrap md:flex-nowrap justify-between items-center gap-2 md:gap-4 text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em]">
+        <div className="flex items-center space-x-4 md:space-x-6 text-stone-500 dark:text-stone-400 w-full md:w-auto justify-between md:justify-start">
             <span className="flex items-center">
                 <Globe size={12} className="mr-2 text-[#00E676] md:mr-2.5 md:w-[14px] md:h-[14px]" /> <span className="hidden xs:inline">Dispatch: </span>Sri Lanka
             </span>
             <span className="hidden md:block opacity-30">|</span>
             <span className="flex items-center"><span className="hidden xs:inline mr-2">Local Time:</span> {currentTime}</span>
         </div>
-        <button className="hidden md:block bg-black text-white px-4 md:px-5 py-1.5 md:py-2 rounded-full hover:bg-[#FF3D00] transition-all hover:scale-105 active:scale-95 shadow-lg hover-glow">Subscribe</button>
+        <button className="hidden md:block bg-black dark:bg-stone-700 text-white px-4 md:px-5 py-1.5 md:py-2 rounded-full hover:bg-[#FF3D00] transition-all hover:scale-105 active:scale-95 shadow-lg hover-glow">Subscribe</button>
     </div>
 );
 
@@ -139,9 +140,9 @@ export const SearchModal = ({ isOpen, onClose }) => {
 
             {/* Search Panel */}
             <div className="relative z-10 max-w-4xl mx-auto mt-20 md:mt-32 px-4">
-                <div className="bg-white rounded-[32px] shadow-2xl overflow-hidden animate-in slide-in-from-top duration-300">
+                <div className="bg-white dark:bg-stone-900 rounded-[32px] shadow-2xl overflow-hidden animate-in slide-in-from-top duration-300">
                     {/* Search Input */}
-                    <div className="p-6 md:p-8 border-b border-stone-200">
+                    <div className="p-6 md:p-8 border-b border-stone-200 dark:border-stone-700">
                         <div className="flex items-center gap-4">
                             <Search size={24} className="text-stone-400" />
                             <input
@@ -150,13 +151,13 @@ export const SearchModal = ({ isOpen, onClose }) => {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search destinations, articles, experiences..."
-                                className="flex-1 text-xl md:text-2xl font-bold text-stone-900 placeholder:text-stone-400 focus:outline-none"
+                                className="flex-1 text-xl md:text-2xl font-bold text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:outline-none bg-transparent"
                             />
                             <button
                                 onClick={onClose}
-                                className="w-10 h-10 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center transition-colors"
+                                className="w-10 h-10 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 flex items-center justify-center transition-colors"
                             >
-                                <X size={20} />
+                                <X size={20} className="dark:text-stone-300" />
                             </button>
                         </div>
                     </div>
@@ -188,7 +189,7 @@ export const SearchModal = ({ isOpen, onClose }) => {
                                                 <button
                                                     key={idx}
                                                     onClick={() => handleResultClick(item)}
-                                                    className="w-full p-4 rounded-2xl bg-stone-50 hover:bg-stone-100 border border-stone-200 hover:border-stone-300 transition-all text-left group"
+                                                    className="w-full p-4 rounded-2xl bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 hover:border-stone-300 transition-all text-left group"
                                                 >
                                                     <div className="flex items-start gap-3">
                                                         <div
@@ -201,10 +202,10 @@ export const SearchModal = ({ isOpen, onClose }) => {
                                                             {item.type}
                                                         </div>
                                                         <div className="flex-1 min-w-0">
-                                                            <h4 className="font-bold text-stone-900 mb-1 group-hover:text-[#00E676] transition-colors">
+                                                            <h4 className="font-bold text-stone-900 dark:text-stone-100 mb-1 group-hover:text-[#00E676] transition-colors">
                                                                 {item.title}
                                                             </h4>
-                                                            <p className="text-sm text-stone-600 mb-2 line-clamp-2">
+                                                            <p className="text-sm text-stone-600 dark:text-stone-400 mb-2 line-clamp-2">
                                                                 {item.description}
                                                             </p>
                                                             <div className="flex flex-wrap gap-1.5">
@@ -334,21 +335,21 @@ export const SharedHeader = ({ activeTab, setActiveTab, isScrolled, showTabs = t
     }, []);
 
     return (
-        <header className={`fixed top-0 w-full z-50 smooth-header header-initial-animation ${isScrolled ? 'bg-white/95 backdrop-blur-xl border-b border-stone-100 shadow-sm' : 'bg-[#FDFDFB]'}`}>
+        <header className={`fixed top-0 w-full z-50 smooth-header header-initial-animation ${isScrolled ? 'bg-white/95 dark:bg-stone-950/95 backdrop-blur-xl border-b border-stone-100 dark:border-stone-800 shadow-sm' : 'bg-[#FDFDFB] dark:bg-stone-950'}`}>
             <InfoBanner currentTime={currentTime} />
             <LiveBanner />
             <div className={`max-w-[1800px] mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-2 md:gap-5 ${isScrolled ? 'py-2' : 'py-2.5 md:py-5'}`}>
                 <div className="text-center md:text-left cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]" onClick={() => navigate('/')}>
-                    <h1 className={`${isScrolled ? 'text-xl md:text-3xl' : 'text-xl md:text-4xl lg:text-5xl'} font-black text-black uppercase tracking-tighter leading-[0.8] italic transition-all duration-300`}>
+                    <h1 className={`${isScrolled ? 'text-xl md:text-3xl' : 'text-xl md:text-4xl lg:text-5xl'} font-black text-black dark:text-white uppercase tracking-tighter leading-[0.8] italic transition-all duration-300`}>
                         TRAVEL<br />
-                        TIMES<span className="text-stone-300">.</span>
+                        TIMES<span className="text-stone-300 dark:text-stone-600">.</span>
                     </h1>
                 </div>
                 <div className="flex items-center gap-1.5 md:gap-2 w-full md:w-auto justify-center md:justify-end">
                     {/* Destinations Link - Always visible */}
                     <button
                         onClick={() => navigate('/destinations')}
-                        className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-1.5 py-1 md:px-4 md:py-2 rounded-xl md:rounded-full bg-stone-50 text-stone-600 hover:bg-black hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                        className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-1.5 py-1 md:px-4 md:py-2 rounded-xl md:rounded-full bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-black hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
                     >
                         <MapPin size={14} />
                         <span className="text-[7px] md:text-[11px] font-black uppercase tracking-tight md:tracking-[0.15em]">
@@ -360,7 +361,7 @@ export const SharedHeader = ({ activeTab, setActiveTab, isScrolled, showTabs = t
                     {/* Stories Link - Always visible */}
                     <button
                         onClick={() => navigate('/articles')}
-                        className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-1.5 py-1 md:px-4 md:py-2 rounded-xl md:rounded-full bg-stone-50 text-stone-600 hover:bg-black hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                        className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-1.5 py-1 md:px-4 md:py-2 rounded-xl md:rounded-full bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-black hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
                     >
                         <BookOpen size={14} />
                         <span className="text-[7px] md:text-[11px] font-black uppercase tracking-tight md:tracking-[0.15em]">Stories</span>
@@ -379,14 +380,14 @@ export const SharedHeader = ({ activeTab, setActiveTab, isScrolled, showTabs = t
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`relative flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1.5 py-1 md:px-4 md:py-2 rounded-xl md:rounded-full transition-all duration-300 group ${
                                         activeTab === tab.id
-                                            ? 'bg-black text-white shadow-lg scale-105'
-                                            : 'bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-black hover:scale-105 active:scale-95'
+                                            ? 'bg-black dark:bg-stone-100 text-white dark:text-stone-900 shadow-lg scale-105'
+                                            : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700 hover:text-black dark:hover:text-white hover:scale-105 active:scale-95'
                                     }`}
                                 >
-                                    <span className={`transition-all duration-300 ${activeTab === tab.id ? 'text-white' : 'text-stone-400 group-hover:text-black'}`}>
+                                    <span className={`transition-all duration-300 ${activeTab === tab.id ? 'text-white dark:text-stone-900' : 'text-stone-400 group-hover:text-black dark:group-hover:text-white'}`}>
                                         {tab.icon}
                                     </span>
-                                    <span className={`text-[7px] md:text-[11px] font-black uppercase tracking-tight md:tracking-[0.15em] ${activeTab === tab.id ? 'text-white' : 'text-stone-500'}`}>
+                                    <span className={`text-[7px] md:text-[11px] font-black uppercase tracking-tight md:tracking-[0.15em] ${activeTab === tab.id ? 'text-white dark:text-stone-900' : 'text-stone-500 dark:text-stone-400'}`}>
                                         {tab.label}
                                     </span>
                                     {activeTab === tab.id && (
@@ -399,13 +400,14 @@ export const SharedHeader = ({ activeTab, setActiveTab, isScrolled, showTabs = t
                             ))}
                             <button
                                 onClick={() => setIsSearchOpen(true)}
-                                className="flex flex-col items-center justify-center gap-0.5 px-1.5 py-1 md:w-9 md:h-9 rounded-xl md:rounded-full bg-stone-50 text-stone-600 hover:bg-black hover:text-white transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                                className="flex flex-col items-center justify-center gap-0.5 px-1.5 py-1 md:w-9 md:h-9 rounded-xl md:rounded-full bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-black hover:text-white transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
                             >
                                 <Search size={14} />
-                                <span className="text-[7px] font-black uppercase tracking-tight text-stone-500 md:hidden">Search</span>
+                                <span className="text-[7px] font-black uppercase tracking-tight text-stone-500 dark:text-stone-400 md:hidden">Search</span>
                             </button>
                         </nav>
                     )}
+                    <ThemeToggle className="text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:hover:text-stone-200" />
                     <UserProfile />
                 </div>
             </div>

@@ -54,13 +54,13 @@ const DestinationDetailPage = () => {
   }, [slug])
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FDFDFB]">
+    <div className="min-h-screen flex items-center justify-center bg-[#FDFDFB] dark:bg-stone-950">
       <div className="w-10 h-10 border-4 border-[#00E676] border-t-transparent rounded-full animate-spin" />
     </div>
   )
 
   if (notFound || !destination) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FDFDFB]">
+    <div className="min-h-screen flex items-center justify-center bg-[#FDFDFB] dark:bg-stone-950">
       <div className="text-center px-6">
         <h2 className="text-4xl font-black uppercase mb-4">Destination Not Found</h2>
         <button onClick={() => navigate('/destinations')} className="px-6 py-3 bg-[#00E676] text-stone-950 rounded-full font-black uppercase tracking-widest text-sm">
@@ -74,20 +74,20 @@ const DestinationDetailPage = () => {
   const coords = hasMap ? [destination.lat, destination.lng] : null
 
   return (
-    <div className="min-h-screen bg-[#FDFDFB]">
+    <div className="min-h-screen bg-[#FDFDFB] dark:bg-stone-950">
       <SharedHeader isScrolled={isScrolled} showTabs={false} />
 
       <main className="pt-56 md:pt-52 pb-32">
         <div className="max-w-[1800px] mx-auto px-4 md:px-6 mb-16">
           <button
             onClick={() => navigate('/destinations')}
-            className="flex items-center gap-2 text-stone-600 hover:text-[#00E676] transition-colors mb-8 group"
+            className="flex items-center gap-2 text-stone-600 dark:text-stone-400 hover:text-[#00E676] transition-colors mb-8 group"
           >
             <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
             <span className="text-sm font-bold uppercase tracking-widest">All Destinations</span>
           </button>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-[48px] shadow-2xl overflow-hidden bg-white">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-[48px] shadow-2xl overflow-hidden bg-white dark:bg-stone-900">
             {/* Map */}
             {hasMap && (
               <div className="relative h-[400px] lg:h-[560px]">
@@ -168,7 +168,7 @@ const DestinationDetailPage = () => {
             <div className="mb-12">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-1 bg-[#FFD600] rounded-full" />
-                <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-stone-500">Field Notes</h2>
+                <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-stone-500 dark:text-stone-400">Field Notes</h2>
               </div>
               <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tight italic">Stories</h3>
             </div>
@@ -179,15 +179,15 @@ const DestinationDetailPage = () => {
                   onClick={() => navigate(`/article/${article.slug}`)}
                   className="group cursor-pointer"
                 >
-                  <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-stone-100 mb-4">
+                  <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-stone-100 dark:bg-stone-800 mb-4">
                     {article.cover_image
                       ? <img src={article.cover_image} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                      : <div className="w-full h-full bg-stone-200" />
+                      : <div className="w-full h-full bg-stone-200 dark:bg-stone-700" />
                     }
                   </div>
                   {article.category && <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#00E676] mb-2">{article.category}</p>}
-                  <h4 className="text-xl font-black uppercase tracking-tight italic leading-tight mb-2 group-hover:text-stone-500 transition-colors">{article.title}</h4>
-                  {article.subtitle && <p className="text-sm text-stone-500 font-serif italic line-clamp-2">{article.subtitle}</p>}
+                  <h4 className="text-xl font-black uppercase tracking-tight italic leading-tight mb-2 group-hover:text-stone-500 dark:group-hover:text-stone-400 transition-colors">{article.title}</h4>
+                  {article.subtitle && <p className="text-sm text-stone-500 dark:text-stone-400 font-serif italic line-clamp-2">{article.subtitle}</p>}
                 </div>
               ))}
             </div>

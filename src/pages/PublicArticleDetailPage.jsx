@@ -31,7 +31,7 @@ export default function PublicArticleDetailPage() {
   const articleWithImages = article ? { ...article, images } : null
 
   return (
-    <div className="min-h-screen bg-[#FDFDFB]">
+    <div className="min-h-screen bg-[#FDFDFB] dark:bg-stone-950">
       <SharedHeader isScrolled={isScrolled} showTabs={false} />
 
       <main className="pt-48 md:pt-44 pb-32">

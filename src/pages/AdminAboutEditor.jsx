@@ -104,8 +104,8 @@ export default function AdminAboutEditor() {
         )}
 
         {/* Photo */}
-        <div className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm space-y-4">
-          <h2 className="font-bold text-stone-900 text-sm uppercase tracking-wide">Photo</h2>
+        <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6 shadow-sm space-y-4">
+          <h2 className="font-bold text-stone-900 dark:text-stone-100 text-sm uppercase tracking-wide">Photo</h2>
 
           {images.length > 0 ? (
             <div className="flex items-start gap-4">
@@ -126,7 +126,7 @@ export default function AdminAboutEditor() {
               onDragLeave={() => setDragging(false)}
               onDrop={handleDrop}
               onClick={() => document.getElementById('about-file-input').click()}
-              className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors ${dragging ? 'border-[#00E676] bg-[#00E676]/5' : 'border-stone-300 hover:border-stone-400'}`}
+              className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors ${dragging ? 'border-[#00E676] bg-[#00E676]/5' : 'border-stone-300 dark:border-stone-600 hover:border-stone-400 dark:hover:border-stone-500'}`}
             >
               {uploading
                 ? <Loader2 size={24} className="animate-spin mx-auto text-stone-400" />
@@ -144,8 +144,8 @@ export default function AdminAboutEditor() {
         </div>
 
         {/* Bio fields */}
-        <div className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm space-y-5">
-          <h2 className="font-bold text-stone-900 text-sm uppercase tracking-wide">Details</h2>
+        <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6 shadow-sm space-y-5">
+          <h2 className="font-bold text-stone-900 dark:text-stone-100 text-sm uppercase tracking-wide">Details</h2>
 
           <div>
             <label className="mb-1 block text-xs font-semibold uppercase text-stone-500">Name</label>
@@ -154,7 +154,7 @@ export default function AdminAboutEditor() {
               value={fields.about_name}
               onChange={e => updateField('about_name', e.target.value)}
               placeholder="e.g. Sanath Weerasuriya"
-              className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00E676]"
+              className="w-full rounded-lg border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00E676]"
             />
           </div>
 
@@ -165,7 +165,7 @@ export default function AdminAboutEditor() {
               value={fields.about_role}
               onChange={e => updateField('about_role', e.target.value)}
               placeholder="e.g. Founder & Editor, Travel Journalist"
-              className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00E676]"
+              className="w-full rounded-lg border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00E676]"
             />
           </div>
 
@@ -176,7 +176,7 @@ export default function AdminAboutEditor() {
               onChange={e => updateField('about_bio', e.target.value)}
               rows={10}
               placeholder="Write about his career, experience, and story…"
-              className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00E676] resize-y"
+              className="w-full rounded-lg border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00E676] resize-y"
             />
           </div>
         </div>

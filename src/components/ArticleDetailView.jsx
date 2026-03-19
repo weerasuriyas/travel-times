@@ -86,9 +86,9 @@ function ImagePlate({ image, index }) {
 
 function PullQuote({ text }) {
   return (
-    <blockquote className="relative max-w-3xl mx-auto my-10 pl-8 border-l-4 border-[#00E676] bg-white shadow-lg rounded-r-2xl p-6 md:p-8">
-      <span className="absolute top-2 right-6 text-8xl text-stone-100 font-serif leading-none select-none">"</span>
-      <p className="text-xl md:text-2xl font-serif italic leading-relaxed text-stone-800 relative z-10">{text}</p>
+    <blockquote className="relative max-w-3xl mx-auto my-10 pl-8 border-l-4 border-[#00E676] bg-white dark:bg-stone-900 shadow-lg rounded-r-2xl p-6 md:p-8">
+      <span className="absolute top-2 right-6 text-8xl text-stone-100 dark:text-stone-700 font-serif leading-none select-none">"</span>
+      <p className="text-xl md:text-2xl font-serif italic leading-relaxed text-stone-800 dark:text-stone-200 relative z-10">{text}</p>
     </blockquote>
   )
 }
@@ -99,7 +99,7 @@ function BodyParagraph({ text, isFirst }) {
     const first = text[0]
     const rest = text.slice(1)
     return (
-      <p className="relative pl-6 text-base md:text-lg leading-[1.9] font-serif mb-8 text-stone-800 max-w-3xl mx-auto">
+      <p className="relative pl-6 text-base md:text-lg leading-[1.9] font-serif mb-8 text-stone-800 dark:text-stone-200 max-w-3xl mx-auto">
         <span className="absolute left-0 top-0 w-1 h-24 bg-gradient-to-b from-[#FF3D00] via-[#FFD600] to-[#00E676] rounded-full" />
         <span className="float-left text-7xl font-black leading-[0.8] mr-2 mt-1 text-stone-950">{first}</span>
         {rest}
@@ -107,7 +107,7 @@ function BodyParagraph({ text, isFirst }) {
     )
   }
   return (
-    <p className="text-base md:text-lg leading-[1.9] font-serif mb-8 text-stone-800 max-w-3xl mx-auto">{text}</p>
+    <p className="text-base md:text-lg leading-[1.9] font-serif mb-8 text-stone-800 dark:text-stone-200 max-w-3xl mx-auto">{text}</p>
   )
 }
 
@@ -128,7 +128,7 @@ export default function ArticleDetailView({ article }) {
   let imageCount = 0
 
   return (
-    <article className="bg-[#FDFDFB] min-h-screen">
+    <article className="bg-[#FDFDFB] dark:bg-stone-950 min-h-screen">
 
       {/* ── Hero ──────────────────────────────────────────────── */}
       <div className="relative w-full aspect-[4/3] md:aspect-[21/9] overflow-hidden md:mx-6 md:w-[calc(100%-3rem)] md:rounded-[48px]">
@@ -171,22 +171,22 @@ export default function ArticleDetailView({ article }) {
       <div className="max-w-5xl mx-auto px-6 py-8">
         <div className="flex flex-wrap gap-4">
           {article.author_name && (
-            <div className="flex items-center gap-3 bg-white border border-stone-200 px-5 py-3 rounded-2xl shadow-sm">
+            <div className="flex items-center gap-3 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 px-5 py-3 rounded-2xl shadow-sm">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00E676] to-[#00C853] flex items-center justify-center">
                 <span className="text-[10px] font-black text-stone-950">
                   {article.author_name.charAt(0)}
                 </span>
               </div>
-              <span className="text-xs font-bold text-stone-700">{article.author_name}</span>
+              <span className="text-xs font-bold text-stone-700 dark:text-stone-200">{article.author_name}</span>
             </div>
           )}
           {article.published_at && (
-            <div className="flex items-center gap-2 bg-white border border-stone-200 px-5 py-3 rounded-2xl shadow-sm text-xs text-stone-600">
+            <div className="flex items-center gap-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 px-5 py-3 rounded-2xl shadow-sm text-xs text-stone-600 dark:text-stone-300">
               {formatDate(article.published_at)}
             </div>
           )}
           {tags.length > 0 && tags.slice(0, 3).map(tag => (
-            <div key={tag} className="flex items-center bg-stone-100 px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">
+            <div key={tag} className="flex items-center bg-stone-100 dark:bg-stone-800 px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
               #{tag}
             </div>
           ))}

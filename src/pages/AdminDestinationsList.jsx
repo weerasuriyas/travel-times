@@ -62,28 +62,28 @@ export default function AdminDestinationsList() {
             <Loader2 className="animate-spin text-[#00E676]" size={28} />
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
+          <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700 overflow-hidden">
             <table className="w-full">
-              <thead className="border-b border-stone-200">
+              <thead className="border-b border-stone-200 dark:border-stone-700">
                 <tr>
-                  <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">Destination</th>
-                  <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">Region</th>
-                  <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">Status</th>
-                  <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">Map Pin</th>
-                  <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">Hero Image</th>
+                  <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">Destination</th>
+                  <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">Region</th>
+                  <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">Status</th>
+                  <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">Map Pin</th>
+                  <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">Hero Image</th>
                   <th className="px-5 py-3" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-200">
+              <tbody className="divide-y divide-stone-200 dark:divide-stone-700">
                 {destinations.map(dest => (
-                  <tr key={dest.id} className="hover:bg-stone-50 transition-colors group">
+                  <tr key={dest.id} className="hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors group">
                     <td className="px-5 py-3">
                       <div>
-                        <p className="text-sm font-semibold text-stone-900">{dest.name}</p>
-                        <p className="text-[11px] text-stone-500">{dest.slug}</p>
+                        <p className="text-sm font-semibold text-stone-900 dark:text-stone-100">{dest.name}</p>
+                        <p className="text-[11px] text-stone-500 dark:text-stone-400">{dest.slug}</p>
                       </div>
                     </td>
-                    <td className="px-5 py-3 text-sm text-stone-600">{dest.region || '—'}</td>
+                    <td className="px-5 py-3 text-sm text-stone-600 dark:text-stone-400">{dest.region || '—'}</td>
                     <td className="px-5 py-3">
                       <span className={`text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full ${
                         dest.status === 'published' ? 'bg-[#00E676]/10 text-[#00E676]' : 'bg-stone-100 text-stone-500'

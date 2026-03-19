@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   * {
     margin: 0;
@@ -11,6 +13,11 @@
     background-color: #FDFDFB;
     color: #1a1a1a;
     font-family: system-ui, -apple-system, sans-serif;
+  }
+
+  .dark body {
+    background-color: #0c0a09;
+    color: #fafaf9;
   }
 
   .delay-200 {
@@ -580,3 +587,12 @@ img {
   border: none;
   border-top: 2px solid #e7e5e4;
 }
+
+/* ── Article HTML body — dark mode ───────────────────────── */
+.dark .article-prose p { color: #d6d3d1; }
+.dark .article-prose h2 { color: #fafaf9; }
+.dark .article-prose h3 { color: #fafaf9; }
+.dark .article-prose blockquote { color: #a8a29e; }
+.dark .article-prose a { color: #00E676; }
+.dark .article-prose strong { color: #fafaf9; }
+.dark .article-prose hr { border-top-color: #44403c; }

@@ -407,7 +407,7 @@ export default function AdminIngestion() {
           <div
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
-            className="border-2 border-dashed border-stone-300 rounded-2xl p-16 text-center hover:border-[#00E676] transition-colors cursor-pointer bg-white"
+            className="border-2 border-dashed border-stone-300 dark:border-stone-600 rounded-2xl p-16 text-center hover:border-[#00E676] transition-colors cursor-pointer bg-white dark:bg-stone-900"
           >
             <FolderOpen className="mx-auto mb-4 text-stone-400" size={64} />
             <h2 className="text-2xl font-bold text-stone-950 mb-2">Drop Article Folder(s) Here</h2>
@@ -425,14 +425,14 @@ export default function AdminIngestion() {
             <p className="text-xs text-stone-400 mt-4">Or drag and drop</p>
 
             <div className="mt-10 grid grid-cols-2 gap-4 text-left max-w-xl mx-auto">
-              <div className="bg-stone-50 rounded-xl p-4">
+              <div className="bg-stone-50 dark:bg-stone-800 rounded-xl p-4">
                 <p className="font-bold text-xs text-stone-600 mb-2">Single article</p>
                 <pre className="text-xs text-stone-500 font-mono">{`my-article/
   article.docx
   cover.jpg
   photo1.jpg`}</pre>
               </div>
-              <div className="bg-stone-50 rounded-xl p-4">
+              <div className="bg-stone-50 dark:bg-stone-800 rounded-xl p-4">
                 <p className="font-bold text-xs text-stone-600 mb-2">Batch (parent folder)</p>
                 <pre className="text-xs text-stone-500 font-mono">{`articles/
   article-one/
@@ -448,7 +448,7 @@ export default function AdminIngestion() {
 
         {/* Scanning batch */}
         {mode === 'batch' && batchProgress && !batchProgress.done && batch.length === 0 && (
-          <div className="bg-white rounded-xl border border-stone-200 p-12 text-center">
+          <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 p-12 text-center">
             <Loader2 className="mx-auto mb-4 text-[#00E676] animate-spin" size={48} />
             <h2 className="text-xl font-bold text-stone-950 mb-2">
               {batchProgress.current === 0 && batchProgress.total === batch.length && batch.length === 0
@@ -483,7 +483,7 @@ export default function AdminIngestion() {
 
             <div className="space-y-3">
               {batch.map((article, idx) => (
-                <div key={idx} className="bg-white rounded-xl border border-stone-200 p-4 flex items-center gap-4">
+                <div key={idx} className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 p-4 flex items-center gap-4">
                   <div className="w-10 h-10 rounded-lg bg-stone-100 flex items-center justify-center shrink-0">
                     <FileText size={18} className="text-stone-500" />
                   </div>
@@ -510,7 +510,7 @@ export default function AdminIngestion() {
 
         {/* Batch uploading */}
         {mode === 'batch' && batchProgress && !batchProgress.done && batch.length > 0 && (
-          <div className="bg-white rounded-xl border border-stone-200 p-12 text-center">
+          <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 p-12 text-center">
             <Loader2 className="mx-auto mb-4 text-[#00E676] animate-spin" size={48} />
             <h2 className="text-xl font-bold text-stone-950 mb-1">Staging articles...</h2>
             <p className="text-stone-500 mb-6">{batchProgress.currentName}</p>
@@ -524,7 +524,7 @@ export default function AdminIngestion() {
 
         {/* Batch done */}
         {mode === 'batch' && batchProgress?.done && (
-          <div className="bg-white rounded-xl border border-stone-200 p-12 text-center">
+          <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 p-12 text-center">
             <div className="w-16 h-16 rounded-full bg-[#00E676]/20 flex items-center justify-center mx-auto mb-4">
               <Check className="text-[#00E676]" size={32} />
             </div>
@@ -572,7 +572,7 @@ export default function AdminIngestion() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6 space-y-4">
+            <div className="bg-white dark:bg-stone-900 rounded-xl shadow-sm border border-stone-200 dark:border-stone-700 p-6 space-y-4">
               <h3 className="font-bold text-stone-950">Metadata</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
@@ -613,7 +613,7 @@ export default function AdminIngestion() {
             </div>
 
             {markdown && (
-              <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6">
+              <div className="bg-white dark:bg-stone-900 rounded-xl shadow-sm border border-stone-200 dark:border-stone-700 p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-stone-950 flex items-center gap-2"><FileText size={18} /> Article Body</h3>
                   <span className="text-xs text-stone-500">{markdown.length} chars</span>
@@ -625,7 +625,7 @@ export default function AdminIngestion() {
             )}
 
             {images.length > 0 && (
-              <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6">
+              <div className="bg-white dark:bg-stone-900 rounded-xl shadow-sm border border-stone-200 dark:border-stone-700 p-6">
                 <h3 className="font-bold text-stone-950 flex items-center gap-2 mb-4"><ImageIcon size={18} /> Images ({images.length})</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {images.map((img, idx) => (

@@ -1,6 +1,7 @@
 import { NavLink, Link, useNavigate } from 'react-router-dom'
-import { FileText, PenLine, Inbox, Upload, MapPin, Info, Settings, Users, LogOut, ExternalLink } from 'lucide-react'
+import { FileText, PenLine, Inbox, Upload, MapPin, Info, Settings, Users, LogOut, ExternalLink, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import ThemeToggle from './ThemeToggle'
 
 const GROUP_CLS = 'text-[10px] font-black uppercase tracking-[0.18em] text-stone-500 px-3 mb-1 mt-4 first:mt-0'
 const BASE_CLS = 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-stone-400 hover:text-stone-100 hover:bg-white/5 transition-colors'
@@ -19,7 +20,7 @@ function NavItem({ to, icon: Icon, label, end }) {
   )
 }
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ onClose }) {
   const navigate = useNavigate()
   const { user, signOut, isSuperAdmin } = useAuth()
 
@@ -32,10 +33,20 @@ export default function AdminSidebar() {
 
   return (
     <div className="flex flex-col w-56 flex-shrink-0 bg-stone-950 h-full">
-      {/* Logo */}
-      <div className="px-4 py-5 border-b border-white/10">
-        <p className="text-sm font-bold text-white">Travel Times</p>
-        <p className="text-[10px] text-stone-500 mt-0.5">Sri Lanka</p>
+      {/* Logo + mobile close */}
+      <div className="px-4 py-5 border-b border-white/10 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-bold text-white">Travel Times</p>
+          <p className="text-[10px] text-stone-500 mt-0.5">Sri Lanka</p>
+        </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="md:hidden p-1.5 rounded-lg text-stone-500 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <X size={16} />
+          </button>
+        )}
       </div>
 
       {/* Nav */}
@@ -66,6 +77,7 @@ export default function AdminSidebar() {
             <ExternalLink size={16} />
             <span>View site</span>
           </Link>
+          <ThemeToggle className="w-full justify-start text-stone-400 hover:text-stone-200 hover:bg-white/5 mt-0.5" />
         </div>
       </nav>
 

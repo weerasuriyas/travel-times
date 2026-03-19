@@ -45,7 +45,7 @@ const JournalTab = () => {
               className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
                 activeFilter === cat
                   ? 'bg-black text-white shadow-lg scale-105'
-                  : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50 hover:scale-105'
+                  : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 hover:scale-105'
               }`}
             >
               {cat}
@@ -60,9 +60,9 @@ const JournalTab = () => {
             <div
               key={article.id}
               onClick={() => navigate(`/article/${article.slug}`)}
-              className="group cursor-pointer bg-white rounded-[32px] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-stone-100"
+              className="group cursor-pointer bg-white dark:bg-stone-900 rounded-[32px] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-stone-100 dark:border-stone-800"
             >
-              <div className="aspect-[4/3] overflow-hidden relative bg-stone-100">
+              <div className="aspect-[4/3] overflow-hidden relative bg-stone-100 dark:bg-stone-800">
                 {article.cover_image
                   ? <img src={article.cover_image} loading="lazy" className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" alt={article.title} />
                   : <div className="w-full h-full bg-gradient-to-br from-stone-800 to-stone-950" />
@@ -86,7 +86,7 @@ const JournalTab = () => {
                   {article.title}
                 </h4>
                 {article.subtitle && (
-                  <p className="text-xs text-stone-500 leading-relaxed line-clamp-2">{article.subtitle}</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed line-clamp-2">{article.subtitle}</p>
                 )}
                 <div className="mt-4 flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
                   <span className="text-stone-400">{formatDate(article.published_at)}</span>
@@ -100,8 +100,8 @@ const JournalTab = () => {
         </div>
       ) : (
         <div className="text-center py-24">
-          <div className="inline-block bg-stone-100 rounded-[32px] px-12 py-10">
-            <p className="text-2xl font-black uppercase tracking-tight italic text-stone-300 mb-2">No stories yet</p>
+          <div className="inline-block bg-stone-100 dark:bg-stone-800 rounded-[32px] px-12 py-10">
+            <p className="text-2xl font-black uppercase tracking-tight italic text-stone-300 dark:text-stone-600 mb-2">No stories yet</p>
             <p className="text-sm text-stone-400">Published articles will appear here.</p>
           </div>
         </div>

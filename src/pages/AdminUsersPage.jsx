@@ -68,8 +68,8 @@ export default function AdminUsersPage() {
 
       <div className="max-w-4xl mx-auto px-8 py-8 space-y-6">
         {/* Add admin */}
-        <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-6">
-          <h2 className="text-sm font-semibold text-stone-700 mb-4 flex items-center gap-2">
+        <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 shadow-sm p-6">
+          <h2 className="text-sm font-semibold text-stone-700 dark:text-stone-300 mb-4 flex items-center gap-2">
             <UserPlus size={16} />
             Add Admin by Email
           </h2>
@@ -79,7 +79,7 @@ export default function AdminUsersPage() {
               placeholder="user@example.com"
               value={addEmail}
               onChange={e => setAddEmail(e.target.value)}
-              className="flex-1 px-4 py-2 border border-stone-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="flex-1 px-4 py-2 border border-stone-300 dark:border-stone-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400"
               required
             />
             <button
@@ -100,9 +100,9 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Admins list */}
-        <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-stone-100">
-            <h2 className="text-sm font-semibold text-stone-700">Current Admins</h2>
+        <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-stone-100 dark:border-stone-800">
+            <h2 className="text-sm font-semibold text-stone-700 dark:text-stone-300">Current Admins</h2>
           </div>
 
           {error && (
@@ -118,17 +118,17 @@ export default function AdminUsersPage() {
             <div className="text-center py-12 text-stone-400 text-sm">No admins found.</div>
           ) : (
             <table className="w-full">
-              <thead className="bg-stone-50 border-b border-stone-100">
+              <thead className="bg-stone-50 dark:bg-stone-800 border-b border-stone-100 dark:border-stone-700">
                 <tr>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wide">User</th>
-                  <th className="text-center px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wide">Active</th>
-                  <th className="text-center px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wide">Super Admin</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide">User</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide">Active</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide">Super Admin</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-100">
+              <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
                 {admins.map(admin => (
-                  <tr key={admin.user_id} className="hover:bg-stone-50 transition-colors">
+                  <tr key={admin.user_id} className="hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         {admin.avatar_url ? (

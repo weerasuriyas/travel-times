@@ -7,6 +7,7 @@ import ScrollToTop from './components/ScrollToTop'
 import Layout from './components/Layout'
 import AdminLayout from './components/AdminLayout'
 import { AuthProvider } from './contexts/AuthContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 
 const DestinationsPage = lazy(() => import('./pages/DestinationsPage'))
 const PublicArticlesPage = lazy(() => import('./pages/PublicArticlesPage'))
@@ -29,16 +30,16 @@ const AdminAboutEditor = lazy(() => import('./pages/AdminAboutEditor'))
 const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage'))
 
 const LoadingFallback = () => (
-  <div className="min-h-screen flex items-center justify-center">
+  <div className="min-h-screen flex items-center justify-center bg-[#FDFDFB] dark:bg-stone-950">
     <div className="text-center">
       <div className="w-16 h-16 border-4 border-[#00E676] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-sm font-medium text-stone-600">Loading...</p>
+      <p className="text-sm font-medium text-stone-600 dark:text-stone-400">Loading...</p>
     </div>
   </div>
 )
 
 const AppContent = () => (
-  <div className="min-h-screen bg-[#FDFDFB] text-[#1a1a1a] font-sans selection:bg-[#00E676] selection:text-white">
+  <div className="min-h-screen bg-[#FDFDFB] dark:bg-stone-950 text-[#1a1a1a] dark:text-stone-100 font-sans selection:bg-[#00E676] selection:text-white">
     <ScrollToTop />
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
@@ -82,9 +83,11 @@ const AppContent = () => (
 )
 
 const App = () => (
-  <AuthProvider>
-    <AppContent />
-  </AuthProvider>
+  <ThemeProvider>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  </ThemeProvider>
 )
 
 export default App

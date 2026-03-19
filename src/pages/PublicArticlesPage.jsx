@@ -26,14 +26,14 @@ export default function PublicArticlesPage() {
   const [hero, ...rest] = articles
 
   return (
-    <div className="min-h-screen bg-[#FDFDFB]">
+    <div className="min-h-screen bg-[#FDFDFB] dark:bg-stone-950">
       <SharedHeader isScrolled={isScrolled} showTabs={false} />
 
       <main className="max-w-[1800px] mx-auto px-4 md:px-6 pt-56 md:pt-52 pb-32">
         {/* Page header */}
         <div className="mb-16">
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#00E676]">Field Notes</span>
-          <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter italic leading-[0.9] mt-3">Stories</h1>
+          <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter italic leading-[0.9] mt-3 dark:text-white">Stories</h1>
         </div>
 
         {loading && (
@@ -64,7 +64,7 @@ export default function PublicArticlesPage() {
                 <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter italic leading-tight mb-4 group-hover:text-stone-600 transition-colors">
                   {hero.title}
                 </h2>
-                {hero.subtitle && <p className="text-lg text-stone-500 leading-relaxed mb-4 font-serif italic">{hero.subtitle}</p>}
+                {hero.subtitle && <p className="text-lg text-stone-500 dark:text-stone-400 leading-relaxed mb-4 font-serif italic">{hero.subtitle}</p>}
                 <div className="flex items-center gap-3 text-xs text-stone-400 uppercase tracking-widest">
                   {hero.author_name && <span>{hero.author_name}</span>}
                   {hero.published_at && <><span>·</span><span>{formatDate(hero.published_at)}</span></>}

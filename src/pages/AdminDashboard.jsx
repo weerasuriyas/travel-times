@@ -157,7 +157,7 @@ export default function AdminDashboard() {
           </button>
         }
       />
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
         {error && (
           <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
@@ -173,7 +173,7 @@ export default function AdminDashboard() {
               placeholder="Search articles..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+              className="w-full pl-10 pr-4 py-2 border border-stone-300 dark:border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400"
             />
           </div>
           <div className="flex items-center gap-3">
@@ -188,23 +188,23 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden mb-0">
-          <div className="flex border-b border-stone-200 overflow-x-auto">
+        <div className="bg-white dark:bg-stone-900 rounded-xl shadow-sm border border-stone-200 dark:border-stone-700 overflow-hidden mb-0">
+          <div className="flex border-b border-stone-200 dark:border-stone-700 overflow-x-auto">
             {tabs.map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
                 className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                   activeTab === tab.key
-                    ? 'border-stone-950 text-stone-950'
-                    : 'border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300'
+                    ? 'border-stone-950 dark:border-stone-100 text-stone-950 dark:text-stone-100'
+                    : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:border-stone-300 dark:hover:border-stone-600'
                 }`}
               >
                 {tab.label}
                 <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
                   activeTab === tab.key
-                    ? 'bg-stone-950 text-white'
-                    : 'bg-stone-100 text-stone-500'
+                    ? 'bg-stone-950 dark:bg-stone-100 text-white dark:text-stone-900'
+                    : 'bg-stone-100 dark:bg-stone-700 text-stone-500 dark:text-stone-400'
                 }`}>
                   {tab.count}
                 </span>
@@ -212,13 +212,13 @@ export default function AdminDashboard() {
             ))}
           </div>
 
-          <div className="divide-y divide-stone-100">
+          <div className="divide-y divide-stone-100 dark:divide-stone-800">
             {filteredArticles.map((article) => (
-              <div key={article.id} className="px-5 py-4 hover:bg-stone-50 transition-colors">
+              <div key={article.id} className="px-5 py-4 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors">
                 {/* Title row */}
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-medium text-stone-900 truncate">{article.title}</span>
+                    <span className="font-medium text-stone-900 dark:text-stone-100 truncate">{article.title}</span>
                     {article.source === 'staging' && (
                       <span className="flex-shrink-0 rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-bold uppercase text-yellow-700">Staging</span>
                     )}
@@ -234,7 +234,7 @@ export default function AdminDashboard() {
 
                 {/* Meta + actions row */}
                 <div className="mt-1.5 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-2 text-xs text-stone-400 min-w-0">
+                  <div className="flex items-center gap-2 text-xs text-stone-400 dark:text-stone-500 min-w-0">
                     <span className="truncate">/{article.slug}</span>
                     {article.category && article.category !== 'Uncategorized' && (
                       <>
@@ -328,7 +328,7 @@ export default function AdminDashboard() {
             ))}
           </div>
           {!loading && filteredArticles.length === 0 && (
-            <div className="text-center py-12 text-stone-500 text-sm">
+            <div className="text-center py-12 text-stone-500 dark:text-stone-400 text-sm">
               No articles found.
             </div>
           )}

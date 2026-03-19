@@ -19,7 +19,7 @@ const DestinationsPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#FDFDFB]">
+    <div className="min-h-screen bg-[#FDFDFB] dark:bg-stone-950">
       <SharedHeader isScrolled={isScrolled} showTabs={false} />
 
       <main className="max-w-[1800px] mx-auto px-4 md:px-6 pt-56 md:pt-52 pb-32">
@@ -56,7 +56,7 @@ const DestinationsPage = () => {
                 className="group cursor-pointer animate-in fade-in slide-in-from-bottom-8 duration-700 hover-lift"
                 style={{ animationDelay: `${idx * 60}ms` }}
               >
-                <div className="bg-white rounded-[32px] overflow-hidden shadow-xl border border-stone-100 hover:shadow-2xl transition-all duration-500">
+                <div className="bg-white dark:bg-stone-900 rounded-[32px] overflow-hidden shadow-xl border border-stone-100 dark:border-stone-800 hover:shadow-2xl transition-all duration-500">
                   <div className="relative aspect-[4/3] overflow-hidden">
                     {(() => {
                       const photo = destination.unsplash_fallback ?? null;

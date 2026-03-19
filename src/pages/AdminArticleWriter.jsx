@@ -43,7 +43,7 @@ function parseTags(tags) {
   return String(tags).split(',').map(t => t.trim()).filter(Boolean)
 }
 
-const inputCls = 'w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-900 placeholder-stone-300 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] transition-colors'
+const inputCls = 'w-full bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-xl px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder-stone-300 dark:placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] transition-colors'
 
 function Field({ label, hint, children }) {
   return (
@@ -248,7 +248,7 @@ export default function AdminArticleWriter() {
     <div className="min-h-full">
       <AdminPageHeader title="Write Article" action={saveIndicator} />
 
-      <div className="max-w-3xl mx-auto px-8 py-6 flex flex-col gap-6">
+      <div className="max-w-3xl mx-auto px-4 md:px-8 py-6 flex flex-col gap-6">
         {error && (
           <div className="flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">
             <X size={14} className="flex-shrink-0 mt-0.5" />
@@ -265,9 +265,9 @@ export default function AdminArticleWriter() {
         {articleId && (
           <>
             {/* Article Info */}
-            <section className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-              <div className="px-5 py-3 border-b border-stone-50">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300">Article Info</p>
+            <section className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-100 dark:border-stone-700 shadow-sm overflow-hidden">
+              <div className="px-5 py-3 border-b border-stone-50 dark:border-stone-800">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300 dark:text-stone-500">Article Info</p>
               </div>
               <div className="p-5 flex flex-col gap-4">
                 <Field label="Title">
@@ -346,7 +346,7 @@ export default function AdminArticleWriter() {
                 </div>
 
                 <Field label="Content Type">
-                  <div className="flex rounded-xl overflow-hidden border border-stone-200">
+                  <div className="flex rounded-xl overflow-hidden border border-stone-200 dark:border-stone-600">
                     {['story', 'event'].map(type => (
                       <button
                         key={type}
@@ -354,8 +354,8 @@ export default function AdminArticleWriter() {
                         onClick={() => updateField('article_type', type)}
                         className={`flex-1 py-2 text-xs font-bold uppercase tracking-wide transition-colors ${
                           fields.article_type === type
-                            ? 'bg-stone-950 text-white'
-                            : 'bg-stone-50 text-stone-500 hover:bg-stone-100'
+                            ? 'bg-stone-950 dark:bg-stone-100 text-white dark:text-stone-900'
+                            : 'bg-stone-50 dark:bg-stone-800 text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-700'
                         }`}
                       >
                         {type === 'story' ? '📖 Story' : '🎉 Event'}
@@ -383,9 +383,9 @@ export default function AdminArticleWriter() {
             </section>
 
             {/* Body */}
-            <section className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-              <div className="px-5 py-3 border-b border-stone-50">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300">Story Body</p>
+            <section className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-100 dark:border-stone-700 shadow-sm overflow-hidden">
+              <div className="px-5 py-3 border-b border-stone-50 dark:border-stone-800">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300 dark:text-stone-500">Story Body</p>
               </div>
               <div className="p-5">
                 <RichTextEditor
@@ -399,16 +399,16 @@ export default function AdminArticleWriter() {
             </section>
 
             {/* Photos */}
-            <section ref={photosRef} className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-              <div className="px-5 py-3 border-b border-stone-50 flex items-center justify-between">
-                <div className="flex items-center gap-1 bg-stone-100 rounded-lg p-0.5">
+            <section ref={photosRef} className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-100 dark:border-stone-700 shadow-sm overflow-hidden">
+              <div className="px-5 py-3 border-b border-stone-50 dark:border-stone-800 flex items-center justify-between">
+                <div className="flex items-center gap-1 bg-stone-100 dark:bg-stone-800 rounded-lg p-0.5">
                   {['uploaded', 'unsplash'].map(tab => (
                     <button
                       key={tab}
                       type="button"
                       onClick={() => setPhotoTab(tab)}
                       className={`px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-wide transition-colors ${
-                        photoTab === tab ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-400 hover:text-stone-600'
+                        photoTab === tab ? 'bg-white dark:bg-stone-700 text-stone-900 dark:text-stone-100 shadow-sm' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'
                       }`}
                     >
                       {tab === 'uploaded' ? `Uploaded${articleImages.length ? ` (${articleImages.length})` : ''}` : 'Unsplash'}

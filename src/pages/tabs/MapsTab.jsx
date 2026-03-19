@@ -40,10 +40,10 @@ const MapsTab = () => {
     <div>
       <div className="mb-8">
         <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight italic mb-2">Explore Sri Lanka</h2>
-        <p className="text-stone-500 text-sm">Click a marker to discover each destination</p>
+        <p className="text-stone-500 dark:text-stone-400 text-sm">Click a marker to discover each destination</p>
       </div>
 
-      <div className="rounded-[32px] overflow-hidden shadow-2xl border-4 border-white" style={{ height: '600px' }}>
+      <div className="rounded-[32px] overflow-hidden shadow-2xl border-4 border-white dark:border-stone-700" style={{ height: '600px' }}>
         <MapContainer
           center={[7.8731, 80.7718]}
           zoom={7}

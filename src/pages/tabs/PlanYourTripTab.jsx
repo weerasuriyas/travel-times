@@ -31,13 +31,13 @@ const PlanYourTripTab = () => {
       <section>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-1 bg-[#FFD600] rounded-full"></div>
-          <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-stone-500">When to Go</h2>
+          <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-stone-500 dark:text-stone-400">When to Go</h2>
         </div>
         <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tight italic mb-8">Best Time to Visit</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {months.map((m) => (
-            <div key={m.name} className="bg-white rounded-[24px] p-6 border border-stone-100 shadow-sm hover:shadow-lg transition-all duration-300 group">
+            <div key={m.name} className="bg-white dark:bg-stone-900 rounded-[24px] p-6 border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-lg transition-all duration-300 group">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-lg font-black uppercase tracking-tight">{m.name}</h4>
                 <div className="flex items-center gap-1 text-xs text-stone-400">
@@ -48,7 +48,7 @@ const PlanYourTripTab = () => {
               <div className="inline-block bg-[#00E676]/10 text-[#00E676] text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-3">
                 {m.weather}
               </div>
-              <p className="text-sm text-stone-600 leading-relaxed">{m.highlights}</p>
+              <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed">{m.highlights}</p>
             </div>
           ))}
         </div>
@@ -58,22 +58,22 @@ const PlanYourTripTab = () => {
       <section>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-1 bg-[#00E676] rounded-full"></div>
-          <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-stone-500">Transport</h2>
+          <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-stone-500 dark:text-stone-400">Transport</h2>
         </div>
         <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tight italic mb-8">Getting Around</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {transport.map((t) => (
-            <div key={t.name} className="bg-white rounded-[24px] p-6 border border-stone-100 shadow-sm hover:shadow-lg transition-all duration-300 flex gap-5">
-              <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center shrink-0">
-                <t.icon size={24} className="text-stone-600" />
+            <div key={t.name} className="bg-white dark:bg-stone-900 rounded-[24px] p-6 border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-lg transition-all duration-300 flex gap-5">
+              <div className="w-12 h-12 bg-stone-100 dark:bg-stone-800 rounded-2xl flex items-center justify-center shrink-0">
+                <t.icon size={24} className="text-stone-600 dark:text-stone-400" />
               </div>
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <h4 className="text-lg font-black uppercase tracking-tight">{t.name}</h4>
                   <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#00E676] bg-[#00E676]/10 px-2 py-0.5 rounded-full">{t.tip}</span>
                 </div>
-                <p className="text-sm text-stone-600 leading-relaxed">{t.desc}</p>
+                <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed">{t.desc}</p>
               </div>
             </div>
           ))}
@@ -84,18 +84,18 @@ const PlanYourTripTab = () => {
       <section>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-1 bg-[#FF3D00] rounded-full"></div>
-          <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-stone-500">Essentials</h2>
+          <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-stone-500 dark:text-stone-400">Essentials</h2>
         </div>
         <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tight italic mb-8">Quick Tips</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {tips.map((t) => (
-            <div key={t.title} className="bg-white rounded-[24px] p-6 border border-stone-100 shadow-sm hover:shadow-lg transition-all duration-300">
+            <div key={t.title} className="bg-white dark:bg-stone-900 rounded-[24px] p-6 border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-lg transition-all duration-300">
               <div className="w-10 h-10 bg-[#FF3D00]/10 rounded-xl flex items-center justify-center mb-4">
                 <t.icon size={20} className="text-[#FF3D00]" />
               </div>
               <h4 className="text-base font-black uppercase tracking-tight mb-2">{t.title}</h4>
-              <p className="text-sm text-stone-600 leading-relaxed">{t.desc}</p>
+              <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed">{t.desc}</p>
             </div>
           ))}
         </div>

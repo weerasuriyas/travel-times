@@ -23,7 +23,7 @@ const AboutPage = () => {
   const bio  = content.about_bio  || ''
 
   return (
-    <div className="min-h-screen bg-[#FDFDFB]">
+    <div className="min-h-screen bg-[#FDFDFB] dark:bg-stone-950">
       <SharedHeader isScrolled={isScrolled} showTabs={false} />
       <main className="pt-56 md:pt-52 pb-32 max-w-3xl mx-auto px-6">
 
@@ -44,7 +44,7 @@ const AboutPage = () => {
               <p className="text-sm font-black uppercase tracking-[0.2em] text-[#00E676] mb-8">{role}</p>
             )}
             {bio && (
-              <div className="text-stone-700 leading-relaxed text-base whitespace-pre-line">
+              <div className="text-stone-700 dark:text-stone-300 leading-relaxed text-base whitespace-pre-line">
                 {bio}
               </div>
             )}

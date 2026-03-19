@@ -31,7 +31,7 @@ function MapClickHandler({ onMapClick }) {
   return null
 }
 
-const inputCls = "w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] transition-colors"
+const inputCls = "w-full bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-xl px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-[#00E676]/40 focus:border-[#00E676] transition-colors"
 
 function Field({ label, hint, error, children }) {
   return (
@@ -264,8 +264,8 @@ export default function AdminDestinationEditor() {
           )}
 
           {/* Basic fields */}
-          <section className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
-            <div className="px-5 py-3 border-b border-stone-100">
+          <section className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700 overflow-hidden">
+            <div className="px-5 py-3 border-b border-stone-100 dark:border-stone-800">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">Destination Info</p>
             </div>
             <div className="p-5 flex flex-col gap-4">
@@ -395,8 +395,8 @@ export default function AdminDestinationEditor() {
           </section>
 
           {/* Hero image */}
-          <section className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
-            <div className="px-5 py-3 border-b border-stone-100">
+          <section className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700 overflow-hidden">
+            <div className="px-5 py-3 border-b border-stone-100 dark:border-stone-800">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">Hero Image</p>
             </div>
             <div className="p-5">
