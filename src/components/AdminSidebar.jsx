@@ -36,13 +36,6 @@ export default function AdminSidebar() {
       <div className="px-4 py-5 border-b border-white/10">
         <p className="text-sm font-bold text-white">Travel Times</p>
         <p className="text-[10px] text-stone-500 mt-0.5">Sri Lanka</p>
-        <Link
-          to="/"
-          className="mt-2.5 flex items-center gap-1.5 text-[11px] text-stone-500 hover:text-stone-300 transition-colors"
-        >
-          <ExternalLink size={11} />
-          View site
-        </Link>
       </div>
 
       {/* Nav */}
@@ -64,6 +57,16 @@ export default function AdminSidebar() {
             <NavItem to="/admin/users" icon={Users} label="Users" />
           </>
         )}
+
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <Link
+            to="/"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-stone-300 hover:text-white hover:bg-white/5 transition-colors"
+          >
+            <ExternalLink size={16} />
+            <span>View site</span>
+          </Link>
+        </div>
       </nav>
 
       {/* User / logout */}
