@@ -9,6 +9,14 @@ function toTimestamp(value) {
   return Number.isNaN(ms) ? 0 : ms
 }
 
+function fmtDate(value) {
+  if (!value) return '—'
+  const d = new Date(value)
+  const now = new Date()
+  const sameYear = d.getFullYear() === now.getFullYear()
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', ...(!sameYear && { year: 'numeric' }) })
+}
+
 export default function AdminDashboard() {
   const navigate = useNavigate()
 
@@ -222,9 +230,6 @@ export default function AdminDashboard() {
                       {article.status.charAt(0).toUpperCase() + article.status.slice(1)}
                     </span>
                   </div>
-                  <span className="flex-shrink-0 text-xs text-stone-400">
-                    {article.publishedDate ? new Date(article.publishedDate).toLocaleDateString() : article.createdAt ? new Date(article.createdAt).toLocaleDateString() : '—'}
-                  </span>
                 </div>
 
                 {/* Meta + actions row */}
@@ -237,16 +242,22 @@ export default function AdminDashboard() {
                         <span className="flex-shrink-0">{article.category}</span>
                       </>
                     )}
-                    {article.author && (
-                      <>
-                        <span>·</span>
-                        <span className="flex-shrink-0">{article.author}</span>
-                      </>
-                    )}
                     {article.views > 0 && (
                       <>
                         <span>·</span>
                         <span className="flex-shrink-0">{article.views.toLocaleString()} views</span>
+                      </>
+                    )}
+                    {article.createdAt && (
+                      <>
+                        <span>·</span>
+                        <span className="flex-shrink-0">Added {fmtDate(article.createdAt)}</span>
+                      </>
+                    )}
+                    {article.publishedDate && (
+                      <>
+                        <span>·</span>
+                        <span className="flex-shrink-0 text-emerald-600">Published {fmtDate(article.publishedDate)}</span>
                       </>
                     )}
                   </div>
