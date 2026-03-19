@@ -33,6 +33,22 @@ function parseBodySegments(body, images) {
   return segments
 }
 
+function parseHtmlSegments(html, images) {
+  const imageMap = Object.fromEntries((images || []).map(img => [String(img.id), img]))
+  // Split only at <img> tags that have data-image-id (Tiptap-inserted article images)
+  const parts = html.split(/(<img\b[^>]*data-image-id="[^"]*"[^>]*>)/gi)
+  return parts.flatMap(part => {
+    if (!part) return []
+    const match = part.match(/^<img\b[^>]*data-image-id="(\d+)"[^>]*>$/i)
+    if (match) {
+      const img = imageMap[match[1]]
+      return img ? [{ type: 'image', image: img }] : []
+    }
+    if (!part.trim()) return []
+    return [{ type: 'html', content: part }]
+  })
+}
+
 const PLATE_THEMES = [
   { bg: 'bg-white', border: 'border-stone-100', Icon: Layers, iconClass: 'text-[#00E676]', labelClass: 'text-stone-500', altClass: 'text-stone-400' },
   { bg: 'bg-gradient-to-br from-amber-50 to-white', border: 'border-amber-100', Icon: Flame, iconClass: 'text-[#FFD600]', labelClass: 'text-stone-500', altClass: 'text-stone-400' },
@@ -97,7 +113,13 @@ function BodyParagraph({ text, isFirst }) {
 
 export default function ArticleDetailView({ article }) {
   const tags = useMemo(() => parseTags(article?.tags), [article?.tags])
-  const segments = useMemo(() => parseBodySegments(article?.body, article?.images), [article?.body, article?.images])
+  const isHtmlBody = typeof article?.body === 'string' && article.body.trimStart().startsWith('<')
+  const segments = useMemo(
+    () => isHtmlBody
+      ? parseHtmlSegments(article.body, article.images)
+      : parseBodySegments(article?.body, article?.images),
+    [isHtmlBody, article?.body, article?.images]
+  )
 
   if (!article) return null
 
@@ -176,35 +198,53 @@ export default function ArticleDetailView({ article }) {
         {segments.length === 0 && (
           <p className="text-stone-400 italic text-center py-16">No content yet.</p>
         )}
-        {segments.map((seg, segIdx) => {
-          if (seg.type === 'image') {
-            const plate = <ImagePlate key={segIdx} image={seg.image} index={imageCount} />
-            imageCount++
-            return plate
-          }
+        {isHtmlBody ? (
+          <div className="article-prose">
+            {(() => {
+              let htmlImageCount = 0
+              return segments.map((seg, i) => {
+                if (seg.type === 'image') {
+                  const plate = <ImagePlate key={i} image={seg.image} index={htmlImageCount} />
+                  htmlImageCount++
+                  return plate
+                }
+                return <div key={i} dangerouslySetInnerHTML={{ __html: seg.content }} />
+              })
+            })()}
+          </div>
+        ) : (
+          <>
+            {segments.map((seg, segIdx) => {
+              if (seg.type === 'image') {
+                const plate = <ImagePlate key={segIdx} image={seg.image} index={imageCount} />
+                imageCount++
+                return plate
+              }
 
-          // Text segment — split into paragraphs
-          const paragraphs = seg.content.split(/\n\n+/).filter(p => p.trim())
-          if (paragraphs.length === 0) {
-            const lines = seg.content.split('\n').filter(l => l.trim())
-            if (lines.length === 0) return null
-            // Treat whole segment as one paragraph
-            const isPullQuote = seg.content.trim().startsWith('"') && seg.content.trim().endsWith('"')
-            if (isPullQuote) return <PullQuote key={segIdx} text={seg.content.trim()} />
-            const isFirst = !firstParagraphDone
-            firstParagraphDone = true
-            return <BodyParagraph key={segIdx} text={seg.content} isFirst={isFirst} />
-          }
+              // Text segment — split into paragraphs
+              const paragraphs = seg.content.split(/\n\n+/).filter(p => p.trim())
+              if (paragraphs.length === 0) {
+                const lines = seg.content.split('\n').filter(l => l.trim())
+                if (lines.length === 0) return null
+                // Treat whole segment as one paragraph
+                const isPullQuote = seg.content.trim().startsWith('"') && seg.content.trim().endsWith('"')
+                if (isPullQuote) return <PullQuote key={segIdx} text={seg.content.trim()} />
+                const isFirst = !firstParagraphDone
+                firstParagraphDone = true
+                return <BodyParagraph key={segIdx} text={seg.content} isFirst={isFirst} />
+              }
 
-          return paragraphs.map((para, paraIdx) => {
-            const trimmed = para.trim()
-            const isPullQuote = trimmed.startsWith('"') && trimmed.endsWith('"')
-            if (isPullQuote) return <PullQuote key={`${segIdx}-${paraIdx}`} text={trimmed} />
-            const isFirst = !firstParagraphDone
-            if (!firstParagraphDone) firstParagraphDone = true
-            return <BodyParagraph key={`${segIdx}-${paraIdx}`} text={trimmed} isFirst={isFirst} />
-          })
-        })}
+              return paragraphs.map((para, paraIdx) => {
+                const trimmed = para.trim()
+                const isPullQuote = trimmed.startsWith('"') && trimmed.endsWith('"')
+                if (isPullQuote) return <PullQuote key={`${segIdx}-${paraIdx}`} text={trimmed} />
+                const isFirst = !firstParagraphDone
+                if (!firstParagraphDone) firstParagraphDone = true
+                return <BodyParagraph key={`${segIdx}-${paraIdx}`} text={trimmed} isFirst={isFirst} />
+              })
+            })}
+          </>
+        )}
       </div>
     </article>
   )
