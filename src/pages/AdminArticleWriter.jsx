@@ -292,7 +292,7 @@ export default function AdminArticleWriter() {
                   onChange={v => updateField('subtitle_style', v)}
                 />
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Field label="Category">
                     <input
                       value={fields.category}
@@ -320,7 +320,7 @@ export default function AdminArticleWriter() {
                   />
                 </Field>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Field label="Status">
                     <select
                       value={fields.status}
@@ -444,7 +444,7 @@ export default function AdminArticleWriter() {
                     )}
 
                     {!unsplashLoading && unsplashResults.length > 0 && (
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {unsplashResults.map(photo => (
                           <div
                             key={photo.id}

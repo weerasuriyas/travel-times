@@ -66,6 +66,7 @@ export default function AdminArticleEditor() {
   const [article, setArticle] = useState(null)
   const [articleImages, setArticleImages] = useState([])
   const [destinations, setDestinations] = useState([])
+  const [mobilePane, setMobilePane] = useState('write')
   const [fields, setFields] = useState({
     title: '', subtitle: '', body: '', category: '', tags: '',
     author_name: '', status: 'draft', destination_id: '', cover_image: '',
@@ -291,12 +292,14 @@ export default function AdminArticleEditor() {
             <ArrowLeft size={14} />
             <span>Articles</span>
           </button>
-          <span className="text-stone-700 text-xs">/</span>
-          <span className="text-sm text-stone-200 font-medium truncate max-w-[260px]">
-            {fields.title || 'Untitled'}
-          </span>
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusBadgeCls}`}>
-            {fields.status}
+          <span className="hidden sm:flex items-center gap-2 min-w-0">
+            <span className="text-stone-700 text-xs">/</span>
+            <span className="text-sm text-stone-200 font-medium truncate max-w-[160px] md:max-w-[260px]">
+              {fields.title || 'Untitled'}
+            </span>
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border flex-shrink-0 ${statusBadgeCls}`}>
+              {fields.status}
+            </span>
           </span>
         </div>
 
@@ -335,10 +338,29 @@ export default function AdminArticleEditor() {
           <p className="text-red-400 text-sm text-center">{error}</p>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden">
+
+          {/* ── Mobile Write/Preview tabs ────────────────────────────── */}
+          <div className="md:hidden flex-shrink-0 flex border-b border-white/[0.07] bg-[#111111]">
+            {['write', 'preview'].map(pane => (
+              <button
+                key={pane}
+                onClick={() => setMobilePane(pane)}
+                className={`flex-1 py-2.5 text-xs font-black uppercase tracking-widest transition-colors ${
+                  mobilePane === pane
+                    ? 'text-[#00E676] border-b-2 border-[#00E676] -mb-px'
+                    : 'text-stone-500 hover:text-stone-300'
+                }`}
+              >
+                {pane === 'write' ? 'Write' : 'Preview'}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
 
           {/* ── Editor pane ─────────────────────────────────────────── */}
-          <div className="w-full md:w-1/2 overflow-y-auto bg-[#F5F5F3]">
+          <div className={`w-full md:w-1/2 overflow-y-auto bg-[#F5F5F3] ${mobilePane === 'preview' ? 'hidden md:block' : ''}`}>
 
             <div className="p-5 flex flex-col gap-4 max-w-2xl mx-auto pb-16">
 
@@ -377,7 +399,7 @@ export default function AdminArticleEditor() {
                     onChange={v => updateField('subtitle_style', v)}
                   />
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Field label="Category">
                       <input
                         value={fields.category}
@@ -405,7 +427,7 @@ export default function AdminArticleEditor() {
                     />
                   </Field>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Field label="Status">
                       <select
                         value={fields.status}
@@ -531,7 +553,7 @@ export default function AdminArticleEditor() {
                       )}
 
                       {!unsplashLoading && unsplashResults.length > 0 && (
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           {unsplashResults.map(photo => (
                             <div key={photo.id} className="group relative rounded-xl overflow-hidden aspect-[4/3] bg-stone-100 cursor-pointer" onClick={() => downloadUnsplashPhoto(photo)}>
                               <img src={photo.thumb_url} alt={photo.photographer_name} className="w-full h-full object-cover" loading="lazy" />
@@ -696,12 +718,13 @@ export default function AdminArticleEditor() {
           </div>
 
           {/* ── Preview pane ─────────────────────────────────────────── */}
-          <div className="w-full md:w-1/2 border-l border-white/[0.07] overflow-hidden">
-            <div className="h-full overflow-y-auto">
+          <div className={`flex flex-col w-full md:w-1/2 border-l border-white/[0.07] overflow-hidden ${mobilePane === 'write' ? 'hidden md:flex' : 'flex-1'}`}>
+            <div className="flex-1 overflow-y-auto">
               <ArticlePreview article={previewArticle} />
             </div>
           </div>
 
+          </div>
         </div>
       )}
     </div>
