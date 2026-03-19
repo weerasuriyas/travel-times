@@ -83,11 +83,14 @@ export default function AdminArticleWriter() {
   const fieldsRef = useRef(fields)
   const fileInputRef = useRef(null)
   const photosRef = useRef(null)
+  const articleIdRef = useRef(null)
+  const articleImagesRef = useRef([])
 
   // Auto-create blank draft on mount
   useEffect(() => {
     apiPost('articles', { title: 'Untitled', status: 'draft' })
       .then(data => {
+        articleIdRef.current = data.id
         setArticleId(data.id)
         setSaveStatus('saved')
       })
@@ -98,6 +101,10 @@ export default function AdminArticleWriter() {
   }, [])
 
   useEffect(() => {
+    articleImagesRef.current = articleImages
+  }, [articleImages])
+
+  useEffect(() => {
     apiGet('destinations').then(d => setDestinations(Array.isArray(d) ? d : [])).catch(() => {})
   }, [])
 
@@ -105,6 +112,15 @@ export default function AdminArticleWriter() {
     return () => {
       clearTimeout(debounceRef.current)
       Object.values(captionDebounceRef.current).forEach(clearTimeout)
+      // Delete the draft on unmount if the user never added real content
+      const f = fieldsRef.current
+      const isBlank =
+        (!f.title || f.title === 'Untitled') &&
+        (!f.body || f.body === '' || f.body === '<p></p>') &&
+        articleImagesRef.current.length === 0
+      if (articleIdRef.current && isBlank) {
+        apiDelete(`articles/${articleIdRef.current}`).catch(() => {})
+      }
     }
   }, [])
 
