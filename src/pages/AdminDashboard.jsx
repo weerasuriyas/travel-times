@@ -204,155 +204,117 @@ export default function AdminDashboard() {
             ))}
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-stone-100 border-b border-stone-200">
-                <tr>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-stone-700">Article</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-stone-700">Category</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-stone-700">Status</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-stone-700">Author</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-stone-700">Published</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-stone-700">Views</th>
-                  <th className="text-right px-6 py-4 text-sm font-semibold text-stone-700">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-200">
-                {filteredArticles.map((article) => (
-                  <tr key={article.id} className="hover:bg-stone-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        {article.isFeatured && (
-                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#FFD600' }} title="Featured" />
-                        )}
-                        <div>
-                          <div className="font-medium text-stone-950 flex items-center gap-2">
-                            <span>{article.title}</span>
-                            {article.source === 'staging' && (
-                              <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-bold uppercase text-yellow-800">
-                                Staging
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-sm text-stone-500">/{article.slug}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="px-3 py-1 bg-stone-100 text-stone-700 rounded-full text-sm font-medium">
-                        {article.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          article.status === 'published'
-                            ? 'bg-green-100 text-green-800'
-                            : article.status === 'draft'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-stone-200 text-stone-600'
-                        }`}
-                      >
-                        {article.status.charAt(0).toUpperCase() + article.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-stone-700">{article.author}</td>
-                    <td className="px-6 py-4 text-stone-600 text-sm">
-                      {article.publishedDate ? new Date(article.publishedDate).toLocaleDateString() : '—'}
-                    </td>
-                    <td className="px-6 py-4 text-stone-600">{article.views.toLocaleString()}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => openRecord(article)}
-                          className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
-                          title={article.source === 'staging' ? 'Open review' : 'Preview'}
-                        >
-                          <Eye size={18} className="text-stone-600" />
-                        </button>
-                        <button
-                          onClick={() => navigate(
-                            article.source === 'staging'
-                              ? '/admin/staging'
-                              : `/admin/articles/${article.recordId}`
-                          )}
-                          className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
-                          title={article.source === 'staging' ? 'Review' : 'Edit'}
-                        >
-                          <Edit size={18} className="text-stone-600" />
-                        </button>
-                        {/* Status action button — context-aware */}
-                        {article.source !== 'staging' && (() => {
-                          if (article.status === 'archived') return (
-                            <>
-                              <button
-                                onClick={() => handleSetStatus(article, 'draft')}
-                                className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
-                                title="Restore as draft"
-                              >
-                                <RotateCcw size={18} className="text-blue-500" />
-                              </button>
-                              <button
-                                onClick={() => handleSetStatus(article, 'published')}
-                                className="p-2 hover:bg-green-50 rounded-lg transition-colors"
-                                title="Republish"
-                              >
-                                <Globe size={18} className="text-green-500" />
-                              </button>
-                            </>
-                          )
-                          if (article.status === 'published') return (
-                            <>
-                              <button
-                                onClick={() => handleSetStatus(article, 'draft')}
-                                className="p-2 hover:bg-yellow-50 rounded-lg transition-colors"
-                                title="Unpublish to draft"
-                              >
-                                <EyeOff size={18} className="text-yellow-500" />
-                              </button>
-                              <button
-                                onClick={() => handleSetStatus(article, 'archived')}
-                                className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
-                                title="Archive"
-                              >
-                                <Archive size={18} className="text-stone-600" />
-                              </button>
-                            </>
-                          )
-                          // draft
-                          return (
-                            <>
-                              <button
-                                onClick={() => handleSetStatus(article, 'published')}
-                                className="p-2 hover:bg-green-50 rounded-lg transition-colors"
-                                title="Publish"
-                              >
-                                <Globe size={18} className="text-green-500" />
-                              </button>
-                              <button
-                                onClick={() => handleSetStatus(article, 'archived')}
-                                className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
-                                title="Archive"
-                              >
-                                <Archive size={18} className="text-stone-600" />
-                              </button>
-                            </>
-                          )
-                        })()}
-                        <button
-                          onClick={() => handleDelete(article)}
-                          className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete"
-                          disabled={article.source === 'staging'}
-                        >
-                          <Trash2 size={18} className={article.source === 'staging' ? 'text-stone-300' : 'text-red-600'} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="divide-y divide-stone-100">
+            {filteredArticles.map((article) => (
+              <div key={article.id} className="px-5 py-4 hover:bg-stone-50 transition-colors">
+                {/* Title row */}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-medium text-stone-900 truncate">{article.title}</span>
+                    {article.source === 'staging' && (
+                      <span className="flex-shrink-0 rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-bold uppercase text-yellow-700">Staging</span>
+                    )}
+                    <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                      article.status === 'published' ? 'bg-emerald-100 text-emerald-700'
+                      : article.status === 'draft'   ? 'bg-amber-100 text-amber-700'
+                      :                                'bg-stone-100 text-stone-500'
+                    }`}>
+                      {article.status.charAt(0).toUpperCase() + article.status.slice(1)}
+                    </span>
+                  </div>
+                  <span className="flex-shrink-0 text-xs text-stone-400">
+                    {article.publishedDate ? new Date(article.publishedDate).toLocaleDateString() : article.createdAt ? new Date(article.createdAt).toLocaleDateString() : '—'}
+                  </span>
+                </div>
+
+                {/* Meta + actions row */}
+                <div className="mt-1.5 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2 text-xs text-stone-400 min-w-0">
+                    <span className="truncate">/{article.slug}</span>
+                    {article.category && article.category !== 'Uncategorized' && (
+                      <>
+                        <span>·</span>
+                        <span className="flex-shrink-0">{article.category}</span>
+                      </>
+                    )}
+                    {article.author && (
+                      <>
+                        <span>·</span>
+                        <span className="flex-shrink-0">{article.author}</span>
+                      </>
+                    )}
+                    {article.views > 0 && (
+                      <>
+                        <span>·</span>
+                        <span className="flex-shrink-0">{article.views.toLocaleString()} views</span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-0.5 flex-shrink-0">
+                    <button
+                      onClick={() => openRecord(article)}
+                      className="p-1.5 hover:bg-stone-200 rounded-md transition-colors"
+                      title={article.source === 'staging' ? 'Open review' : 'Preview'}
+                    >
+                      <Eye size={15} className="text-stone-500" />
+                    </button>
+                    <button
+                      onClick={() => navigate(
+                        article.source === 'staging'
+                          ? '/admin/staging'
+                          : `/admin/articles/${article.recordId}`
+                      )}
+                      className="p-1.5 hover:bg-stone-200 rounded-md transition-colors"
+                      title={article.source === 'staging' ? 'Review' : 'Edit'}
+                    >
+                      <Edit size={15} className="text-stone-500" />
+                    </button>
+                    {article.source !== 'staging' && (() => {
+                      if (article.status === 'archived') return (
+                        <>
+                          <button onClick={() => handleSetStatus(article, 'draft')} className="p-1.5 hover:bg-blue-50 rounded-md transition-colors" title="Restore as draft">
+                            <RotateCcw size={15} className="text-blue-500" />
+                          </button>
+                          <button onClick={() => handleSetStatus(article, 'published')} className="p-1.5 hover:bg-emerald-50 rounded-md transition-colors" title="Republish">
+                            <Globe size={15} className="text-emerald-600" />
+                          </button>
+                        </>
+                      )
+                      if (article.status === 'published') return (
+                        <>
+                          <button onClick={() => handleSetStatus(article, 'draft')} className="p-1.5 hover:bg-amber-50 rounded-md transition-colors" title="Unpublish to draft">
+                            <EyeOff size={15} className="text-amber-500" />
+                          </button>
+                          <button onClick={() => handleSetStatus(article, 'archived')} className="p-1.5 hover:bg-stone-200 rounded-md transition-colors" title="Archive">
+                            <Archive size={15} className="text-stone-400" />
+                          </button>
+                        </>
+                      )
+                      return (
+                        <>
+                          <button onClick={() => handleSetStatus(article, 'published')} className="p-1.5 hover:bg-emerald-50 rounded-md transition-colors" title="Publish">
+                            <Globe size={15} className="text-emerald-600" />
+                          </button>
+                          <button onClick={() => handleSetStatus(article, 'archived')} className="p-1.5 hover:bg-stone-200 rounded-md transition-colors" title="Archive">
+                            <Archive size={15} className="text-stone-400" />
+                          </button>
+                        </>
+                      )
+                    })()}
+                    <button
+                      onClick={() => handleDelete(article)}
+                      className="p-1.5 hover:bg-red-50 rounded-md transition-colors"
+                      title="Delete"
+                      disabled={article.source === 'staging'}
+                    >
+                      <Trash2 size={15} className={article.source === 'staging' ? 'text-stone-200' : 'text-red-400'} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
           {!loading && filteredArticles.length === 0 && (
             <div className="text-center py-12 text-stone-500 text-sm">

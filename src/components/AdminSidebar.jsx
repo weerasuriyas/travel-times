@@ -1,5 +1,5 @@
-import { NavLink, useNavigate } from 'react-router-dom'
-import { FileText, PenLine, Inbox, Upload, MapPin, Info, Settings, Users, LogOut } from 'lucide-react'
+import { NavLink, Link, useNavigate } from 'react-router-dom'
+import { FileText, PenLine, Inbox, Upload, MapPin, Info, Settings, Users, LogOut, ExternalLink } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 const GROUP_CLS = 'text-[10px] font-black uppercase tracking-[0.18em] text-stone-500 px-3 mb-1 mt-4 first:mt-0'
@@ -36,6 +36,13 @@ export default function AdminSidebar() {
       <div className="px-4 py-5 border-b border-white/10">
         <p className="text-sm font-bold text-white">Travel Times</p>
         <p className="text-[10px] text-stone-500 mt-0.5">Sri Lanka</p>
+        <Link
+          to="/"
+          className="mt-2.5 flex items-center gap-1.5 text-[11px] text-stone-500 hover:text-stone-300 transition-colors"
+        >
+          <ExternalLink size={11} />
+          View site
+        </Link>
       </div>
 
       {/* Nav */}
