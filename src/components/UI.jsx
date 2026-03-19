@@ -407,7 +407,7 @@ export const SharedHeader = ({ activeTab, setActiveTab, isScrolled, showTabs = t
                             </button>
                         </nav>
                     )}
-                    <ThemeToggle className="text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:hover:text-stone-200" />
+                    <ThemeToggle compact />
                     <UserProfile />
                 </div>
             </div>

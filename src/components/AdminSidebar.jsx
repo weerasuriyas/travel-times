@@ -34,11 +34,11 @@ export default function AdminSidebar({ onClose }) {
   return (
     <div className="flex flex-col w-56 flex-shrink-0 bg-stone-950 h-full">
       {/* Logo + mobile close */}
-      <div className="px-4 py-5 border-b border-white/10 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-bold text-white">Travel Times</p>
-          <p className="text-[10px] text-stone-500 mt-0.5">Sri Lanka</p>
-        </div>
+      <div className="px-4 py-4 border-b border-white/10 flex items-center justify-between">
+        <h1 className="text-2xl font-black text-white uppercase tracking-tighter italic leading-[0.82] cursor-default select-none">
+          TRAVEL<br />
+          TIMES<span className="text-stone-600">.</span>
+        </h1>
         {onClose && (
           <button
             onClick={onClose}
@@ -77,7 +77,11 @@ export default function AdminSidebar({ onClose }) {
             <ExternalLink size={16} />
             <span>View site</span>
           </Link>
-          <ThemeToggle className="w-full justify-start text-stone-400 hover:text-stone-200 hover:bg-white/5 mt-0.5" />
+        </div>
+
+        <div className="mt-2 pt-3 border-t border-white/10 px-2">
+          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-stone-600 px-1 mb-1.5">Theme</p>
+          <ThemeToggle />
         </div>
       </nav>
 
