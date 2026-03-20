@@ -129,6 +129,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
   // Expose commands to parent components via ref
   useImperativeHandle(ref, () => ({
     commands: editor?.commands ?? null,
+    insertImage: (attrs) => editor?.chain().focus().setImage(attrs).run(),
   }), [editor])
 
   // Sync content prop → editor when it changes externally (e.g. on article load)

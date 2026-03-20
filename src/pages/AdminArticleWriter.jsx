@@ -147,7 +147,7 @@ export default function AdminArticleWriter() {
   }
 
   const handleInsertImage = (img) => {
-    editorRef.current?.commands.setImage({
+    editorRef.current?.insertImage({
       src: img.url,
       alt: img.alt_text || '',
       'data-image-id': String(img.id),
