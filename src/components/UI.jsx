@@ -334,81 +334,123 @@ export const SharedHeader = ({ activeTab, setActiveTab, isScrolled, showTabs = t
         return () => clearInterval(timer);
     }, []);
 
+    const tabs = [
+        { id: 'feature', label: 'Feature', icon: <Flame size={14} />, color: '#00E676' },
+        { id: 'events', label: 'Journal', icon: <Calendar size={14} />, color: '#FF3D00' },
+        { id: 'attractions', label: 'Maps', icon: <Compass size={14} />, color: '#FFD600' },
+        { id: 'todo', label: 'Plan', icon: <Zap size={14} />, color: '#00E676' },
+    ];
+
     return (
         <header className={`fixed top-0 w-full z-50 smooth-header header-initial-animation ${isScrolled ? 'bg-white/95 dark:bg-stone-950/95 backdrop-blur-xl border-b border-stone-100 dark:border-stone-800 shadow-sm' : 'bg-[#FDFDFB] dark:bg-stone-950'}`}>
             <InfoBanner currentTime={currentTime} />
             <LiveBanner />
-            <div className={`max-w-[1800px] mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-2 md:gap-5 ${isScrolled ? 'py-2' : 'py-2.5 md:py-5'}`}>
-                <div className="text-center md:text-left cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]" onClick={() => navigate('/')}>
+
+            {/* ── Main header row ───────────────────────────────────────── */}
+            <div className={`max-w-[1800px] mx-auto px-4 md:px-6 flex flex-row justify-between items-center gap-2 md:gap-5 ${isScrolled ? 'py-2' : 'py-2 md:py-5'}`}>
+                {/* Logo */}
+                <div className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex-shrink-0" onClick={() => navigate('/')}>
                     <h1 className={`${isScrolled ? 'text-xl md:text-3xl' : 'text-xl md:text-4xl lg:text-5xl'} font-black text-black dark:text-white uppercase tracking-tighter leading-[0.8] italic transition-all duration-300`}>
                         TRAVEL<br />
                         TIMES<span className="text-stone-300 dark:text-stone-600">.</span>
                     </h1>
                 </div>
-                <div className="flex items-center gap-1.5 md:gap-2 w-full md:w-auto justify-center md:justify-end">
-                    {/* Destinations Link - Always visible */}
+
+                {/* Desktop nav (hidden on mobile) */}
+                <div className="hidden md:flex items-center gap-2">
                     <button
                         onClick={() => navigate('/destinations')}
-                        className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-1.5 py-1 md:px-4 md:py-2 rounded-xl md:rounded-full bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-black hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                        className="flex flex-row items-center gap-1.5 px-4 py-2 rounded-full bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-black hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
                     >
                         <MapPin size={14} />
-                        <span className="text-[7px] md:text-[11px] font-black uppercase tracking-tight md:tracking-[0.15em]">
-                            <span className="md:hidden">Places</span>
-                            <span className="hidden md:inline">Destinations</span>
-                        </span>
+                        <span className="text-[11px] font-black uppercase tracking-[0.15em]">Destinations</span>
                     </button>
-
-                    {/* Stories Link - Always visible */}
                     <button
                         onClick={() => navigate('/articles')}
-                        className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-1.5 py-1 md:px-4 md:py-2 rounded-xl md:rounded-full bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-black hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                        className="flex flex-row items-center gap-1.5 px-4 py-2 rounded-full bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-black hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
                     >
                         <BookOpen size={14} />
-                        <span className="text-[7px] md:text-[11px] font-black uppercase tracking-tight md:tracking-[0.15em]">Stories</span>
+                        <span className="text-[11px] font-black uppercase tracking-[0.15em]">Stories</span>
                     </button>
-
-                    {showTabs && (
-                        <nav className="flex items-center gap-1 md:gap-2.5">
-                            {[
-                                { id: 'feature', label: 'Feature', icon: <Flame size={14} />, color: '#00E676' },
-                                { id: 'events', label: 'Journal', icon: <Calendar size={14} />, color: '#FF3D00' },
-                                { id: 'attractions', label: 'Maps', icon: <Compass size={14} />, color: '#FFD600' },
-                                { id: 'todo', label: 'Plan', icon: <Zap size={14} />, color: '#00E676' }
-                            ].map((tab) => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={`relative flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-1.5 px-1.5 py-1 md:px-4 md:py-2 rounded-xl md:rounded-full transition-all duration-300 group ${
-                                        activeTab === tab.id
-                                            ? 'bg-black dark:bg-stone-100 text-white dark:text-stone-900 shadow-lg scale-105'
-                                            : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700 hover:text-black dark:hover:text-white hover:scale-105 active:scale-95'
-                                    }`}
-                                >
-                                    <span className={`transition-all duration-300 ${activeTab === tab.id ? 'text-white dark:text-stone-900' : 'text-stone-400 group-hover:text-black dark:group-hover:text-white'}`}>
-                                        {tab.icon}
-                                    </span>
-                                    <span className={`text-[7px] md:text-[11px] font-black uppercase tracking-tight md:tracking-[0.15em] ${activeTab === tab.id ? 'text-white dark:text-stone-900' : 'text-stone-500 dark:text-stone-400'}`}>
-                                        {tab.label}
-                                    </span>
-                                    {activeTab === tab.id && (
-                                        <div
-                                            className="absolute inset-0 rounded-xl md:rounded-full opacity-10 animate-pulse"
-                                            style={{ backgroundColor: tab.color }}
-                                        ></div>
-                                    )}
-                                </button>
-                            ))}
-                            <button
-                                onClick={() => setIsSearchOpen(true)}
-                                className="flex flex-col items-center justify-center gap-0.5 px-1.5 py-1 md:w-9 md:h-9 rounded-xl md:rounded-full bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-black hover:text-white transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
-                            >
-                                <Search size={14} />
-                                <span className="text-[7px] font-black uppercase tracking-tight text-stone-500 dark:text-stone-400 md:hidden">Search</span>
-                            </button>
-                        </nav>
-                    )}
+                    {showTabs && tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`relative flex flex-row items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 group ${
+                                activeTab === tab.id
+                                    ? 'bg-black dark:bg-stone-100 text-white dark:text-stone-900 shadow-lg scale-105'
+                                    : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700 hover:text-black dark:hover:text-white hover:scale-105 active:scale-95'
+                            }`}
+                        >
+                            <span className={`transition-all duration-300 ${activeTab === tab.id ? 'text-white dark:text-stone-900' : 'text-stone-400 group-hover:text-black dark:group-hover:text-white'}`}>
+                                {tab.icon}
+                            </span>
+                            <span className={`text-[11px] font-black uppercase tracking-[0.15em] ${activeTab === tab.id ? 'text-white dark:text-stone-900' : 'text-stone-500 dark:text-stone-400'}`}>
+                                {tab.label}
+                            </span>
+                            {activeTab === tab.id && (
+                                <div className="absolute inset-0 rounded-full opacity-10 animate-pulse" style={{ backgroundColor: tab.color }} />
+                            )}
+                        </button>
+                    ))}
+                    <button
+                        onClick={() => setIsSearchOpen(true)}
+                        className="w-9 h-9 rounded-full bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-black hover:text-white transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-md flex items-center justify-center"
+                    >
+                        <Search size={14} />
+                    </button>
                     <ThemeToggle compact />
                     <UserProfile />
+                </div>
+
+                {/* Mobile right-side icons */}
+                <div className="flex md:hidden items-center gap-2">
+                    <button
+                        onClick={() => setIsSearchOpen(true)}
+                        className="w-9 h-9 rounded-full bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 flex items-center justify-center"
+                    >
+                        <Search size={16} />
+                    </button>
+                    <ThemeToggle compact />
+                    <UserProfile />
+                </div>
+            </div>
+
+            {/* ── Mobile scrollable tab strip ───────────────────────────── */}
+            <div className="md:hidden border-t border-stone-100 dark:border-stone-800 overflow-x-auto scrollbar-none">
+                <div className="flex items-center gap-2 px-4 py-2 w-max">
+                    <button
+                        onClick={() => navigate('/destinations')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-black hover:text-white transition-all flex-shrink-0"
+                    >
+                        <MapPin size={13} />
+                        <span className="text-[10px] font-black uppercase tracking-[0.12em] whitespace-nowrap">Places</span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/articles')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-black hover:text-white transition-all flex-shrink-0"
+                    >
+                        <BookOpen size={13} />
+                        <span className="text-[10px] font-black uppercase tracking-[0.12em] whitespace-nowrap">Stories</span>
+                    </button>
+                    {showTabs && tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all flex-shrink-0 ${
+                                activeTab === tab.id
+                                    ? 'bg-black dark:bg-stone-100 text-white dark:text-stone-900 shadow-md'
+                                    : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300'
+                            }`}
+                        >
+                            <span className={activeTab === tab.id ? 'text-white dark:text-stone-900' : 'text-stone-400'}>
+                                {tab.icon}
+                            </span>
+                            <span className={`text-[10px] font-black uppercase tracking-[0.12em] whitespace-nowrap ${activeTab === tab.id ? 'text-white dark:text-stone-900' : 'text-stone-500 dark:text-stone-400'}`}>
+                                {tab.label}
+                            </span>
+                        </button>
+                    ))}
                 </div>
             </div>
 
