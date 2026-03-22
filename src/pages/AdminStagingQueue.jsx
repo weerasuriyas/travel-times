@@ -256,18 +256,18 @@ export default function AdminStagingQueue() {
     : <span className="text-xs text-green-600">Saved</span>
 
   return (
-    <div className="min-h-full">
+    <div className="h-full flex flex-col">
       <AdminPageHeader title="Staging Queue" />
 
-      <div className="px-6 py-8">
+      <div className="flex-1 min-h-0 flex flex-col px-6 py-6">
         {error && (
-          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex justify-between items-center">
+          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex justify-between items-center flex-shrink-0">
             {error}
             <button onClick={() => setError('')} className="text-red-400 hover:text-red-600"><X size={16} /></button>
           </div>
         )}
 
-        <div className="mb-6 flex flex-wrap items-center gap-3">
+        <div className="mb-4 flex flex-wrap items-center gap-3 flex-shrink-0">
           <label className="text-sm font-semibold text-stone-700 dark:text-stone-300">Filter</label>
           <select value={reviewFilter} onChange={e => setReviewFilter(e.target.value)} className="rounded-lg border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
             {REVIEW_FILTERS.map(o => <option key={o} value={o}>{o.charAt(0).toUpperCase() + o.slice(1)}</option>)}
@@ -278,9 +278,9 @@ export default function AdminStagingQueue() {
           <span className="text-sm text-stone-500 dark:text-stone-400">{queueCountLabel}</span>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="flex-1 min-h-0 grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Queue list */}
-          <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-4 shadow-sm lg:col-span-1">
+          <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-4 shadow-sm lg:col-span-1 overflow-y-auto">
             {loadingList ? (
               <div className="flex justify-center py-8"><Loader2 className="animate-spin text-stone-500" /></div>
             ) : queue.length === 0 ? (
@@ -304,7 +304,7 @@ export default function AdminStagingQueue() {
           </div>
 
           {/* Detail panel */}
-          <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6 shadow-sm lg:col-span-2">
+          <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6 shadow-sm lg:col-span-2 overflow-y-auto">
             {loadingDetail ? (
               <div className="flex justify-center py-16"><Loader2 className="animate-spin text-stone-500" /></div>
             ) : !selectedStaging ? (
