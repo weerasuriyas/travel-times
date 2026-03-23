@@ -204,9 +204,9 @@ export default function AdminDashboard() {
     return result
   }, [rows, activeTab, searchQuery, filterHasCover, filterDest, sortKey])
 
-  const openRecord = (article) => {
+  const openPreview = (article) => {
     if (article.source === 'staging') { navigate('/admin/staging'); return }
-    if (article.recordId) { navigate(`/admin/articles/${article.recordId}`); return }
+    if (article.recordId) { navigate(`/admin/articles/${article.recordId}/preview`); return }
     navigate('/admin')
   }
 
@@ -385,7 +385,7 @@ export default function AdminDashboard() {
                   key={article.id}
                   article={article}
                   destName={article.destinationId ? destMap[article.destinationId] : null}
-                  onOpen={() => openRecord(article)}
+                  onOpen={() => openPreview(article)}
                   onEdit={() => navigate(article.source === 'staging' ? '/admin/staging' : `/admin/articles/${article.recordId}`)}
                   onSetStatus={handleSetStatus}
                   onDelete={handleDelete}

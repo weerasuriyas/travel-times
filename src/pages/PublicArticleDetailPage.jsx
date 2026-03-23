@@ -20,7 +20,7 @@ export default function PublicArticleDetailPage() {
     setNotFound(false)
     apiGet(`articles/${slug}`)
       .then(data => {
-        if (!data || data.error) { setNotFound(true); return }
+        if (!data || data.error || data.status !== 'published') { setNotFound(true); return }
         setArticle(data)
         setImages(Array.isArray(data.images) ? data.images : [])
       })

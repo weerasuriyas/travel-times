@@ -20,6 +20,7 @@ const TermsPage = lazy(() => import('./pages/TermsPage'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const AdminArticleWriter = lazy(() => import('./pages/AdminArticleWriter'))
 const AdminArticleEditor = lazy(() => import('./pages/AdminArticleEditor'))
+const AdminArticlePreview = lazy(() => import('./pages/AdminArticlePreview'))
 const AdminLogin = lazy(() => import('./pages/AdminLogin'))
 const AdminIngestion = lazy(() => import('./pages/AdminIngestion'))
 const AdminStagingQueue = lazy(() => import('./pages/AdminStagingQueue'))
@@ -62,6 +63,9 @@ const AppContent = () => (
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/articles/:id" element={
           <ProtectedRoute><AdminArticleEditor /></ProtectedRoute>
+        } />
+        <Route path="/admin/articles/:id/preview" element={
+          <ProtectedRoute><AdminArticlePreview /></ProtectedRoute>
         } />
 
         {/* Sidebar admin routes */}
