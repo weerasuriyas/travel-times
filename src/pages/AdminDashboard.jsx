@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Edit, Eye, Archive, Trash2, Search, Loader2, RefreshCw, RotateCcw, Globe, EyeOff, PenLine } from 'lucide-react'
+import { Edit, Eye, Archive, Trash2, Search, Loader2, RefreshCw, RotateCcw, Globe, EyeOff, PenLine, ArrowUpDown } from 'lucide-react'
 import { apiGetAuth, apiPatch, apiDelete } from '../lib/api'
 import AdminPageHeader from '../components/AdminPageHeader'
 
@@ -17,13 +17,21 @@ function fmtDate(value) {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', ...(!sameYear && { year: 'numeric' }) })
 }
 
+const SORT_OPTIONS = [
+  { key: 'newest', label: 'Newest first' },
+  { key: 'oldest', label: 'Oldest first' },
+  { key: 'title',  label: 'A → Z' },
+]
+
 export default function AdminDashboard() {
   const navigate = useNavigate()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState('all')
+  const [sortKey, setSortKey] = useState('newest')
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(false)
+  const [initialLoad, setInitialLoad] = useState(true)
   const [error, setError] = useState('')
 
   const loadDashboardData = useCallback(async () => {
@@ -31,10 +39,26 @@ export default function AdminDashboard() {
     setError('')
 
     try {
-      const [articlesData, stagingData] = await Promise.all([
+      // Use allSettled so a staging failure doesn't block article display
+      const [articlesResult, stagingResult] = await Promise.allSettled([
         apiGetAuth('articles'),
         apiGetAuth('staging?review_status=pending'),
       ])
+
+      const articlesData = articlesResult.status === 'fulfilled' ? articlesResult.value : []
+      const stagingData  = stagingResult.status  === 'fulfilled' ? stagingResult.value  : []
+
+      if (articlesResult.status === 'rejected' && stagingResult.status === 'rejected') {
+        setError('Failed to load data. Check your connection and try again.')
+        setLoading(false)
+        setInitialLoad(false)
+        return
+      }
+      if (articlesResult.status === 'rejected') {
+        setError('Articles failed to load — showing staging only.')
+      } else if (stagingResult.status === 'rejected') {
+        setError('Staging queue failed to load — showing articles only.')
+      }
 
       const articleRows = (Array.isArray(articlesData) ? articlesData : []).map((article) => ({
         id: `article-${article.id}`,
@@ -58,7 +82,7 @@ export default function AdminDashboard() {
         title: staged.title || 'Untitled',
         slug: staged.slug || '',
         category: staged.category || 'Uncategorized',
-        status: 'draft',
+        status: 'staging',
         author: staged.author_name || 'Editorial Team',
         publishedDate: null,
         createdAt: staged.created_at || null,
@@ -66,14 +90,12 @@ export default function AdminDashboard() {
         isFeatured: false,
       }))
 
-      const combined = [...stagingRows, ...articleRows].sort(
-        (a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt)
-      )
-      setRows(combined)
+      setRows([...stagingRows, ...articleRows])
     } catch (err) {
       setError(err.message || 'Failed to load dashboard data')
     } finally {
       setLoading(false)
+      setInitialLoad(false)
     }
   }, [])
 
@@ -86,7 +108,8 @@ export default function AdminDashboard() {
     setRows(prev => prev.map(r =>
       r.id === article.id ? { ...r, status: newStatus } : r
     ))
-    setActiveTab(newStatus === 'archived' ? 'archived' : newStatus === 'published' ? 'published' : 'draft')
+    const nextTab = newStatus === 'archived' ? 'archived' : newStatus === 'published' ? 'published' : 'draft'
+    setActiveTab(nextTab)
     try {
       await apiPatch(`articles/${article.recordId}`, { status: newStatus })
     } catch (err) {
@@ -117,8 +140,9 @@ export default function AdminDashboard() {
 
   const filteredArticles = useMemo(() => {
     const search = searchQuery.toLowerCase()
-    return rows.filter((article) => {
+    const filtered = rows.filter((article) => {
       const matchesSearch =
+        !search ||
         article.title.toLowerCase().includes(search) ||
         article.slug.toLowerCase().includes(search)
       const matchesTab =
@@ -129,7 +153,17 @@ export default function AdminDashboard() {
         (activeTab === 'archived'  && article.source === 'article' && article.status === 'archived')
       return matchesSearch && matchesTab
     })
-  }, [rows, searchQuery, activeTab])
+
+    if (sortKey === 'newest') {
+      filtered.sort((a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt))
+    } else if (sortKey === 'oldest') {
+      filtered.sort((a, b) => toTimestamp(a.createdAt) - toTimestamp(b.createdAt))
+    } else if (sortKey === 'title') {
+      filtered.sort((a, b) => a.title.localeCompare(b.title))
+    }
+
+    return filtered
+  }, [rows, searchQuery, activeTab, sortKey])
 
   const openRecord = (article) => {
     if (article.source === 'staging') {
@@ -165,7 +199,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Toolbar */}
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-6">
+        <div className="flex flex-col md:flex-row gap-3 items-start md:items-center justify-between mb-6">
           <div className="relative flex-1 md:max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
             <input
@@ -176,10 +210,21 @@ export default function AdminDashboard() {
               className="w-full pl-10 pr-4 py-2 border border-stone-300 dark:border-stone-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400"
             />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 px-2 py-1.5">
+              <ArrowUpDown size={14} className="text-stone-400 flex-shrink-0" />
+              <select
+                value={sortKey}
+                onChange={(e) => setSortKey(e.target.value)}
+                className="text-sm bg-transparent text-stone-700 dark:text-stone-300 focus:outline-none cursor-pointer"
+              >
+                {SORT_OPTIONS.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
+              </select>
+            </div>
             <button
               onClick={loadDashboardData}
-              className="flex items-center gap-2 px-4 py-2 bg-stone-200 hover:bg-stone-300 rounded-lg font-medium transition-colors text-sm"
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 rounded-lg font-medium transition-colors text-sm disabled:opacity-60"
             >
               {loading ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
               Refresh
@@ -213,123 +258,136 @@ export default function AdminDashboard() {
           </div>
 
           <div className="divide-y divide-stone-100 dark:divide-stone-800">
-            {filteredArticles.map((article) => (
-              <div key={article.id} className="px-5 py-4 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors">
-                {/* Title row */}
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-medium text-stone-900 dark:text-stone-100 truncate">{article.title}</span>
-                    {article.source === 'staging' && (
-                      <span className="flex-shrink-0 rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-bold uppercase text-yellow-700">Staging</span>
-                    )}
-                    <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                      article.status === 'published' ? 'bg-emerald-100 text-emerald-700'
-                      : article.status === 'draft'   ? 'bg-amber-100 text-amber-700'
-                      :                                'bg-stone-100 text-stone-500'
-                    }`}>
-                      {article.status.charAt(0).toUpperCase() + article.status.slice(1)}
-                    </span>
+            {initialLoad && loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="px-5 py-4 animate-pulse">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="h-4 bg-stone-200 dark:bg-stone-700 rounded w-1/3" />
+                    <div className="h-4 bg-stone-100 dark:bg-stone-800 rounded w-12" />
                   </div>
+                  <div className="h-3 bg-stone-100 dark:bg-stone-800 rounded w-1/2" />
                 </div>
-
-                {/* Meta + actions row */}
-                <div className="mt-1.5 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-2 text-xs text-stone-400 dark:text-stone-500 min-w-0">
-                    <span className="truncate">/{article.slug}</span>
-                    {article.category && article.category !== 'Uncategorized' && (
-                      <>
-                        <span>·</span>
-                        <span className="flex-shrink-0">{article.category}</span>
-                      </>
-                    )}
-                    {article.views > 0 && (
-                      <>
-                        <span>·</span>
-                        <span className="flex-shrink-0">{article.views.toLocaleString()} views</span>
-                      </>
-                    )}
-                    {article.createdAt && (
-                      <>
-                        <span>·</span>
-                        <span className="flex-shrink-0">Added {fmtDate(article.createdAt)}</span>
-                      </>
-                    )}
-                    {article.publishedDate && (
-                      <>
-                        <span>·</span>
-                        <span className="flex-shrink-0 text-emerald-600">Published {fmtDate(article.publishedDate)}</span>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-0.5 flex-shrink-0">
-                    <button
-                      onClick={() => openRecord(article)}
-                      className="p-1.5 hover:bg-stone-200 rounded-md transition-colors"
-                      title={article.source === 'staging' ? 'Open review' : 'Preview'}
-                    >
-                      <Eye size={15} className="text-stone-500" />
-                    </button>
-                    <button
-                      onClick={() => navigate(
-                        article.source === 'staging'
-                          ? '/admin/staging'
-                          : `/admin/articles/${article.recordId}`
+              ))
+            ) : (
+              filteredArticles.map((article) => (
+                <div key={article.id} className="px-5 py-4 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors">
+                  {/* Title row */}
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-medium text-stone-900 dark:text-stone-100 truncate">{article.title}</span>
+                      {article.source === 'staging' && (
+                        <span className="flex-shrink-0 rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-bold uppercase text-yellow-700">Staging</span>
                       )}
-                      className="p-1.5 hover:bg-stone-200 rounded-md transition-colors"
-                      title={article.source === 'staging' ? 'Review' : 'Edit'}
-                    >
-                      <Edit size={15} className="text-stone-500" />
-                    </button>
-                    {article.source !== 'staging' && (() => {
-                      if (article.status === 'archived') return (
+                      <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                        article.status === 'published' ? 'bg-emerald-100 text-emerald-700'
+                        : article.status === 'draft'   ? 'bg-amber-100 text-amber-700'
+                        : article.status === 'staging' ? 'bg-yellow-100 text-yellow-700'
+                        :                                'bg-stone-100 text-stone-500'
+                      }`}>
+                        {article.status === 'staging' ? 'Pending review' : article.status.charAt(0).toUpperCase() + article.status.slice(1)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Meta + actions row */}
+                  <div className="mt-1.5 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-2 text-xs text-stone-400 dark:text-stone-500 min-w-0">
+                      <span className="truncate">/{article.slug}</span>
+                      {article.category && article.category !== 'Uncategorized' && (
                         <>
-                          <button onClick={() => handleSetStatus(article, 'draft')} className="p-1.5 hover:bg-blue-50 rounded-md transition-colors" title="Restore as draft">
-                            <RotateCcw size={15} className="text-blue-500" />
-                          </button>
-                          <button onClick={() => handleSetStatus(article, 'published')} className="p-1.5 hover:bg-emerald-50 rounded-md transition-colors" title="Republish">
-                            <Globe size={15} className="text-emerald-600" />
-                          </button>
+                          <span>·</span>
+                          <span className="flex-shrink-0">{article.category}</span>
                         </>
-                      )
-                      if (article.status === 'published') return (
+                      )}
+                      {article.views > 0 && (
                         <>
-                          <button onClick={() => handleSetStatus(article, 'draft')} className="p-1.5 hover:bg-amber-50 rounded-md transition-colors" title="Unpublish to draft">
-                            <EyeOff size={15} className="text-amber-500" />
-                          </button>
-                          <button onClick={() => handleSetStatus(article, 'archived')} className="p-1.5 hover:bg-stone-200 rounded-md transition-colors" title="Archive">
-                            <Archive size={15} className="text-stone-400" />
-                          </button>
+                          <span>·</span>
+                          <span className="flex-shrink-0">{article.views.toLocaleString()} views</span>
                         </>
-                      )
-                      return (
+                      )}
+                      {article.createdAt && (
                         <>
-                          <button onClick={() => handleSetStatus(article, 'published')} className="p-1.5 hover:bg-emerald-50 rounded-md transition-colors" title="Publish">
-                            <Globe size={15} className="text-emerald-600" />
-                          </button>
-                          <button onClick={() => handleSetStatus(article, 'archived')} className="p-1.5 hover:bg-stone-200 rounded-md transition-colors" title="Archive">
-                            <Archive size={15} className="text-stone-400" />
-                          </button>
+                          <span>·</span>
+                          <span className="flex-shrink-0">Added {fmtDate(article.createdAt)}</span>
                         </>
-                      )
-                    })()}
-                    <button
-                      onClick={() => handleDelete(article)}
-                      className="p-1.5 hover:bg-red-50 rounded-md transition-colors"
-                      title="Delete"
-                      disabled={article.source === 'staging'}
-                    >
-                      <Trash2 size={15} className={article.source === 'staging' ? 'text-stone-200' : 'text-red-400'} />
-                    </button>
+                      )}
+                      {article.publishedDate && (
+                        <>
+                          <span>·</span>
+                          <span className="flex-shrink-0 text-emerald-600">Published {fmtDate(article.publishedDate)}</span>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-0.5 flex-shrink-0">
+                      <button
+                        onClick={() => openRecord(article)}
+                        className="p-1.5 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-md transition-colors"
+                        title={article.source === 'staging' ? 'Open review' : 'Preview'}
+                      >
+                        <Eye size={15} className="text-stone-500" />
+                      </button>
+                      <button
+                        onClick={() => navigate(
+                          article.source === 'staging'
+                            ? '/admin/staging'
+                            : `/admin/articles/${article.recordId}`
+                        )}
+                        className="p-1.5 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-md transition-colors"
+                        title={article.source === 'staging' ? 'Review' : 'Edit'}
+                      >
+                        <Edit size={15} className="text-stone-500" />
+                      </button>
+                      {article.source !== 'staging' && (() => {
+                        if (article.status === 'archived') return (
+                          <>
+                            <button onClick={() => handleSetStatus(article, 'draft')} className="p-1.5 hover:bg-blue-50 rounded-md transition-colors" title="Restore as draft">
+                              <RotateCcw size={15} className="text-blue-500" />
+                            </button>
+                            <button onClick={() => handleSetStatus(article, 'published')} className="p-1.5 hover:bg-emerald-50 rounded-md transition-colors" title="Republish">
+                              <Globe size={15} className="text-emerald-600" />
+                            </button>
+                          </>
+                        )
+                        if (article.status === 'published') return (
+                          <>
+                            <button onClick={() => handleSetStatus(article, 'draft')} className="p-1.5 hover:bg-amber-50 rounded-md transition-colors" title="Unpublish to draft">
+                              <EyeOff size={15} className="text-amber-500" />
+                            </button>
+                            <button onClick={() => handleSetStatus(article, 'archived')} className="p-1.5 hover:bg-stone-200 rounded-md transition-colors" title="Archive">
+                              <Archive size={15} className="text-stone-400" />
+                            </button>
+                          </>
+                        )
+                        return (
+                          <>
+                            <button onClick={() => handleSetStatus(article, 'published')} className="p-1.5 hover:bg-emerald-50 rounded-md transition-colors" title="Publish">
+                              <Globe size={15} className="text-emerald-600" />
+                            </button>
+                            <button onClick={() => handleSetStatus(article, 'archived')} className="p-1.5 hover:bg-stone-200 rounded-md transition-colors" title="Archive">
+                              <Archive size={15} className="text-stone-400" />
+                            </button>
+                          </>
+                        )
+                      })()}
+                      <button
+                        onClick={() => handleDelete(article)}
+                        className="p-1.5 hover:bg-red-50 rounded-md transition-colors"
+                        title="Delete"
+                        disabled={article.source === 'staging'}
+                      >
+                        <Trash2 size={15} className={article.source === 'staging' ? 'text-stone-200 dark:text-stone-700' : 'text-red-400'} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
-          {!loading && filteredArticles.length === 0 && (
+          {!initialLoad && !loading && filteredArticles.length === 0 && (
             <div className="text-center py-12 text-stone-500 dark:text-stone-400 text-sm">
-              No articles found.
+              {searchQuery ? `No articles match "${searchQuery}"` : 'No articles found.'}
             </div>
           )}
         </div>
