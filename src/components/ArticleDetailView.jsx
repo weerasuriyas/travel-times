@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Layers, Flame, Compass } from 'lucide-react'
-import { subtitleClasses } from '../lib/articleStyles'
+import { subtitleClasses, bodyFontClass, bodyFontCss } from '../lib/articleStyles'
 
 function formatDate(iso) {
   if (!iso) return ''
@@ -93,13 +93,14 @@ function PullQuote({ text }) {
   )
 }
 
-function BodyParagraph({ text, isFirst }) {
+function BodyParagraph({ text, isFirst, fontCss }) {
   if (!text.trim()) return null
+  const style = fontCss ? { fontFamily: fontCss } : undefined
   if (isFirst) {
     const first = text[0]
     const rest = text.slice(1)
     return (
-      <p className="relative pl-6 text-base md:text-lg leading-[1.9] font-serif mb-8 text-stone-800 dark:text-stone-200 max-w-3xl mx-auto">
+      <p style={style} className="relative pl-6 text-base md:text-lg leading-[1.9] font-serif mb-8 text-stone-800 dark:text-stone-200 max-w-3xl mx-auto">
         <span className="absolute left-0 top-0 w-1 h-24 bg-gradient-to-b from-[#FF3D00] via-[#FFD600] to-[#00E676] rounded-full" />
         <span className="float-left text-7xl font-black leading-[0.8] mr-2 mt-1 text-stone-950">{first}</span>
         {rest}
@@ -107,7 +108,7 @@ function BodyParagraph({ text, isFirst }) {
     )
   }
   return (
-    <p className="text-base md:text-lg leading-[1.9] font-serif mb-8 text-stone-800 dark:text-stone-200 max-w-3xl mx-auto">{text}</p>
+    <p style={style} className="text-base md:text-lg leading-[1.9] font-serif mb-8 text-stone-800 dark:text-stone-200 max-w-3xl mx-auto">{text}</p>
   )
 }
 
@@ -120,6 +121,8 @@ export default function ArticleDetailView({ article }) {
       : parseBodySegments(article?.body, article?.images),
     [isHtmlBody, article?.body, article?.images]
   )
+  const fontCss = bodyFontCss(article?.body_font)
+  const fontClass = bodyFontClass(article?.body_font)
 
   if (!article) return null
 
@@ -199,7 +202,7 @@ export default function ArticleDetailView({ article }) {
           <p className="text-stone-400 italic text-center py-16">No content yet.</p>
         )}
         {isHtmlBody ? (
-          <div className="article-prose">
+          <div className={`article-prose ${fontClass}`} style={{ '--body-font': fontCss }}>
             {(() => {
               let htmlImageCount = 0
               return segments.map((seg, i) => {
@@ -231,7 +234,7 @@ export default function ArticleDetailView({ article }) {
                 if (isPullQuote) return <PullQuote key={segIdx} text={seg.content.trim()} />
                 const isFirst = !firstParagraphDone
                 firstParagraphDone = true
-                return <BodyParagraph key={segIdx} text={seg.content} isFirst={isFirst} />
+                return <BodyParagraph key={segIdx} text={seg.content} isFirst={isFirst} fontCss={fontCss} />
               }
 
               return paragraphs.map((para, paraIdx) => {
@@ -240,7 +243,7 @@ export default function ArticleDetailView({ article }) {
                 if (isPullQuote) return <PullQuote key={`${segIdx}-${paraIdx}`} text={trimmed} />
                 const isFirst = !firstParagraphDone
                 if (!firstParagraphDone) firstParagraphDone = true
-                return <BodyParagraph key={`${segIdx}-${paraIdx}`} text={trimmed} isFirst={isFirst} />
+                return <BodyParagraph key={`${segIdx}-${paraIdx}`} text={trimmed} isFirst={isFirst} fontCss={fontCss} />
               })
             })}
           </>

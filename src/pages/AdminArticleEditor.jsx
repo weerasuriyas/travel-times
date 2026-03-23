@@ -4,7 +4,7 @@ import { ArrowLeft, CheckCircle2, CloudUpload, Loader2, LogOut, Search, Star, Tr
 import { useAuth } from '../contexts/AuthContext'
 import { apiDelete, apiGet, apiGetAuth, apiPatch, apiPost, apiUploadImage } from '../lib/api'
 import ArticlePreview from '../components/ArticlePreview'
-import { subtitleClasses } from '../lib/articleStyles'
+import { subtitleClasses, SUBTITLE_PRESETS, BODY_FONT_OPTIONS, bodyFontCss } from '../lib/articleStyles'
 import RichTextEditor from '../components/RichTextEditor'
 
 const SAVE_DEBOUNCE_MS = 800
@@ -28,28 +28,49 @@ function Field({ label, hint, children }) {
   )
 }
 
-const SUBTITLE_PRESETS = [
-  { value: 'serif-italic', label: 'Serif Italic' },
-  { value: 'bold-serif',   label: 'Bold Serif'   },
-  { value: 'sans-light',   label: 'Sans Light'   },
-  { value: 'condensed',    label: 'Condensed'    },
-]
-
 function SubtitleStylePicker({ value, onChange }) {
+  const groups = ['Serif', 'Sans']
   return (
-    <div className="flex gap-2 flex-wrap">
-      {SUBTITLE_PRESETS.map(p => (
+    <div className="flex flex-col gap-2">
+      {groups.map(group => (
+        <div key={group} className="flex gap-2 flex-wrap items-center">
+          <span className="text-[9px] font-black uppercase tracking-widest text-stone-300 w-8">{group}</span>
+          {SUBTITLE_PRESETS.filter(p => p.group === group).map(p => (
+            <button
+              key={p.value}
+              type="button"
+              onClick={() => onChange(p.value)}
+              className={`px-3 py-1.5 rounded-lg border text-xs transition-all ${
+                value === p.value
+                  ? 'border-[#00E676] bg-[#00E676]/10 text-stone-900 ring-1 ring-[#00E676]'
+                  : 'border-stone-200 bg-stone-50 text-stone-500 hover:border-stone-300'
+              } ${subtitleClasses(p.value, 'picker')}`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function BodyFontPicker({ value, onChange }) {
+  return (
+    <div className="flex gap-2">
+      {BODY_FONT_OPTIONS.map(opt => (
         <button
-          key={p.value}
+          key={opt.value}
           type="button"
-          onClick={() => onChange(p.value)}
-          className={`px-3 py-1.5 rounded-lg border text-xs transition-all ${
-            value === p.value
+          onClick={() => onChange(opt.value)}
+          style={{ fontFamily: opt.css }}
+          className={`flex-1 px-3 py-2 rounded-lg border text-sm transition-all ${
+            value === opt.value
               ? 'border-[#00E676] bg-[#00E676]/10 text-stone-900 ring-1 ring-[#00E676]'
               : 'border-stone-200 bg-stone-50 text-stone-500 hover:border-stone-300'
-          } ${subtitleClasses(p.value, 'picker')}`}
+          }`}
         >
-          {p.label}
+          {opt.label}
         </button>
       ))}
     </div>
@@ -70,7 +91,7 @@ export default function AdminArticleEditor() {
   const [fields, setFields] = useState({
     title: '', subtitle: '', body: '', category: '', tags: '',
     author_name: '', status: 'draft', destination_id: '', cover_image: '',
-    read_time: 1, article_type: 'story', subtitle_style: 'serif-italic',
+    read_time: 1, article_type: 'story', subtitle_style: 'serif-italic', body_font: 'serif',
   })
   const [isFeatured, setIsFeatured] = useState(false)
   const [saveStatus, setSaveStatus] = useState('saved')
@@ -134,6 +155,7 @@ export default function AdminArticleEditor() {
         read_time: Number(data.read_time) || 1,
         article_type: data.article_type || 'story',
         subtitle_style: data.subtitle_style || 'serif-italic',
+        body_font: data.body_font || 'serif',
       }
       setFields(loaded)
       fieldsRef.current = loaded
@@ -394,10 +416,12 @@ export default function AdminArticleEditor() {
                       className={inputCls}
                     />
                   </Field>
-                  <SubtitleStylePicker
-                    value={fields.subtitle_style}
-                    onChange={v => updateField('subtitle_style', v)}
-                  />
+                  <Field label="Subtitle Font">
+                    <SubtitleStylePicker
+                      value={fields.subtitle_style}
+                      onChange={v => updateField('subtitle_style', v)}
+                    />
+                  </Field>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Field label="Category">
@@ -493,8 +517,9 @@ export default function AdminArticleEditor() {
 
               {/* ── Body ─────────────────────────────────────────────── */}
               <section className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-100 dark:border-stone-700 shadow-sm overflow-hidden">
-                <div className="px-5 py-3 border-b border-stone-50 dark:border-stone-800 flex-shrink-0">
+                <div className="px-5 py-3 border-b border-stone-50 dark:border-stone-800 flex-shrink-0 flex items-center justify-between gap-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-300 dark:text-stone-500">Story Body</p>
+                  <BodyFontPicker value={fields.body_font} onChange={v => updateField('body_font', v)} />
                 </div>
                 <div className="p-5">
                   <RichTextEditor
@@ -503,6 +528,7 @@ export default function AdminArticleEditor() {
                     onChange={html => updateField('body', html)}
                     onInsertImageRequest={() => photosRef.current?.scrollIntoView({ behavior: 'smooth' })}
                     readTime={fields.read_time}
+                    bodyFont={bodyFontCss(fields.body_font)}
                   />
                 </div>
               </section>

@@ -103,7 +103,7 @@ function Toolbar({ editor, onInsertImageRequest, readTime, dark, onToggleDark })
 }
 
 const RichTextEditor = forwardRef(function RichTextEditor(
-  { content, onChange, onInsertImageRequest, readTime, className },
+  { content, onChange, onInsertImageRequest, readTime, bodyFont, className },
   ref
 ) {
   const [dark, setDark] = useState(() => localStorage.getItem('editor-dark') === '1')
@@ -142,7 +142,10 @@ const RichTextEditor = forwardRef(function RichTextEditor(
   if (!editor) return null
 
   return (
-    <div className={`border rounded-xl overflow-hidden ${dark ? 'border-stone-700 bg-stone-900' : 'border-stone-200 bg-white'} ${className ?? ''}`}>
+    <div
+      className={`border rounded-xl overflow-hidden ${dark ? 'border-stone-700 bg-stone-900' : 'border-stone-200 bg-white'} ${className ?? ''}`}
+      style={bodyFont ? { '--body-font': bodyFont } : undefined}
+    >
       <Toolbar editor={editor} onInsertImageRequest={onInsertImageRequest} readTime={readTime} dark={dark} onToggleDark={toggleDark} />
       <EditorContent editor={editor} className={dark ? 'prose-editor-dark' : 'prose-editor'} />
     </div>

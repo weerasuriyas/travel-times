@@ -388,7 +388,7 @@ img {
   padding: 1.25rem;
 }
 .prose-editor .ProseMirror p {
-  font-family: Georgia, serif;
+  font-family: var(--body-font, Georgia, serif);
   font-size: 1rem;
   line-height: 1.8;
   margin-bottom: 1rem;
@@ -417,7 +417,7 @@ img {
   margin-bottom: 1rem;
 }
 .prose-editor .ProseMirror li {
-  font-family: Georgia, serif;
+  font-family: var(--body-font, Georgia, serif);
   line-height: 1.7;
   margin-bottom: 0.25rem;
 }
@@ -458,7 +458,7 @@ img {
   background: #1c1917;
 }
 .prose-editor-dark .ProseMirror p {
-  font-family: Georgia, serif;
+  font-family: var(--body-font, Georgia, serif);
   font-size: 1rem;
   line-height: 1.8;
   margin-bottom: 1rem;
@@ -487,7 +487,7 @@ img {
   margin-bottom: 1rem;
 }
 .prose-editor-dark .ProseMirror li {
-  font-family: Georgia, serif;
+  font-family: var(--body-font, Georgia, serif);
   line-height: 1.7;
   margin-bottom: 0.25rem;
   color: #d6d3d1;
@@ -524,9 +524,14 @@ img {
   pointer-events: none;
 }
 
+/* ── Article body font overrides ─────────────────────────── */
+.body-font-serif { --body-font: Georgia, 'Times New Roman', serif; }
+.body-font-sans  { --body-font: system-ui, -apple-system, sans-serif; }
+.body-font-mono  { --body-font: 'Courier New', Courier, monospace; }
+
 /* ── Article HTML body (public render) ──────────────────── */
 .article-prose p {
-  font-family: Georgia, serif;
+  font-family: var(--body-font, Georgia, serif);
   font-size: 1.125rem;
   line-height: 1.9;
   margin-bottom: 2rem;
@@ -554,7 +559,7 @@ img {
   max-width: 48rem;
   margin: 0 auto 2rem;
   padding-left: 2rem;
-  font-family: Georgia, serif;
+  font-family: var(--body-font, Georgia, serif);
   font-size: 1.125rem;
   line-height: 1.8;
 }
@@ -567,7 +572,7 @@ img {
   padding-left: 1.5rem;
   border-left: 4px solid #00E676;
   font-style: italic;
-  font-family: Georgia, serif;
+  font-family: var(--body-font, Georgia, serif);
   font-size: 1.25rem;
   color: #57534e;
 }
