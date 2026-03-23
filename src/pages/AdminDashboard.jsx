@@ -68,10 +68,12 @@ export default function AdminDashboard() {
     setLoading(true)
     setError('')
 
+    // Bust the 30s server cache so status changes are reflected immediately
+    const t = Date.now()
     const [articlesResult, stagingResult, destResult] = await Promise.allSettled([
-      apiGetAuth('articles'),
-      apiGetAuth('staging?review_status=pending'),
-      apiGetAuth('destinations'),
+      apiGetAuth(`articles?_=${t}`),
+      apiGetAuth(`staging?review_status=pending&_=${t}`),
+      apiGetAuth(`destinations?_=${t}`),
     ])
 
     // If everything failed, bail out
@@ -111,17 +113,18 @@ export default function AdminDashboard() {
       wordCount:     countWords(a.body),
     }))
 
+    // Staging list items use `folder` (not `id`) and `submitted_at` (not `created_at`)
     const stagingRows = stagingData.map(s => ({
-      id:            `staging-${s.id}`,
+      id:            `staging-${s.folder}`,
       source:        'staging',
-      recordId:      s.id,
-      title:         s.title       || 'Untitled',
-      slug:          s.slug        || '',
-      category:      s.category    || '',
+      recordId:      s.folder,
+      title:         s.title         || 'Untitled',
+      slug:          s.slug          || '',
+      category:      s.category      || '',
       status:        'staging',
-      author:        s.author_name || 'Editorial Team',
+      author:        s.author_name   || 'Editorial Team',
       publishedDate: null,
-      createdAt:     s.created_at  || null,
+      createdAt:     s.submitted_at  || null,
       views:         0,
       coverImage:    null,
       destinationId: null,
