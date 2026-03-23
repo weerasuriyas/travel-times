@@ -56,24 +56,20 @@ function SubtitleStylePicker({ value, onChange }) {
 }
 
 function BodyFontPicker({ value, onChange }) {
+  const selected = BODY_FONT_OPTIONS.find(o => o.value === value) ?? BODY_FONT_OPTIONS[0]
   return (
-    <div className="flex gap-2">
+    <select
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      style={{ fontFamily: selected.css }}
+      className="text-xs border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-lg px-2 py-1.5 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#00E676]"
+    >
       {BODY_FONT_OPTIONS.map(opt => (
-        <button
-          key={opt.value}
-          type="button"
-          onClick={() => onChange(opt.value)}
-          style={{ fontFamily: opt.css }}
-          className={`flex-1 px-3 py-2 rounded-lg border text-sm transition-all ${
-            value === opt.value
-              ? 'border-[#00E676] bg-[#00E676]/10 text-stone-900 ring-1 ring-[#00E676]'
-              : 'border-stone-200 bg-stone-50 text-stone-500 hover:border-stone-300'
-          }`}
-        >
+        <option key={opt.value} value={opt.value} style={{ fontFamily: opt.css }}>
           {opt.label}
-        </button>
+        </option>
       ))}
-    </div>
+    </select>
   )
 }
 

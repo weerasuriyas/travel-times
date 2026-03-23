@@ -53,9 +53,22 @@ export const SUBTITLE_PRESETS = [
 // ── Body font ─────────────────────────────────────────────────────────────────
 
 export const BODY_FONT_OPTIONS = [
-  { value: 'serif', label: 'Serif',       css: "Georgia, 'Times New Roman', serif",    cls: 'body-font-serif' },
-  { value: 'sans',  label: 'Sans-serif',  css: 'system-ui, -apple-system, sans-serif', cls: 'body-font-sans'  },
-  { value: 'mono',  label: 'Monospace',   css: "'Courier New', Courier, monospace",     cls: 'body-font-mono'  },
+  // Serif
+  { value: 'serif',        label: 'Georgia (Serif)',       css: "Georgia, 'Times New Roman', serif",                cls: 'body-font-serif'       },
+  { value: 'merriweather', label: 'Merriweather',          css: "'Merriweather', Georgia, serif",                   cls: 'body-font-merriweather' },
+  { value: 'playfair',     label: 'Playfair Display',      css: "'Playfair Display', Georgia, serif",               cls: 'body-font-playfair'    },
+  { value: 'lora',         label: 'Lora',                  css: "'Lora', Georgia, serif",                           cls: 'body-font-lora'        },
+  { value: 'garamond',     label: 'EB Garamond',           css: "'EB Garamond', Georgia, serif",                    cls: 'body-font-garamond'    },
+  { value: 'baskerville',  label: 'Libre Baskerville',     css: "'Libre Baskerville', Georgia, serif",              cls: 'body-font-baskerville' },
+  // Sans-serif
+  { value: 'sans',         label: 'System Sans-serif',     css: 'system-ui, -apple-system, sans-serif',             cls: 'body-font-sans'        },
+  { value: 'inter',        label: 'Inter',                 css: "'Inter', system-ui, sans-serif",                   cls: 'body-font-inter'       },
+  { value: 'source-sans',  label: 'Source Sans 3',         css: "'Source Sans 3', system-ui, sans-serif",           cls: 'body-font-source-sans' },
+  { value: 'raleway',      label: 'Raleway',               css: "'Raleway', system-ui, sans-serif",                 cls: 'body-font-raleway'     },
+  { value: 'nunito',       label: 'Nunito',                css: "'Nunito', system-ui, sans-serif",                  cls: 'body-font-nunito'      },
+  // Monospace
+  { value: 'mono',         label: 'Monospace',             css: "'Courier New', Courier, monospace",                cls: 'body-font-mono'        },
+  { value: 'source-code',  label: 'Source Code Pro',       css: "'Source Code Pro', 'Courier New', monospace",     cls: 'body-font-source-code' },
 ]
 
 export function bodyFontClass(value) {
