@@ -29,29 +29,16 @@ function Field({ label, hint, children }) {
 }
 
 function SubtitleStylePicker({ value, onChange }) {
-  const groups = ['Serif', 'Sans']
   return (
-    <div className="flex flex-col gap-2">
-      {groups.map(group => (
-        <div key={group} className="flex gap-2 flex-wrap items-center">
-          <span className="text-[9px] font-black uppercase tracking-widest text-stone-300 w-8">{group}</span>
-          {SUBTITLE_PRESETS.filter(p => p.group === group).map(p => (
-            <button
-              key={p.value}
-              type="button"
-              onClick={() => onChange(p.value)}
-              className={`px-3 py-1.5 rounded-lg border text-xs transition-all ${
-                value === p.value
-                  ? 'border-[#00E676] bg-[#00E676]/10 text-stone-900 ring-1 ring-[#00E676]'
-                  : 'border-stone-200 bg-stone-50 text-stone-500 hover:border-stone-300'
-              } ${subtitleClasses(p.value, 'picker')}`}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
+    <select
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      className="text-xs border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-lg px-2 py-1.5 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#00E676]"
+    >
+      {SUBTITLE_PRESETS.map(p => (
+        <option key={p.value} value={p.value}>{p.group} — {p.label}</option>
       ))}
-    </div>
+    </select>
   )
 }
 
