@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { SharedHeader } from '../components/UI'
 import { useScrolled } from '../hooks/useScrolled'
-import { apiGet } from '../lib/api'
+import { useAuth } from '../contexts/AuthContext'
+import { apiGet, apiGetAuth } from '../lib/api'
 
 function formatDate(iso) {
   if (!iso) return ''
@@ -13,17 +14,46 @@ function formatDate(iso) {
 export default function PublicArticlesPage() {
   const navigate = useNavigate()
   const isScrolled = useScrolled(50)
-  const [articles, setArticles] = useState([])
-  const [loading, setLoading] = useState(true)
+  const { isAdmin } = useAuth()
 
+  const [tab, setTab] = useState('published')
+  const [published, setPublished] = useState([])
+  const [archived, setArchived] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [archivedLoading, setArchivedLoading] = useState(false)
+  const [archivedFetched, setArchivedFetched] = useState(false)
+
+  // Always load published articles
   useEffect(() => {
+    setLoading(true)
     apiGet('articles?status=published')
-      .then(data => setArticles(Array.isArray(data) ? data : []))
-      .catch(() => setArticles([]))
+      .then(data => setPublished(Array.isArray(data) ? data : []))
+      .catch(() => setPublished([]))
       .finally(() => setLoading(false))
   }, [])
 
-  const [hero, ...rest] = articles
+  // Load archived articles when admin switches to that tab (lazy — once only)
+  useEffect(() => {
+    if (tab !== 'archived' || !isAdmin || archivedFetched) return
+    setArchivedLoading(true)
+    apiGetAuth('articles?status=archived')
+      .then(data => setArchived(Array.isArray(data) ? data : []))
+      .catch(() => setArchived([]))
+      .finally(() => { setArchivedLoading(false); setArchivedFetched(true) })
+  }, [tab, isAdmin, archivedFetched])
+
+  const activeArticles = tab === 'archived' ? archived : published
+  const activeLoading  = tab === 'archived' ? archivedLoading : loading
+
+  const [hero, ...rest] = activeArticles
+
+  const handleClick = (article) => {
+    if (tab === 'archived') {
+      navigate(`/admin/articles/${article.id}/preview`)
+    } else {
+      navigate(`/article/${article.slug}`)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#FDFDFB] dark:bg-stone-950">
@@ -31,26 +61,64 @@ export default function PublicArticlesPage() {
 
       <main className="max-w-[1800px] mx-auto px-4 md:px-6 pt-56 md:pt-52 pb-32">
         {/* Page header */}
-        <div className="mb-16">
+        <div className="mb-10">
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#00E676]">Field Notes</span>
           <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter italic leading-[0.9] mt-3 dark:text-white">Stories</h1>
         </div>
 
-        {loading && (
+        {/* Admin-only tab strip */}
+        {isAdmin && (
+          <div className="flex items-center gap-1 mb-10 border-b border-stone-200 dark:border-stone-700">
+            <button
+              onClick={() => setTab('published')}
+              className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
+                tab === 'published'
+                  ? 'border-stone-950 dark:border-stone-100 text-stone-950 dark:text-stone-100'
+                  : 'border-transparent text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'
+              }`}
+            >
+              Published
+            </button>
+            <button
+              onClick={() => setTab('archived')}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
+                tab === 'archived'
+                  ? 'border-stone-950 dark:border-stone-100 text-stone-950 dark:text-stone-100'
+                  : 'border-transparent text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'
+              }`}
+            >
+              Archived
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-stone-100 dark:bg-stone-700 text-stone-500 dark:text-stone-400 font-bold">
+                Admin
+              </span>
+            </button>
+          </div>
+        )}
+
+        {/* Archived notice */}
+        {tab === 'archived' && (
+          <div className="mb-8 px-4 py-3 rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-sm text-stone-500 dark:text-stone-400">
+            Archived articles are only visible to admins. Click an article to preview or restore it.
+          </div>
+        )}
+
+        {activeLoading && (
           <div className="flex items-center justify-center py-32">
             <div className="w-10 h-10 border-4 border-[#00E676] border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
-        {!loading && articles.length === 0 && (
-          <div className="text-center py-32 text-stone-400 text-sm uppercase tracking-widest">No stories published yet</div>
+        {!activeLoading && activeArticles.length === 0 && (
+          <div className="text-center py-32 text-stone-400 text-sm uppercase tracking-widest">
+            {tab === 'archived' ? 'No archived stories' : 'No stories published yet'}
+          </div>
         )}
 
-        {!loading && hero && (
+        {!activeLoading && hero && (
           <>
             {/* Hero article */}
             <div
-              onClick={() => navigate(`/article/${hero.slug}`)}
+              onClick={() => handleClick(hero)}
               className="group cursor-pointer mb-16 grid md:grid-cols-2 gap-8 items-center"
             >
               <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-stone-100">
@@ -79,7 +147,7 @@ export default function PublicArticlesPage() {
                 {rest.map(article => (
                   <div
                     key={article.id}
-                    onClick={() => navigate(`/article/${article.slug}`)}
+                    onClick={() => handleClick(article)}
                     className="group cursor-pointer"
                   >
                     <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-stone-100 mb-4">
