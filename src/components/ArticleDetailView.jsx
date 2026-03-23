@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Layers, Flame, Compass } from 'lucide-react'
-import { subtitleClasses, bodyFontClass, bodyFontCss } from '../lib/articleStyles'
+import { subtitleClasses, subtitleFontCss, bodyFontClass, bodyFontCss } from '../lib/articleStyles'
 
 function formatDate(iso) {
   if (!iso) return ''
@@ -163,7 +163,10 @@ export default function ArticleDetailView({ article }) {
             {article.title || 'Untitled'}
           </h1>
           {article.subtitle && (
-            <p className={subtitleClasses(article.subtitle_style, 'hero')}>
+            <p
+              className={subtitleClasses(article.subtitle_style, 'hero')}
+              style={subtitleFontCss(article.subtitle_style) ? { fontFamily: subtitleFontCss(article.subtitle_style) } : undefined}
+            >
               {article.subtitle}
             </p>
           )}

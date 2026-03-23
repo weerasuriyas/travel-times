@@ -4,7 +4,7 @@ import { ArrowLeft, CheckCircle2, CloudUpload, Loader2, LogOut, Search, Star, Tr
 import { useAuth } from '../contexts/AuthContext'
 import { apiDelete, apiGet, apiGetAuth, apiPatch, apiPost, apiUploadImage } from '../lib/api'
 import ArticlePreview from '../components/ArticlePreview'
-import { subtitleClasses, SUBTITLE_PRESETS, BODY_FONT_OPTIONS, bodyFontCss } from '../lib/articleStyles'
+import { subtitleClasses, subtitleFontCss, SUBTITLE_PRESETS, BODY_FONT_OPTIONS, bodyFontCss } from '../lib/articleStyles'
 import RichTextEditor from '../components/RichTextEditor'
 
 const SAVE_DEBOUNCE_MS = 800
@@ -29,14 +29,18 @@ function Field({ label, hint, children }) {
 }
 
 function SubtitleStylePicker({ value, onChange }) {
+  const selected = SUBTITLE_PRESETS.find(p => p.value === value) ?? SUBTITLE_PRESETS[0]
   return (
     <select
       value={value}
       onChange={e => onChange(e.target.value)}
+      style={selected.css ? { fontFamily: selected.css } : undefined}
       className="text-xs border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-lg px-2 py-1.5 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#00E676]"
     >
       {SUBTITLE_PRESETS.map(p => (
-        <option key={p.value} value={p.value}>{p.group} — {p.label}</option>
+        <option key={p.value} value={p.value} style={p.css ? { fontFamily: p.css } : undefined}>
+          {p.label}
+        </option>
       ))}
     </select>
   )

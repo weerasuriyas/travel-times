@@ -2,52 +2,60 @@
 
 // ── Subtitle styles ───────────────────────────────────────────────────────────
 
-const SUBTITLE_CLASSES = {
-  'serif-italic': {
-    default: 'font-serif italic text-lg md:text-xl leading-relaxed max-w-2xl',
-    hero:    'font-serif italic text-base md:text-xl leading-relaxed max-w-2xl text-white/80',
-    picker:  'font-serif italic',
-  },
-  'bold-serif': {
-    default: 'font-serif font-bold text-xl md:text-2xl leading-snug max-w-2xl',
-    hero:    'font-serif font-bold text-xl md:text-2xl leading-snug max-w-2xl text-white/90',
-    picker:  'font-serif font-bold',
-  },
-  'sans-light': {
-    default: 'font-sans font-light text-xl md:text-2xl tracking-wide leading-relaxed max-w-2xl',
-    hero:    'font-sans font-light text-xl md:text-2xl tracking-wide leading-relaxed max-w-2xl text-white/80',
-    picker:  'font-sans font-light',
-  },
-  'sans-italic': {
-    default: 'font-sans italic text-lg md:text-xl leading-relaxed max-w-2xl',
-    hero:    'font-sans italic text-lg md:text-xl leading-relaxed max-w-2xl text-white/80',
-    picker:  'font-sans italic',
-  },
-  'sans-bold': {
-    default: 'font-sans font-bold text-xl md:text-2xl leading-snug max-w-2xl',
-    hero:    'font-sans font-bold text-xl md:text-2xl leading-snug max-w-2xl text-white/90',
-    picker:  'font-sans font-bold',
-  },
-  'condensed': {
-    default: 'font-sans font-black uppercase tracking-widest text-sm md:text-base leading-loose max-w-2xl',
-    hero:    'font-sans font-black uppercase tracking-widest text-sm md:text-base leading-loose max-w-2xl text-white/90',
-    picker:  'font-sans font-black uppercase tracking-widest',
-  },
+// Base Tailwind class sets keyed by visual style variant
+const BASE_CLASSES = {
+  'italic':    { tw: 'italic font-normal text-lg md:text-xl leading-relaxed',   heroExtra: 'text-white/80' },
+  'bold':      { tw: 'font-bold text-xl md:text-2xl leading-snug',               heroExtra: 'text-white/90' },
+  'light':     { tw: 'font-light text-xl md:text-2xl tracking-wide leading-relaxed', heroExtra: 'text-white/80' },
+  'condensed': { tw: 'font-black uppercase tracking-widest text-sm md:text-base leading-loose', heroExtra: 'text-white/90' },
 }
 
 export function subtitleClasses(style, variant = 'default') {
-  return (SUBTITLE_CLASSES[style] ?? SUBTITLE_CLASSES['serif-italic'])[variant]
+  const preset = SUBTITLE_PRESETS.find(p => p.value === style) ?? SUBTITLE_PRESETS[0]
+  const base = BASE_CLASSES[preset.variant] ?? BASE_CLASSES['italic']
+  const shared = `max-w-2xl ${base.tw}`
+  if (variant === 'hero') return `${shared} ${base.heroExtra}`
+  if (variant === 'picker') return base.tw
+  return shared
+}
+
+export function subtitleFontCss(style) {
+  return SUBTITLE_PRESETS.find(p => p.value === style)?.css ?? null
 }
 
 export const SUBTITLE_PRESETS = [
-  // Serif group
-  { value: 'serif-italic', label: 'Serif Italic',  group: 'Serif' },
-  { value: 'bold-serif',   label: 'Serif Bold',    group: 'Serif' },
-  // Sans group
-  { value: 'sans-light',   label: 'Sans Light',    group: 'Sans'  },
-  { value: 'sans-italic',  label: 'Sans Italic',   group: 'Sans'  },
-  { value: 'sans-bold',    label: 'Sans Bold',     group: 'Sans'  },
-  { value: 'condensed',    label: 'Condensed',     group: 'Sans'  },
+  // Georgia
+  { value: 'serif-italic',          label: 'Georgia — Italic',              group: 'Georgia',       variant: 'italic',    css: "Georgia, 'Times New Roman', serif" },
+  { value: 'bold-serif',            label: 'Georgia — Bold',                group: 'Georgia',       variant: 'bold',      css: "Georgia, 'Times New Roman', serif" },
+  // Merriweather
+  { value: 'merriweather-italic',   label: 'Merriweather — Italic',         group: 'Merriweather',  variant: 'italic',    css: "'Merriweather', Georgia, serif" },
+  { value: 'merriweather-bold',     label: 'Merriweather — Bold',           group: 'Merriweather',  variant: 'bold',      css: "'Merriweather', Georgia, serif" },
+  // Playfair Display
+  { value: 'playfair-italic',       label: 'Playfair Display — Italic',     group: 'Playfair',      variant: 'italic',    css: "'Playfair Display', Georgia, serif" },
+  { value: 'playfair-bold',         label: 'Playfair Display — Bold',       group: 'Playfair',      variant: 'bold',      css: "'Playfair Display', Georgia, serif" },
+  // Lora
+  { value: 'lora-italic',           label: 'Lora — Italic',                 group: 'Lora',          variant: 'italic',    css: "'Lora', Georgia, serif" },
+  { value: 'lora-bold',             label: 'Lora — Bold',                   group: 'Lora',          variant: 'bold',      css: "'Lora', Georgia, serif" },
+  // EB Garamond
+  { value: 'garamond-italic',       label: 'EB Garamond — Italic',          group: 'Garamond',      variant: 'italic',    css: "'EB Garamond', Georgia, serif" },
+  { value: 'garamond-bold',         label: 'EB Garamond — Bold',            group: 'Garamond',      variant: 'bold',      css: "'EB Garamond', Georgia, serif" },
+  // Libre Baskerville
+  { value: 'baskerville-italic',    label: 'Libre Baskerville — Italic',    group: 'Baskerville',   variant: 'italic',    css: "'Libre Baskerville', Georgia, serif" },
+  // Inter
+  { value: 'sans-light',            label: 'Inter — Light',                 group: 'Inter',         variant: 'light',     css: "'Inter', system-ui, sans-serif" },
+  { value: 'sans-italic',           label: 'Inter — Italic',                group: 'Inter',         variant: 'italic',    css: "'Inter', system-ui, sans-serif" },
+  { value: 'sans-bold',             label: 'Inter — Bold',                  group: 'Inter',         variant: 'bold',      css: "'Inter', system-ui, sans-serif" },
+  // Source Sans 3
+  { value: 'source-sans-light',     label: 'Source Sans 3 — Light',         group: 'Source Sans',   variant: 'light',     css: "'Source Sans 3', system-ui, sans-serif" },
+  { value: 'source-sans-bold',      label: 'Source Sans 3 — Bold',          group: 'Source Sans',   variant: 'bold',      css: "'Source Sans 3', system-ui, sans-serif" },
+  // Raleway
+  { value: 'raleway-light',         label: 'Raleway — Light',               group: 'Raleway',       variant: 'light',     css: "'Raleway', system-ui, sans-serif" },
+  { value: 'raleway-bold',          label: 'Raleway — Bold',                group: 'Raleway',       variant: 'bold',      css: "'Raleway', system-ui, sans-serif" },
+  // Nunito
+  { value: 'nunito-light',          label: 'Nunito — Light',                group: 'Nunito',        variant: 'light',     css: "'Nunito', system-ui, sans-serif" },
+  { value: 'nunito-bold',           label: 'Nunito — Bold',                 group: 'Nunito',        variant: 'bold',      css: "'Nunito', system-ui, sans-serif" },
+  // Condensed
+  { value: 'condensed',             label: 'Condensed Caps',                group: 'Special',       variant: 'condensed', css: 'system-ui, -apple-system, sans-serif' },
 ]
 
 // ── Body font ─────────────────────────────────────────────────────────────────
