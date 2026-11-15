@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "node app.js",
     "start": "NODE_ENV=production node app.js",
-    "build": "next build",
+    "build": "next build --webpack",
     "preview": "node scripts/preview-server.mjs",
-    "postinstall": "next build",
+    "postinstall": "next build --webpack",
     "lint": "next lint",
     "backup": "node scripts/backupCurrentContent.js",
     "backup:supabase": "node scripts/backupFromSupabase.js",
