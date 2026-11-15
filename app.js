@@ -2,6 +2,7 @@ import express from 'express'
 import compression from 'compression'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
+import next from 'next'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { getDb } from './server/db.js'
@@ -14,8 +15,12 @@ import stagingRouter from './server/routes/staging.js'
 import settingsRouter from './server/routes/settings.js'
 import unsplashRouter from './server/routes/unsplash.js'
 import adminUsersRouter from './server/routes/admin-users.js'
+import archiveReportRouter from './server/routes/archive-report.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+const dev = process.env.NODE_ENV !== 'production'
+const nextApp = next({ dev, dir: __dirname })
+const nextHandler = nextApp.getRequestHandler()
 const app = express()
 
 // Security headers
@@ -58,6 +63,7 @@ app.use('/api/staging', stagingRouter)
 app.use('/api/settings', settingsRouter)
 app.use('/api/unsplash', unsplashLimiter, unsplashRouter)
 app.use('/api/admin-users', adminUsersRouter)
+app.use('/api/archive-report', archiveReportRouter)
 app.get('/api/health', async (_req, res) => {
   const { stat, readdir } = await import('fs/promises')
 
@@ -91,12 +97,8 @@ app.get('/api/health', async (_req, res) => {
 const uploadDir = (process.env.API_UPLOAD_DIR || join(__dirname, 'uploads')).replace(/\/$/, '')
 app.use('/uploads', express.static(uploadDir, { maxAge: '7d', immutable: false }))
 
-// Serve frontend — hashed assets get 1-year cache, index.html stays uncached
-app.use('/assets', express.static(join(__dirname, 'dist', 'assets'), { maxAge: '1y', immutable: true }))
-app.use(express.static(join(__dirname, 'dist'), { maxAge: 0 }))
-app.get('*', (_req, res) => {
-  res.sendFile(join(__dirname, 'dist', 'index.html'))
-})
+// All non-API requests handled by Next.js (SSR + static + assets)
+app.all('*', (req, res) => nextHandler(req, res))
 
 const PORT = process.env.PORT || 3000
 
@@ -252,9 +254,12 @@ async function runMigrations() {
   console.log('DB migrations done')
 }
 
-app.listen(PORT, () => {
-  runMigrations()
-    .then(() => seedDestinations())
-    .then(() => seedKandyPerahera())
-    .catch(err => console.error('Startup error:', err.message))
+nextApp.prepare().then(() => {
+  app.listen(PORT, () => {
+    console.log(`> Ready on http://localhost:${PORT} (${dev ? 'dev' : 'production'})`)
+    runMigrations()
+      .then(() => seedDestinations())
+      .then(() => seedKandyPerahera())
+      .catch(err => console.error('Startup error:', err.message))
+  })
 })

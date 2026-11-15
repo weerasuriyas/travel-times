@@ -2,14 +2,17 @@ import jwt from 'jsonwebtoken'
 import { createPublicKey } from 'crypto'
 import { getSupabaseAdmin } from './supabaseAdmin.js'
 
-const SUPABASE_URL = (process.env.API_SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/$/, '')
-const JWT_SECRET = process.env.API_SUPABASE_JWT_SECRET || ''
+// Read env lazily: locally, .env.local is only loaded when Next prepares,
+// which happens after this module is imported.
+const supabaseUrl = () =>
+  (process.env.API_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/$/, '')
+const jwtSecret = () => process.env.API_SUPABASE_JWT_SECRET || ''
 
 let jwksCache = null
 
 async function fetchJwks() {
   if (jwksCache) return jwksCache
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/.well-known/jwks.json`)
+  const res = await fetch(`${supabaseUrl()}/auth/v1/.well-known/jwks.json`)
   if (!res.ok) throw new Error('Could not fetch JWKS from Supabase')
   jwksCache = await res.json()
   return jwksCache
@@ -27,7 +30,7 @@ export async function requireAuth(req, res, next) {
 
     let claims
     if (alg === 'HS256') {
-      claims = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] })
+      claims = jwt.verify(token, jwtSecret(), { algorithms: ['HS256'] })
     } else {
       const jwks = await fetchJwks()
       const keyData = jwks.keys?.find(k => !header.kid || k.kid === header.kid)

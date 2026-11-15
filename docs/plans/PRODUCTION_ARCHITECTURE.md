@@ -261,8 +261,8 @@ CREATE POLICY "Super admins can create admin users"
 ```javascript
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 export const supabase = createClient(supabaseUrl, supabaseKey)
 ```
@@ -422,48 +422,33 @@ export default function ArticlePage({ slug, ...otherProps }) {
 4. Build visual map editor with Leaflet
 5. Add authentication (Supabase Auth)
 
-### Phase 4: Routing Enhancement ⏳
+### Phase 4: Routing ✅ (Done — Next.js App Router as of 2026-04-29)
 
-**Current Implementation:**
-- ✅ Hash-based routing for admin panel (`#admin`, `#admin-editor`)
+The routing went through two migrations:
+1. Hash-based → `react-router-dom` (early 2026)
+2. `react-router-dom` → **Next.js App Router** (2026-04-29)
 
-**Recommended Enhancement:**
+**Current Implementation** (file-based under `app/`):
+
 ```
-Option A: Extend hash routing
-#article/kandy-perahera
-#article/ella-train
-#archive
-#admin/dashboard
-
-Option B: React Router (better for production)
-/
-/article/:slug
-/archive
-/admin/*
+app/
+├── (public)/                    ← Layout (header/footer)
+│   ├── page.jsx                 → /
+│   ├── destinations/page.jsx    → /destinations
+│   ├── destination/[slug]/page.jsx
+│   ├── articles/page.jsx
+│   ├── article/[slug]/page.jsx
+│   └── about|contact|privacy|terms/page.jsx
+└── admin/
+    ├── login/page.jsx           → /admin/login (no protection)
+    ├── articles/[id]/page.jsx   → protected, no sidebar
+    └── (sidebar)/               ← ProtectedRoute + AdminLayout
+        ├── page.jsx             → /admin
+        ├── write/, staging/, ingest/, settings/, about/, users/page.jsx
+        └── destinations/page.jsx + new/ + [id]/
 ```
 
-**Install React Router:**
-```bash
-npm install react-router-dom
-```
-
-**Update App.jsx:**
-```javascript
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-
-function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/article/:slug" element={<ArticlePage />} />
-        <Route path="/archive" element={<ArchivePage />} />
-        <Route path="/admin/*" element={<AdminPanel />} />
-      </Routes>
-    </BrowserRouter>
-  )
-}
-```
+Page bodies live in `src/views/*` and are re-exported by the matching `app/**/page.jsx`. Pages that touch `window` (Leaflet, Google Maps wrappers) use `'use client' + next/dynamic({ ssr: false })`. See `app.js` for how the Next handler is composed with the Express `/api/*` surface.
 
 ### Phase 5: Archive System ⏳
 
@@ -628,17 +613,18 @@ async function uploadImage(file, bucket = 'article-images') {
 ## Dependencies
 
 ### Installed ✅
+- `next` ✅ (App Router; replaced react-router-dom on 2026-04-29)
 - `@supabase/supabase-js` ✅
-- `react-router-dom` ✅
 - `date-fns` ✅
+- `@tiptap/*` ✅ (rich-text editor — already in admin)
 
-### Still Needed
+### Still Possibly Needed
 ```bash
-npm install react-quill # Rich text editor
 npm install @tanstack/react-query # For better data fetching/caching
 npm install react-hook-form # Form management
 npm install zod # Schema validation
 ```
+(TipTap is already in use; no need for `react-quill`.)
 
 ---
 
@@ -647,8 +633,8 @@ npm install zod # Schema validation
 ### ✅ Completed
 1. Project analysis and architecture design
 2. Admin panel UI mockup (Dashboard + Editor)
-3. Dependencies installed (@supabase, react-router-dom, date-fns)
-4. Routing setup for admin pages
+3. Dependencies installed (@supabase, next, date-fns, @tiptap)
+4. Routing setup for admin pages (Next.js App Router under `app/admin/(sidebar)/*`)
 
 ### ⏳ In Progress
 - Supabase project setup

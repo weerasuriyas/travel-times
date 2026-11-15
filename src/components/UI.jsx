@@ -1,5 +1,7 @@
+'use client'
+
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { Globe, Clock, Quote, Flame, Calendar, Compass, Zap, Search, X, TrendingUp, MapPin, Utensils, BookOpen } from 'lucide-react';
 import { UserProfile } from './UserProfile';
 import ThemeToggle from './ThemeToggle';
@@ -36,7 +38,7 @@ export const LiveBanner = () => (
 
 // Search Modal Component
 export const SearchModal = ({ isOpen, onClose }) => {
-    const navigate = useNavigate();
+    const router = useRouter(); const navigate = (path) => router.push(path);
     const [searchQuery, setSearchQuery] = React.useState('');
     const inputRef = React.useRef(null);
 
@@ -314,7 +316,7 @@ export const SearchModal = ({ isOpen, onClose }) => {
 
 // Shared Header Component
 export const SharedHeader = ({ activeTab, setActiveTab, isScrolled, showTabs = true }) => {
-    const navigate = useNavigate();
+    const router = useRouter(); const navigate = (path) => router.push(path);
     const [currentTime, setCurrentTime] = React.useState(new Date().toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',

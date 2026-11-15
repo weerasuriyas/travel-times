@@ -1063,7 +1063,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY  // Use service key for migration (bypasses RLS)
 )
 
@@ -1233,8 +1233,8 @@ After Task 8 (pages migrated):
 
 ```bash
 # Already in .env:
-VITE_SUPABASE_URL=https://xxx.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJ...
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 
 # Add for migration script only:
 SUPABASE_SERVICE_KEY=eyJ...  # service_role key, never expose to browser

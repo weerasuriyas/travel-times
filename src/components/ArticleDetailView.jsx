@@ -1,3 +1,5 @@
+'use client'
+
 import { useMemo } from 'react'
 import { Layers, Flame, Compass } from 'lucide-react'
 import { subtitleClasses, subtitleFontCss, bodyFontClass, bodyFontCss } from '../lib/articleStyles'

@@ -1,11 +1,14 @@
-import { Outlet, useNavigate } from 'react-router-dom';
+'use client'
 
-export default function Layout() {
-  const navigate = useNavigate();
+import { useRouter } from 'next/navigation';
+
+export default function Layout({ children }) {
+  const router = useRouter();
+  const navigate = (path) => router.push(path);
 
   return (
     <>
-      <Outlet />
+      {children}
 
       <footer className="bg-stone-950 text-white pt-32 pb-12 px-6 overflow-hidden relative">
         {/* Background decoration */}

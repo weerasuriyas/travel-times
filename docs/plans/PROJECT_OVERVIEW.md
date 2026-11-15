@@ -7,75 +7,88 @@
 ## Tech Stack & Framework
 
 ### Core Framework
-- **React 19.2.0** - Latest React version with modern hooks and concurrent features
-- **React-DOM 19.2.0** - For DOM rendering
+- **Next.js 16** (App Router, JavaScript) — pages, layouts, and SSR served by a custom Express+Next server
+- **React 19.2** with React-DOM 19.2
+- **Express 4** mounted as a custom server inside `app.js` for the `/api/*` surface
 
 ### Build & Development Tools
-- **Vite** - Modern build tool using rolldown-vite (7.2.5) for fast development and production builds
-- **Node.js (ES Modules)** - Project configured as `"type": "module"` for native ESM support
+- **Next.js dev server** (`npm run dev`) — same `node app.js` entrypoint in dev and prod, NODE_ENV switches the mode
+- **Node.js (ES Modules)** — project is `"type": "module"` for native ESM support
 
 ### Styling & CSS
-- **Tailwind CSS 4.1.18** - Utility-first CSS framework using the new PostCSS plugin architecture
-- **PostCSS 8.5.6** - CSS processing with Tailwind integration
-- **Autoprefixer 10.4.23** - Automatic vendor prefixing
+- **Tailwind CSS 4** with the `@tailwindcss/postcss` plugin
+- **PostCSS 8** wires the Tailwind plugin
 
 ### Mapping & Interactive Elements
-- **Leaflet 1.9.4** - Open-source JavaScript library for interactive maps
-- **React-Leaflet 5.0.0** - React wrapper for Leaflet with component-based API
+- **Leaflet 1.9.4** + **React-Leaflet 5** — loaded via `next/dynamic({ ssr: false })` from `'use client'` page entries because Leaflet touches `window` at module load
 
 ### Icons & UI Components
-- **Lucide React 0.562.0** - Lightweight, customizable SVG icon library
+- **Lucide React** — SVG icon library
 
 ### Development & Code Quality
-- **ESLint 9.39.1** - JavaScript linting with React-specific rules
-- **eslint-plugin-react-hooks** - Enforces rules of hooks
-- **eslint-plugin-react-refresh** - Vite fast refresh support
-- **TypeScript support** - @types/react and @types/react-dom for type definitions
+- **ESLint** with `eslint-config-next` and `eslint-plugin-react-hooks`
+- **@types/react / @types/react-dom** for editor IntelliSense (codebase is JS, not TS)
 
 ## Project Structure
 
 ```
 travel-times-srilanka/
-├── public/                          # Static assets
-│   ├── favicon.svg                  # Site icon
-│   └── perahera_banner.jpg         # Large banner image
+├── app/                             # Next.js App Router routes
+│   ├── layout.jsx                   # Root layout: html/body, Providers, fonts, theme init
+│   ├── globals.css                  # Tailwind v4 entry + global styles
+│   ├── providers.jsx                # 'use client' wrapper for Theme + Auth contexts
+│   ├── loading.jsx                  # Default Suspense fallback
+│   ├── not-found.jsx                # 404 page
+│   ├── (public)/                    # Route group — wraps public pages with Layout (header/footer)
+│   │   ├── layout.jsx
+│   │   ├── page.jsx                 # /  → HomePage (dynamic ssr:false for Leaflet)
+│   │   ├── destinations/page.jsx
+│   │   ├── destination/[slug]/page.jsx
+│   │   ├── articles/page.jsx
+│   │   ├── article/[slug]/page.jsx
+│   │   ├── about/, contact/, privacy/, terms/page.jsx
+│   └── admin/
+│       ├── login/page.jsx           # /admin/login (no protection)
+│       ├── articles/[id]/page.jsx   # protected, no admin chrome
+│       ├── articles/[id]/preview/page.jsx
+│       └── (sidebar)/               # Route group — ProtectedRoute + AdminLayout
+│           ├── layout.jsx
+│           ├── page.jsx             # /admin → Dashboard
+│           ├── write/, staging/, ingest/page.jsx
+│           ├── destinations/page.jsx + new/ + [id]/
+│           ├── settings/, about/, users/page.jsx
 │
-├── src/                             # Source code
-│   ├── main.jsx                     # React entry point with StrictMode
-│   ├── App.jsx                      # Main app component with routing
-│   ├── index.css                    # Global styles with Tailwind
-│   │
-│   ├── components/
-│   │   └── UI.jsx                   # Shared UI components
-│   │
-│   ├── pages/
-│   │   ├── HomePage.jsx            # Homepage with feature article and galleries
-│   │   └── ArticlePage.jsx         # Article page with map and accommodations
-│   │
-│   └── assets/
-│       └── images/
-│           ├── plate_emblems.jpg   # Article visual 1
-│           ├── plate_rituals.jpg   # Article visual 2
-│           └── plate_guard.jpg     # Article visual 3
+├── src/                             # Shared React code (imported by app/ entries)
+│   ├── components/                  # Layout, AdminLayout, AdminSidebar, UI, RichTextEditor, etc.
+│   ├── views/                       # Page bodies — re-exported by app/**/page.jsx (renamed from src/pages so Next doesn't treat it as Pages Router)
+│   ├── contexts/                    # AuthContext, ThemeContext (both 'use client')
+│   ├── hooks/
+│   ├── lib/                         # supabase.js, api.js
+│   └── assets/images/
 │
-├── index.html                       # HTML entry point with Leaflet CSS link
-├── vite.config.js                   # Vite configuration
-├── eslint.config.js                 # ESLint configuration
-├── postcss.config.js                # PostCSS + Tailwind config
-├── package.json                     # Dependencies and scripts
-├── package-lock.json                # Dependency lock file
-└── restart.sh                        # Development server restart script
+├── server/                          # Express API (mounted by app.js)
+│   ├── db.js                        # MySQL pool
+│   └── routes/                      # articles, destinations, events, images, staging, settings, unsplash, admin-users
+│
+├── public/                          # Static assets served at /
+├── app.js                           # Custom Next server: helmet + rate-limit + /api routes + nextHandler('*')
+├── next.config.js                   # Next config
+├── jsconfig.json                    # @/* alias → src/*
+├── postcss.config.js                # @tailwindcss/postcss
+├── eslint.config.js
+└── package.json                     # scripts: dev/start = node app.js, build = next build
 ```
 
 ## Key Components
 
-### App.jsx - Main Application Controller
-- Implements hash-based routing without external router library
-- Manages two main pages: HomePage and ArticlePage
-- Handles scroll state tracking for header animations
-- Implements parallax offset calculation for hero images
-- Manages active tab state
-- Provides footer component
+### app/ — Next.js App Router
+- Route tree expressed as directory structure under `app/`
+- Two route groups:
+  - `(public)` wraps Home, Destinations, Articles, About, Contact, Privacy, Terms in the public `Layout` (header + footer)
+  - `admin/(sidebar)` wraps the admin Dashboard / Write / Staging / Ingest / Destinations / Settings / About / Users pages in `ProtectedRoute` + `AdminLayout`
+- Standalone admin routes: `/admin/login` (no protection), `/admin/articles/[id]` and `/admin/articles/[id]/preview` (protected but no admin chrome)
+- Page bodies live in `src/views/*` and are re-exported by the matching `app/**/page.jsx` entry; Leaflet pages use `'use client' + next/dynamic({ ssr: false })`
+- Theme + Auth contexts are mounted once in `app/providers.jsx` and consumed throughout
 
 ### HomePage.jsx - Landing Page
 - **Feature Article Section**: Large clickable banner with "The Fire of Kandy" article
@@ -168,10 +181,11 @@ travel-times-srilanka/
 ## Architecture Highlights
 
 ### Routing Strategy
-- No external routing library (no React Router)
-- Hash-based URL navigation (`#article`, `#`)
-- Browser history support with hashchange listener
-- URL persistence on page refresh
+- Next.js App Router file-based routing under `app/`
+- Public routes wrapped by the `(public)` group layout, admin sidebar routes by `admin/(sidebar)` layout
+- Dynamic segments: `[slug]` for destinations and articles, `[id]` for admin article/destination editors
+- Client-side navigation via `next/link` and `useRouter` from `next/navigation`
+- A single Node process serves both Next.js (rendering + static) and the Express `/api/*` surface — see `app.js`
 
 ### State Management
 - React hooks (useState, useRef, useMemo, useEffect)
@@ -203,10 +217,11 @@ travel-times-srilanka/
 
 ## Development Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run lint` - Run ESLint
-- `npm run preview` - Preview production build
+- `npm run dev` — `node app.js` (custom Next server in dev mode, with Express `/api/*` mounted)
+- `npm run build` — `next build`
+- `npm start` — `NODE_ENV=production node app.js` (what Hostinger runs)
+- `npm run lint` — `next lint`
+- `postinstall` — runs `next build` so Hostinger has a built `.next/` after `npm install`
 
 ## Overall Assessment
 

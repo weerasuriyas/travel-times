@@ -52,8 +52,8 @@ Output:
 
    Create `.env` file in project root:
    ```env
-   VITE_SUPABASE_URL=https://xxxxx.supabase.co
-   VITE_SUPABASE_ANON_KEY=eyJxxxxxxxxxxxxx...
+   NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxxxxxxxxxxxx...
    ```
 
    **IMPORTANT**: Make sure `.env` is in your `.gitignore` (it already is)!
@@ -231,8 +231,8 @@ jobs:
       - run: npm install
       - run: npm run backup:supabase
         env:
-          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
       - uses: actions/upload-artifact@v3
         with:
           name: database-backup

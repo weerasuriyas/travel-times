@@ -524,10 +524,23 @@ img {
   pointer-events: none;
 }
 
+/* ── Google Fonts for article body ──────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,400&family=Raleway:ital,wght@0,300;0,400;0,600;1,400&family=Nunito:ital,wght@0,300;0,400;0,600;1,400&family=Source+Code+Pro:wght@400;500&display=swap');
+
 /* ── Article body font overrides ─────────────────────────── */
-.body-font-serif { --body-font: Georgia, 'Times New Roman', serif; }
-.body-font-sans  { --body-font: system-ui, -apple-system, sans-serif; }
-.body-font-mono  { --body-font: 'Courier New', Courier, monospace; }
+.body-font-serif       { --body-font: Georgia, 'Times New Roman', serif; }
+.body-font-sans        { --body-font: system-ui, -apple-system, sans-serif; }
+.body-font-mono        { --body-font: 'Courier New', Courier, monospace; }
+.body-font-merriweather { --body-font: 'Merriweather', Georgia, serif; }
+.body-font-playfair    { --body-font: 'Playfair Display', Georgia, serif; }
+.body-font-lora        { --body-font: 'Lora', Georgia, serif; }
+.body-font-garamond    { --body-font: 'EB Garamond', Georgia, serif; }
+.body-font-baskerville { --body-font: 'Libre Baskerville', Georgia, serif; }
+.body-font-inter       { --body-font: 'Inter', system-ui, sans-serif; }
+.body-font-source-sans { --body-font: 'Source Sans 3', system-ui, sans-serif; }
+.body-font-raleway     { --body-font: 'Raleway', system-ui, sans-serif; }
+.body-font-nunito      { --body-font: 'Nunito', system-ui, sans-serif; }
+.body-font-source-code { --body-font: 'Source Code Pro', 'Courier New', monospace; }
 
 /* ── Article HTML body (public render) ──────────────────── */
 .article-prose p {

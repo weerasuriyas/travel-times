@@ -1,9 +1,13 @@
+'use client'
+
 import { createContext, useContext, useEffect, useState } from 'react'
 
 const ThemeContext = createContext(null)
 
 export function ThemeProvider({ children }) {
-  const [theme, setThemeState] = useState(() => localStorage.getItem('theme') || 'system')
+  const [theme, setThemeState] = useState(() =>
+    typeof window !== 'undefined' ? (localStorage.getItem('theme') || 'system') : 'system'
+  )
 
   useEffect(() => {
     const root = document.documentElement

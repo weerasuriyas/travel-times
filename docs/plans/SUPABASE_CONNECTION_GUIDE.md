@@ -11,8 +11,8 @@ Your app is currently using **mock authentication** for development. Here's wher
 ```
 travel-times-srilanka/
 ├── .env                              ⬅️ CONFIGURATION PROPERTIES HERE
-│   ├── VITE_SUPABASE_URL            (placeholder: your-project-url.supabase.co)
-│   └── VITE_SUPABASE_ANON_KEY       (placeholder: your-anon-key-here)
+│   ├── NEXT_PUBLIC_SUPABASE_URL            (placeholder: your-project-url.supabase.co)
+│   └── NEXT_PUBLIC_SUPABASE_ANON_KEY       (placeholder: your-anon-key-here)
 │
 ├── src/
 │   ├── lib/                          ⬅️ NEEDS TO BE CREATED
@@ -36,17 +36,18 @@ travel-times-srilanka/
 **Current Contents**:
 ```env
 # Supabase Configuration
-VITE_SUPABASE_URL=your-project-url.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key-here
+NEXT_PUBLIC_SUPABASE_URL=your-project-url.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
 **What These Are**:
-- `VITE_SUPABASE_URL`: Your Supabase project URL (e.g., `https://abcdefghijk.supabase.co`)
-- `VITE_SUPABASE_ANON_KEY`: Public API key for frontend access (safe to use in client)
+- `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL (e.g., `https://abcdefghijk.supabase.co`)
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Public API key for frontend access (safe to use in client)
 
-**Why VITE_ prefix?**
-- Vite (your build tool) only exposes env variables with `VITE_` prefix to the browser
-- This prevents accidentally exposing server-side secrets
+**Why `NEXT_PUBLIC_` prefix?**
+- Next.js only exposes env variables prefixed with `NEXT_PUBLIC_` to the browser bundle
+- Anything without that prefix stays server-only — used by `app.js` and `server/*` for DB credentials, JWT secrets, etc.
+- (These were `VITE_*` before the 2026-04-29 Next.js migration; the values are unchanged.)
 
 ---
 
@@ -60,8 +61,8 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 import { createClient } from '@supabase/supabase-js'
 
 // Read properties from .env file
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 // Create and export Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
@@ -127,14 +128,14 @@ async function checkIsAdmin(userId) {
    You copy URL + Key
 
 2. .env File
-   ├── VITE_SUPABASE_URL=https://xxxxx.supabase.co
-   └── VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+   ├── NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+   └── NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
    ↓
    ⚠️  NEVER commit this file to Git!
 
 3. src/lib/supabase.js
-   ├── Reads: import.meta.env.VITE_SUPABASE_URL
-   ├── Reads: import.meta.env.VITE_SUPABASE_ANON_KEY
+   ├── Reads: process.env.NEXT_PUBLIC_SUPABASE_URL
+   ├── Reads: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
    └── Creates: supabase client
    ↓
    Exports supabase object
@@ -202,8 +203,8 @@ const mockSupabase = {
 - [ ] **Step 2**: Get URL and Anon Key from Project Settings → API
 - [ ] **Step 3**: Update `.env` file with your real values:
   ```env
-  VITE_SUPABASE_URL=https://your-real-project.supabase.co
-  VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-real-key
+  NEXT_PUBLIC_SUPABASE_URL=https://your-real-project.supabase.co
+  NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-real-key
   ```
 - [ ] **Step 4**: Create `src/lib/` directory
 - [ ] **Step 5**: Create `src/lib/supabase.js` with client code (shown above)
@@ -227,10 +228,10 @@ const mockSupabase = {
 4. **Find**:
    ```
    Project URL:     https://abcdefghijk.supabase.co
-   ↑ Copy this to VITE_SUPABASE_URL
+   ↑ Copy this to NEXT_PUBLIC_SUPABASE_URL
 
    Anon/Public Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-   ↑ Copy this to VITE_SUPABASE_ANON_KEY
+   ↑ Copy this to NEXT_PUBLIC_SUPABASE_ANON_KEY
 
    Service Role Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
    ↑ DO NOT USE IN FRONTEND! (server-only)
@@ -283,12 +284,12 @@ Supabase Dashboard
 ### Reading Properties in Code:
 
 ```javascript
-// ✅ Correct way (using Vite)
-const url = import.meta.env.VITE_SUPABASE_URL
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY
+// ✅ Correct (Next.js — only NEXT_PUBLIC_* values are bundled to the client)
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-// ❌ Wrong way (doesn't work in Vite)
-const url = process.env.VITE_SUPABASE_URL  // undefined!
+// ❌ Won't work — anything without the NEXT_PUBLIC_ prefix is server-only
+const secret = process.env.SUPABASE_SECRET   // undefined in client code
 ```
 
 ### Where Properties Are Used:
@@ -307,26 +308,26 @@ const url = process.env.VITE_SUPABASE_URL  // undefined!
 
 ### Development (.env)
 ```env
-VITE_SUPABASE_URL=https://dev-project.supabase.co
-VITE_SUPABASE_ANON_KEY=dev-key-here
+NEXT_PUBLIC_SUPABASE_URL=https://dev-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=dev-key-here
 ```
 
 ### Production (.env.production)
 ```env
-VITE_SUPABASE_URL=https://prod-project.supabase.co
-VITE_SUPABASE_ANON_KEY=prod-key-here
+NEXT_PUBLIC_SUPABASE_URL=https://prod-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=prod-key-here
 ```
 
 ### Build Commands:
 ```bash
 # Development
-npm run dev                    # Uses .env
+npm run dev                    # Uses .env.local then .env
 
 # Production build
-npm run build                  # Uses .env.production
+npm run build                  # Uses .env.production then .env
 
-# Or specify environment
-VITE_ENV=production npm run build
+# Production server (what Hostinger runs)
+npm start                      # NODE_ENV=production node app.js
 ```
 
 ---

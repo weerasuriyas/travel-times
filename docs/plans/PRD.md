@@ -38,7 +38,7 @@ DESTINATIONS (top-level)
 | **CMS approach** | Full WYSIWYG admin built on Supabase | Client must publish content independently |
 | **Multi-user admin** | Yes, with roles (admin, editor, author) | Content team collaboration required |
 | **4th nav tab** | "Plan Your Trip" - interactive trip planner | Users select dates + interests, get personalized itinerary |
-| **Next.js migration** | Phase 2 (after initial SPA launch) | SEO critical for tourism, but can't delay launch |
+| **Next.js migration** | Done 2026-04-29 — App Router, JS, custom Express+Next server in `app.js` | SEO critical for tourism; migration kept Hostinger single-port deploy intact |
 | **Mobile-first** | All pages designed mobile-first, responsive up | Tourism users browse on phones while traveling |
 | **Mobile app** | PWA first, then native wrapper (Capacitor) | Offline access, push notifications, app store presence |
 
@@ -46,11 +46,11 @@ DESTINATIONS (top-level)
 
 | Area | Status |
 |------|--------|
-| **Framework** | React 19.2 + Vite (rolldown-vite) |
+| **Framework** | Next.js 16 (App Router, JS) + React 19.2 |
 | **Styling** | Tailwind CSS 4.x + custom CSS animations |
-| **Backend** | Supabase (auth only; content is static JS files) |
-| **Maps** | Google Maps (@vis.gl/react-google-maps) |
-| **Routing** | Custom hash-based routing (react-router-dom installed but unused) |
+| **Backend** | Express `/api/*` mounted in `app.js` (custom Next server) + MySQL on Hostinger; Supabase for auth and admin_users table |
+| **Maps** | Leaflet + React-Leaflet (loaded via `next/dynamic({ ssr: false })`) |
+| **Routing** | Next.js App Router under `app/`, with `(public)` and `admin/(sidebar)` route groups |
 | **Auth** | Google OAuth via Supabase (working) |
 | **Admin CMS** | Prototype only (mock data, no CRUD) |
 | **Content** | 3 articles, 6 destinations (static data files) |
@@ -249,7 +249,6 @@ destinations.js (or Supabase)
 2. **No date awareness** - Events have no real dates, can't feature "upcoming" events
 3. **Homepage tabs non-functional** - Only "Feature" tab renders; Journal, Maps, Plan show nothing
 4. **Admin CMS non-functional** - Dashboard uses mock data; no CRUD
-5. **No proper routing** - Hash-based routing instead of react-router-dom
 
 ### Non-Functional UI Elements
 - Footer links go nowhere
@@ -261,7 +260,6 @@ destinations.js (or Supabase)
 - Experience cards without events link nowhere
 
 ### Technical Debt
-- `react-router-dom` installed but unused
 - `date-fns` installed but barely used (will be needed for event dates)
 - `tslib` installed with no TypeScript
 - Console.log debug statements throughout auth code
@@ -286,12 +284,12 @@ destinations.js (or Supabase)
   - `isHappeningSoon(event)` / `isHappeningNow(event)` / `isInSeason(event)`
 - Keep `date-fns` for date calculations (already installed)
 
-#### 1.2 Migrate to React Router
-- Replace hash-based routing with react-router-dom
-- Route structure:
-  - `/` - Homepage
+#### 1.2 Migrate to Next.js App Router (DONE 2026-04-29)
+- Replaced hash-based routing → react-router-dom → Next.js App Router (final state)
+- Route structure (file-based under `app/`):
+  - `/` - Homepage (`app/(public)/page.jsx`)
   - `/destinations` - All destinations
-  - `/destination/:slug` - Destination detail (events listed)
+  - `/destination/[slug]` - Destination detail (events listed)
   - `/event/:slug` - Event detail page (was ArticlePage)
   - `/gallery` - Photo gallery
   - `/about`, `/contact`, `/privacy`, `/terms` - Static pages
@@ -447,7 +445,7 @@ destinations.js (or Supabase)
 ```
 ┌──────────────────────────────────────────────────┐
 │  BROWSER (React SPA)                             │
-│  React 19 + Vite + Tailwind CSS 4 + Google Maps  │
+│  Next.js 16 (App Router) + React 19 + Tailwind 4 │
 └──────────────┬───────────────────────────────────┘
                │ API calls
                ▼
@@ -501,7 +499,7 @@ User clicks "Sign In"
 
 | Layer | Technology | Hosted On |
 |-------|-----------|-----------|
-| **Frontend** | React 19 + Vite + Tailwind CSS 4 | Hostinger (static files) |
+| **Frontend** | Next.js 16 (App Router) + React 19 + Tailwind CSS 4 | Hostinger Node hosting (custom Next+Express server) |
 | **API** | Node.js (Express or Fastify) | Hostinger (Node.js app) |
 | **Database** | PostgreSQL | Hostinger |
 | **Auth** | Supabase (Google OAuth) | Supabase cloud (free tier) |
@@ -556,7 +554,7 @@ travel-times-srilanka/
 │   │   └── lib/
 │   ├── public/
 │   ├── index.html
-│   └── vite.config.js
+│   └── next.config.js
 ├── server/                          # Node.js API
 │   ├── index.js                     # Express/Fastify entry point
 │   ├── routes/
@@ -888,7 +886,7 @@ travel-times-srilanka/
 │   ├── src/                         # Same structure as above
 │   ├── public/
 │   ├── index.html
-│   └── vite.config.js
+│   └── next.config.js
 ├── server/                          # Node.js REST API
 │   ├── index.js                     # Express entry point
 │   ├── routes/
@@ -938,7 +936,7 @@ travel-times-srilanka/
 | Task | Scope | Size |
 |------|-------|------|
 | **Restructure data model** | Merge articles into destinations as event write-ups, add date fields, create helper functions | Medium |
-| **Migrate to react-router-dom** | Replace hash routing, set up all routes, update all navigation calls | Medium |
+| **Migrate to Next.js App Router** | Replace hash routing → react-router-dom → Next.js App Router; route tree under `app/`, custom Next+Express server in `app.js` (Done 2026-04-29) | Done |
 | **Add new destinations** | Add 6-8 new destinations with events, activities, coordinates | Small |
 | **Create static pages** | About, Contact, Privacy, Terms, 404 pages matching design system | Small |
 | **Clean tech debt** | Remove console.logs, unused deps, fix imports | Small |

@@ -278,16 +278,16 @@ VALUES ('user-id-from-above', 'admin@example.com', 'super_admin', true);
 ```javascript
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 export const supabase = createClient(supabaseUrl, supabaseKey)
 ```
 
 2. **Update `.env`**:
 ```
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key-here
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
 3. **Update AuthContext** (`src/contexts/AuthContext.jsx`):

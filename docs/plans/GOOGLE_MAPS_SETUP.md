@@ -58,7 +58,7 @@ The Travel Times Sri Lanka application has been successfully upgraded from Leafl
 1. Open [.env](.env) file in the project root
 2. Replace the placeholder with your actual API key:
    ```env
-   VITE_GOOGLE_MAPS_API_KEY=your_actual_api_key_here
+   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_actual_api_key_here
    ```
 
 ### Step 6: Restart Development Server
@@ -89,17 +89,17 @@ npm run dev
 
 ## Best Practices Applied
 
-Following the shad output recommendations for React, Vite, and Tailwind:
+Following best-practice recommendations for React, Next.js, and Tailwind:
 
 ✅ **React 19 Features**
 - Using modern hooks (useState, useEffect)
 - Proper component composition
 - Optimized re-renders
 
-✅ **Vite Optimization**
-- Lazy loading for map components (via App.jsx)
-- Code splitting automatically handled
-- Fast HMR during development
+✅ **Next.js Optimization**
+- Map components loaded via `next/dynamic({ ssr: false })` from `'use client'` page entries
+- Per-route code splitting handled automatically by the App Router
+- Turbopack provides fast HMR during development
 
 ✅ **Tailwind CSS**
 - Utility-first approach
@@ -149,4 +149,4 @@ Consider these enhancements:
 
 ---
 
-**Built with ❤️ using React 19, Vite 7, Tailwind CSS 4, and Google Maps**
+**Built with ❤️ using Next.js 16 (App Router), React 19, Tailwind CSS 4, and Google Maps**

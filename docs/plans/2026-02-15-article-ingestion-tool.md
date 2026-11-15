@@ -655,7 +655,7 @@ git commit -m "feat: add PHP API routes — articles, events, destinations, imag
 
 ---
 
-## Task 4: Add VITE_API_URL Environment Variable
+## Task 4: Add NEXT_PUBLIC_API_URL Environment Variable
 
 **Files:**
 - Modify: `.env`
@@ -666,7 +666,7 @@ git commit -m "feat: add PHP API routes — articles, events, destinations, imag
 Add this line to the existing `.env` file:
 
 ```
-VITE_API_URL=https://yourdomain.com/api
+NEXT_PUBLIC_API_URL=https://yourdomain.com/api
 ```
 
 **Step 2: Create API helper**
@@ -675,7 +675,7 @@ VITE_API_URL=https://yourdomain.com/api
 // src/lib/api.js
 import { supabase } from './supabase'
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 async function getAuthHeaders() {
   const { data: { session } } = await supabase.auth.getSession()
@@ -1330,7 +1330,7 @@ GET https://yourdomain.com/api/health
 **Step 5: Update `.env` with real API URL**
 
 ```
-VITE_API_URL=https://yourdomain.com/api
+NEXT_PUBLIC_API_URL=https://yourdomain.com/api
 ```
 
 **Step 6: Test from local dev**

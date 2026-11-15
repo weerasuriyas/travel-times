@@ -29,3 +29,10 @@ dist-ssr
 .env.*.local
 .env
 .claude/settings.local.json
+
+# Archive analysis report (unpublished article summaries)
+data/archive-report.json
+
+# Build output and browser-test logs
+.next/
+.playwright-mcp/

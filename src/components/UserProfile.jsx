@@ -1,10 +1,13 @@
+'use client'
+
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { User, LogOut, ChevronDown, Shield } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 export const UserProfile = () => {
-  const navigate = useNavigate()
+  const router = useRouter()
+  const navigate = (path) => router.push(path)
   const { user, isAdmin, signInWithGoogle, signOut } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)

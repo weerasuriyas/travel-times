@@ -99,7 +99,7 @@ mkdir -p "$BACKUP_DIR"
 
 # Run Node.js backup script
 cd /home/yourusername/travel-times-srilanka
-VITE_SUPABASE_URL="$SUPABASE_URL" VITE_SUPABASE_ANON_KEY="$SUPABASE_KEY" npm run backup:supabase
+NEXT_PUBLIC_SUPABASE_URL="$SUPABASE_URL" NEXT_PUBLIC_SUPABASE_ANON_KEY="$SUPABASE_KEY" npm run backup:supabase
 
 # Move backup to backup directory
 mv backups/supabase-backup-*.json "$BACKUP_DIR/"
@@ -159,8 +159,8 @@ jobs:
 
       - name: Run backup
         env:
-          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: npm run backup:supabase
 
       - name: Upload backup artifact

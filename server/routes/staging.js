@@ -77,6 +77,8 @@ function stagingListItem(data) {
     image_count: (data.images || []).length,
     submitted_at: data.submitted_at || null,
     desired_status: data.desired_status || 'draft',
+    author_name: data.author_name || '',
+    word_count: String(data.body || '').replace(/<[^>]*>/g, ' ').split(/\s+/).filter(Boolean).length,
   }
 }
 
